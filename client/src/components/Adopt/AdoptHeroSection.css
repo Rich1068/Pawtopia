@@ -1,0 +1,36 @@
+.first,
+.second{
+  --s:300px;
+  height:300px;
+}
+
+  .first {
+    height: 300px;
+    background-color: #f54a00;
+    clip-path: polygon(0 0, 10000% 0, 40% 100%, 60% calc(100% - var(--s)));
+    border-radius: 30px 30px 30px 30px; 
+  }
+  
+  .first::before {
+    content: "";
+    display:block;
+    position: relative;
+    height: 290px;
+    left: 1%;
+    background-image: url('/assets/img/cat.png');
+    clip-path: inherit;
+    background-size: 10%;
+    background-repeat: no-repeat;
+    background-position: left 65% center;
+    border-radius: 30px 30px 30px 30px; 
+  }
+
+
+.second {
+    background-image: url('/assets/img/dog.png');
+    background-size: 10%;
+    background-repeat: no-repeat;
+    background-position: left 30% center;
+    margin-top: -300px;
+    border-radius: 30px 30px 30px 30px; 
+}
