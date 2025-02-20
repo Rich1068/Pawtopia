@@ -14,6 +14,21 @@ export const Register = () => {
     const registerUser = async (e:React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         const {name, email, password, confirmPassword} = data
+        const emailCheck = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (!data.name || !data.email || !data.password) {
+          toast.error("All fields are required");
+          return;
+        }
+
+        if (data.email && !emailCheck.test(data.email)) {
+          toast.error("Invalid email format");
+          return
+        }
+        if (data.password !== data.confirmPassword) {
+          toast.error("Password does not Match");
+          return
+        }
         try {
             await axios.post('http://localhost:8000/register', {
                 name, email, password, confirmPassword
@@ -49,73 +64,51 @@ export const Register = () => {
           </div>
 
           <div className="mb-8">
-            <label className="text-gray-800 text-xs block mb-2">Full Name</label>
+            <label className="text-gray-800 text-xs block mb-2">Full Name
             <input
               type="text"
-              name="name"
+              name="fullname"
               placeholder="Enter name"
               value={data.name}
               onChange={(e) => setData({ ...data, name: e.target.value })}
-              required
               className="w-full bg-transparent text-sm text-gray-800 border-b border-gray-300 focus:border-blue-500 pl-2 pr-8 py-3 outline-none"
-            />
+            /></label>
           </div>
 
           <div className="mb-8">
-            <label className="text-gray-800 text-xs block mb-2">Email</label>
+            <label className="text-gray-800 text-xs block mb-2">Email
             <input
-              type="email"
+              type="text"
               name="email"
               placeholder="Enter email"
               value={data.email}
               onChange={(e) => setData({ ...data, email: e.target.value })}
-              required
               className="w-full bg-transparent text-sm text-gray-800 border-b border-gray-300 focus:border-blue-500 pl-2 pr-8 py-3 outline-none"
-            />
+            /></label>
           </div>
 
           <div className="mb-8">
-            <label className="text-gray-800 text-xs block mb-2">Password</label>
+            <label className="text-gray-800 text-xs block mb-2">Password
             <input
               type="password"
               name="password"
               placeholder="Enter password"
               value={data.password}
               onChange={(e) => setData({ ...data, password: e.target.value })}
-              required
               className="w-full bg-transparent text-sm text-gray-800 border-b border-gray-300 focus:border-blue-500 pl-2 pr-8 py-3 outline-none"
-            />
+            /></label>
           </div>
 
           <div className="mb-8">
-            <label className="text-gray-800 text-xs block mb-2">Confirm Password</label>
+            <label className="text-gray-800 text-xs block mb-2">Confirm Password
             <input
               type="password"
               name="confirmPassword"
               placeholder="Re-enter password"
               value={data.confirmPassword}
               onChange={(e) => setData({ ...data, confirmPassword: e.target.value })}
-              required
               className="w-full bg-transparent text-sm text-gray-800 border-b border-gray-300 focus:border-blue-500 pl-2 pr-8 py-3 outline-none"
-            />
-          </div>
-
-          <div className="flex items-center mt-8">
-            <input
-              id="terms"
-              type="checkbox"
-              className="h-4 w-4 shrink-0 rounded"
-              required
-            />
-            <label htmlFor="terms" className="ml-3 text-sm">
-              I accept the
-              <a
-                href="javascript:void(0);"
-                className="text-blue-500 font-semibold hover:underline ml-1"
-              >
-                Terms and Conditions
-              </a>
-            </label>
+            /></label>
           </div>
 
           <div className="mt-8">
