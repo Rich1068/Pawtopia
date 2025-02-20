@@ -35,3 +35,7 @@ test.describe('Testing Login', () => {
     await expect(page).toHaveURL(URL + '/user-dashboard');
   })
 });
+test.afterAll(async () => {
+  await page.close();  // Close the page after all tests
+});
+

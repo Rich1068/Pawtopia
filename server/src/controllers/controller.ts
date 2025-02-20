@@ -7,9 +7,14 @@ export const registerUser = async (req:Request, res:Response):Promise<void | und
     try {
         const {name, email, password, confirmPassword} = req.body
         const user = await User.findOne({email})
+        const emailCheck = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!name || !email || !password || !confirmPassword) {
             res.status(400).json({ error: "All fields are required" })
             return 
+        }
+        if (email && !emailCheck.test(email)) {
+            res.status(400).json({error: "Invalid email format"})
+            return
         }
         if(user) {
             res.status(409).json({error: "Account already exists"})
