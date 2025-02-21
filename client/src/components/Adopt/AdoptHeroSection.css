@@ -9,6 +9,7 @@
     background-color: #f54a00;
     clip-path: polygon(0 0, 10000% 0, 40% 100%, 60% calc(100% - var(--s)));
     border-radius: 30px 30px 30px 30px; 
+    z-index: 2;
   }
   
   .first::before {
@@ -23,14 +24,23 @@
     background-repeat: no-repeat;
     background-position: left 65% center;
     border-radius: 30px 30px 30px 30px; 
+    overflow:hidden;
   }
 
 
 .second {
     background-image: url('/assets/img/dog.png');
-    background-size: 10%;
+    background-size: 9%;
     background-repeat: no-repeat;
-    background-position: left 30% center;
-    margin-top: -300px;
+    background-position: left 34% center;
+    margin-top: -310px;
     border-radius: 30px 30px 30px 30px; 
+    z-index: 1;
 }
+@media (max-width: 640px) {
+  .first::before,
+  .second {
+    background-image: none !important; /* Remove background images */
+  }
+}
+

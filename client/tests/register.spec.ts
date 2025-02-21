@@ -10,7 +10,7 @@ let page: Page;
 
 //Login function for modular usage
 const register = async (page: Page, name:string, email: string, password: string, confirmPassword: string) => {
-    await page.getByLabel(/full name/i).fill(name);
+    await page.getByLabel('Full Name').fill(name);
     await page.getByLabel('Email').fill(email);
     await page.getByLabel('Password', { exact: true }).fill(password);
     await page.getByLabel('Confirm Password', { exact: true }).fill(confirmPassword);
