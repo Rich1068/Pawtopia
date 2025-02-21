@@ -27,4 +27,18 @@ interface Category {
       cat: boolean;
   }>>
   }
+
+export interface User {
+    id: string;
+    name: string;
+    role: "user" | "admin";
+  }
+
+export interface AuthContextType {
+    user: User | null;
+    isAuthenticated: boolean;
+    loading: boolean;
+    login: () => Promise<boolean>;
+    logout: () => void;
+  }
   export type Pets = Pet[]; // Array of pets

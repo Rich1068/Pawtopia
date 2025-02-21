@@ -1,42 +1,36 @@
 import { Navigate, Outlet } from "react-router";
-import {verifyToken} from "../helpers/auth"
-import { FC, useEffect, useState } from "react";
+import { AuthContext } from "../helpers/AuthContext";
+import { FC, useContext } from "react";
 
-type User = {
-    success: boolean;
-    user: {
-        role: 'user' | 'admin'
-    };
-    message?: undefined;
-}
-type Fail = {
-    success: boolean;
-    message: object;
-    user?: undefined;
-}
-type UserType = User | Fail | null
-export const ProtectedRoute: FC<{ allowedRoles: ('user' | 'admin')[];  }>= ({allowedRoles}) => {
-    const [user, setUser] = useState<UserType>(null);  // Initialize state for the user
-    const [loading, setLoading] = useState(true);
-    useEffect(()=> {
-        const verify = async () => {
-            const user = await verifyToken();
-            console.log(user)
-            if(user){
-            setUser(user)
-            }
-            setLoading(false);
-        }
-        verify();
-    }, [])
+type Props = "user" | "admin";
+
+export const ProtectedRoute: FC<{ allowedRoles: Props  }>= ({allowedRoles}) => {
+    const auth = useContext(AuthContext);
+    if (!auth) {
+      throw new Error("useContext(AuthContext) must be used within an AuthProvider");
+    }
+    const {user, loading} = auth
     if (loading) {
+        console.log("🔄 Loading user...");
         return <div>Loading...</div>;
       }
-    if(user?.success === false || !allowedRoles.includes(user!.user!.role)){
+    
+      if (!user) {
+        console.log("🚫 No user found, redirecting to login...");
         return <Navigate to="/login" replace />;
-    }
-    return <Outlet />
+      }
+    
+      if (!allowedRoles.includes(user.role)) {
+        console.log(allowedRoles)
+        console.log(`⛔ Unauthorized: User role (${user.role}) is not in ${allowedRoles}`);
+        return <Navigate to="/login" replace />;
+      }
+    
+      console.log("✅ Access granted!");
+      return <Outlet />;
+    };
+    
 
-}
+
 
 export default ProtectedRoute

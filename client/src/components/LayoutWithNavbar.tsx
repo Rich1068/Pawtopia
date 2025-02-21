@@ -4,7 +4,9 @@ const LayoutWithNavbar = () => {
     return (
       <>
         <NavBar />
+        <div className="pt-18">
           <Outlet />
+        </div>
       </>
     );
   };

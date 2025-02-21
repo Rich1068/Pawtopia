@@ -74,7 +74,7 @@ export const loginUser = async (req:Request, res:Response) => {
                     email: checkUser.email,
                     role: checkUser.role
                 };
-                res.cookie('token', token).status(200).json(userData)
+                res.cookie("token", token, { httpOnly: true, secure: true }).status(200).json({token, userData})
             } else {
                 res.status(401).json({error: "Incorrect Password"})
                 return

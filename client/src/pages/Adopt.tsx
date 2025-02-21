@@ -35,7 +35,7 @@ const Adopt = () => {
 
   return (
     <>
-      <div className="bg-orange-500 min-h-full max-h-full bottom-0">
+      <div className="bg-orange-500 min-h-screen flex flex-col">
 
       <AdoptHeroSection selected={selected} setSelected={setSelected}/>
       <Cards pets={pets}/>

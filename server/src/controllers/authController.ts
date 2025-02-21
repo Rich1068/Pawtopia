@@ -3,11 +3,11 @@ import dotenv from 'dotenv'
 import { verifyToken } from '../helpers/auth'
 
 export const verifyUserToken = async (req: Request, res:Response) => {
-    const token = req.body.token
+    const token = req.cookies.token
     if(token){    
         const verify = await verifyToken(token)
         if(!verify) {
-            res.json({message: "Invalid Token"})
+            res.status(401).json({message: "Invalid Token"})
         }
         res.json({verify})
     } else {
