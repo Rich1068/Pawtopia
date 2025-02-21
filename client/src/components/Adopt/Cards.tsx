@@ -1,6 +1,6 @@
 import './cards.css';
 import { FC } from 'react';
-import { Pets } from '../../types/petType';
+import { Pets } from '../../types/Types';
 
 interface CardsProps {
   pets: Pets; // Accepts an array of pets

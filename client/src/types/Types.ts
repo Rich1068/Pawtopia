@@ -17,5 +17,14 @@ interface Category {
     status: "available" | "pending" | "sold"; // Based on Petstore API status values
   }
   
+  export interface Selection {
+    selected: {
+      dog:boolean; 
+      cat: boolean
+    }
+    setSelected: React.Dispatch<React.SetStateAction<{
+      dog: boolean;
+      cat: boolean;
+  }>>
+  }
   export type Pets = Pet[]; // Array of pets
-  
