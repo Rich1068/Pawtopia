@@ -41,23 +41,14 @@ export const signToken = async (user: { id: object; role: 'admin' | 'user'; }): 
     }
   };
   
-  export const verifyToken = async (token:string):Promise<JwtPayload | string | undefined> => {
+  export const verifyToken = async (token: string): Promise<JwtPayload | null> => {
     try {
-      return new Promise<JwtPayload | string | undefined>((resolve, reject) => {
-        jwt.verify(token, process.env.JWT_SECRET!, {}, (err, verify) => {
-            if(err) {
-              reject(err)
-            } else {
-              resolve(verify)
-            }
-            
-        })
-      });
+        return jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload;
     } catch (error) {
-      throw new Error('Error verifying token: ' + error);
+        console.error("Error verifying token:", error);
+        return null; // Return null instead of throwing an error
     }
-    
-  }
+  };
 
 
 export default {hashPassword, comparePassword, signToken, verifyToken}

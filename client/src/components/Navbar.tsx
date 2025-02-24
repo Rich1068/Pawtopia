@@ -1,18 +1,25 @@
 import { NavLink } from "react-router";
-import {Menu, X} from 'lucide-react'
-import { useState } from "react";
-import { PawPrint } from "lucide-react";
+import { useContext, useState } from "react";
+import { PawPrint, User, LogOut, Menu, X } from "lucide-react";
+import {AuthContext} from "../helpers/AuthContext";
 const NavBar = () => {
     const [isOpen, setIsOpen] = useState<boolean>(false)
+    const { user, logout } = useContext(AuthContext)!;
+    const [dropdownOpen, setDropdownOpen] = useState(false);
     const navItems = [
         { name: "Home", path: "/", testId:"home" },
         { name: "Shop", path: "/shop", testId:"shop" },
         { name: "Adopt", path: "/adopt" , testId:"adopt" },
         { name: "Contact", path: "/contact" , testId:"contact" },
-        ] 
+        ]; 
+    const mobileNavItems = [
+        ...navItems,
+        { name: "Register", path: "/register", testId: "register" },
+        { name: "Login", path: "/login", testId: "login" },
+        ];
     return( 
         <>
-        <header className="flex shadow-md py-3 px-8 sm:px-10 bg-white font-sans min-h-[70px] tracking-wide relative z-50">
+        <header className="flex fixed shadow-md py-3 px-8 sm:px-10 bg-white font-sans min-h-[70px] tracking-wide z-50  rounded-b-xl w-full">
         <div className="flex flex-wrap items-center justify-between gap-5 w-full">
             {/* Logo */}
             
@@ -46,12 +53,48 @@ const NavBar = () => {
 
             {/* Auth Buttons */}
             <div className="flex max-lg:ml-auto space-x-4">
-            <NavLink to="/login" data-testid="login-nav" className=" max-sm:hidden px-4 py-2 text-sm rounded-full font-bold text-amber-950 border-2 border-orange-600 bg-transparent hover:bg-orange-600 hover:text-white transition-all duration-300">
-                Login
-            </NavLink>
-            <NavLink to="/register" data-testid="register-nav" className=" max-sm:hidden px-4 py-2 text-sm rounded-full font-bold text-white border-2 border-orange-600 bg-orange-600 transition-all duration-300 hover:bg-transparent hover:text-orange-600">
-                Sign Up
-            </NavLink>
+            {!user ? (
+                <>
+                <NavLink to="/login" data-testid="login-nav" className=" max-sm:hidden px-4 py-2 text-sm rounded-full font-bold text-amber-950 border-2 border-orange-600 bg-transparent hover:bg-orange-600 hover:text-white transition-all duration-300">
+                    Login
+                </NavLink>
+                <NavLink to="/register" data-testid="register-nav" className=" max-sm:hidden px-4 py-2 text-sm rounded-full font-bold text-white border-2 border-orange-600 bg-orange-600 transition-all duration-300 hover:bg-transparent hover:text-orange-600">
+                    Sign Up
+                </NavLink>
+                </>
+            ) : (
+                <>
+                <div className="relative">
+            <button
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+              className="flex items-center gap-2 p-2 rounded-full bg-gray-100 hover:bg-gray-200"
+            >
+              <User className="w-6 h-6 text-gray-600" />
+              <span className="hidden sm:inline">{user.name}</span>
+            </button>
+
+            {dropdownOpen && (
+              <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg rounded-md p-2">
+                <NavLink to="/dashboard" className="block px-4 py-2 hover:bg-gray-100">
+                  Dashboard
+                </NavLink>
+                <button
+                  onClick={() => {
+                    logout();
+                    setDropdownOpen(false);
+                  }}
+                  className="flex items-center w-full px-4 py-2 text-left text-red-500 hover:bg-gray-100"
+                >
+                  <LogOut className="w-5 h-5 mr-2" />
+                  Logout
+                </button>
+              </div>
+            )}
+          </div>
+                </>
+            )}
+            
+            
             {/* Mobile Menu Button */}
             <button className="lg:hidden" onClick={() => setIsOpen(!isOpen)}>
                 {isOpen ? <X size={28} /> : <Menu size={28} />}
@@ -68,10 +111,7 @@ const NavBar = () => {
             </button>
             <div className="mt-5">
             <ul className="space-y-4">
-                {navItems.concat([
-                    { name: "Register", path: "/register", testId:"register" },
-                    { name: "Login", path: "/login", testId:"login" },])
-                .map(({ name, path, testId }) => (
+                {mobileNavItems.map(({ name, path, testId }) => (
                 <li key={name}>
                     <NavLink
                     to={path}

@@ -44,10 +44,10 @@ function App() {
         <Routes>
           <Route element={<LayoutWithNavbar />}>
             <Route path="/" element={<Landing />}/>
-            <Route element={<ProtectedRoute allowedRoles={["user"]} />}>
+            <Route element={<ProtectedRoute allowedRoles={"user"} />}>
               <Route path="/user-dashboard" element={<User />}/>
             </Route>
-            <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
+            <Route element={<ProtectedRoute allowedRoles={"admin"} />}>
               <Route path="/admin-dashboard" element={<Admin />}/>
             </Route>
             <Route path="/adopt" element={<Adopt />}/>

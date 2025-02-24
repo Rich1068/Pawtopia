@@ -1,9 +1,11 @@
-import {useState} from 'react';
+import {useContext, useState} from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router';
+import { AuthContext } from "../helpers/AuthContext";
 const Login = () => {
     const navigate = useNavigate();
+    const { login } = useContext(AuthContext)!;
     const [data, setData] = useState({
         email: '',
         password: '',
@@ -26,12 +28,14 @@ const Login = () => {
         try {
            const {data} = await axios.post('http://localhost:8000/login', {
             email, password
-           })
+           }, { withCredentials: true })
+            console.log(data)
+            await login();
             setData({
                 email: '',
                 password: ''
             })
-            if(data.role === 'user') {
+            if(data.userData.role === 'user') {
                 navigate('/user-dashboard')
             } else {
                 navigate('/admin-dashboard')
