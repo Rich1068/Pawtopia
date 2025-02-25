@@ -32,11 +32,10 @@ Pawtopia is a comprehensive pet platform that combines an ePet Shop and an Adopt
 
 ## Getting Started
 
-Steps on how to run on Local
+Steps on how to run Locally
 
 ### Installation
-
-1. Get a free API Key at [https://example.com](https://example.com)
+1. Get a DB connection key from MongoDB Atlas
 2. Clone or Download the repository
 3. Install client npm packages
    ```sh
@@ -56,7 +55,7 @@ Steps on how to run on Local
 7. Rename the .env.example on server folder to .env and add the keys
    ```sh
    ...
-   DB_CONNECTION = mongo connection
+   DB_CONNECTION = MongoDB connection key
    ...
    ```
 8. Run the client 
