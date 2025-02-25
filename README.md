@@ -29,8 +29,52 @@ Pawtopia is a comprehensive pet platform that combines an ePet Shop and an Adopt
 ### Testing:
 * [![Playwright][playwright]][playwright-url]
 
-<!-- MARKDOWN LINKS & IMAGES -->
-<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+
+## Getting Started
+
+Steps on how to run on Local
+
+### Installation
+
+1. Get a free API Key at [https://example.com](https://example.com)
+2. Clone or Download the repository
+3. Install client npm packages
+   ```sh
+   cd client/
+   npm install
+   ```
+5. Rename the .env.example on client folder to .env and add the keys
+    ```sh
+    BASE_URL = url here
+    ```
+
+6. Install server npm packages
+   ```sh
+   cd server/
+   npm install
+   ```
+7. Rename the .env.example on server folder to .env and add the keys
+   ```sh
+   ...
+   DB_CONNECTION = mongo connection
+   ...
+   ```
+8. Run the client 
+    ```sh
+    cd client/
+    npm run dev
+    ```
+9. Run the server on another terminal
+    ```sh
+    cd server/
+    npm run dev
+    ```
+10. Run the API on another terminal
+    ```sh
+    cd swagger-petstore/
+    mvn jetty:run
+    ```
+    
 
 [React.js]: https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB
 [React-url]: https://reactjs.org/
