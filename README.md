@@ -29,8 +29,54 @@ Pawtopia is a comprehensive pet platform that combines an ePet Shop and an Adopt
 ### Testing:
 * [![Playwright][playwright]][playwright-url]
 
-<!-- MARKDOWN LINKS & IMAGES -->
-<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+
+## Getting Started
+
+Steps on how to run Locally
+
+### Installation
+1. Get a DB connection key from MongoDB Atlas
+2. Clone or Download the repository
+3. Install client npm packages
+   ```console
+   cd client/
+   npm install
+   ```
+
+4. Rename the .env.example on client folder to .env and add the keys
+    ```console
+    BASE_URL = http://localhost:5173
+    ```
+
+5. Install server npm packages
+   ```console
+   cd server/
+   npm install
+   ```
+
+6. Rename the .env.example on server folder to .env and add the keys
+   ```console
+   ...
+   DB_CONNECTION = MongoDB connection key
+   ...
+   ```
+7. Run the client 
+    ```console
+    cd client/
+    npm run dev
+    ```
+
+8. Run the server on another terminal
+    ```console
+    cd server/
+    npm run dev
+    ```
+9. Run the API on another terminal
+    ```console
+    cd swagger-petstore/
+    mvn jetty:run
+    ```
+    
 
 [React.js]: https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB
 [React-url]: https://reactjs.org/
