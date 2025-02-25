@@ -16,14 +16,14 @@ const Cards: FC<CardsProps> = ({ pets }) => {
           {pets.map((pet) => (
             <div
               key={pet.id}
-              className="inline-grid m-auto mt-11 w-60 transform overflow-hidden rounded-lg bg-white dark:bg-slate-800 shadow-md duration-300 hover:scale-105 hover:shadow-lg"
+              className="inline-grid m-auto mt-11 w-60 transform overflow-hidden rounded-lg bg-white shadow-md duration-300 hover:scale-105 hover:shadow-lg"
             >
               <img
                 className="h-48 w-full object-cover object-center"
                 src={pet.photoUrls[0] || "assets/img/Logo1.png"}
               />
               <div className="p-4">
-                <h2 className="mb-2 text-lg font-medium text-center dark:text-white text-gray-900">
+                <h2 className="mb-2 text-lg font-medium text-center text-gray-900">
                   {pet.name} {/* ✅ Display pet name */}
                 </h2>
               </div>
@@ -32,12 +32,12 @@ const Cards: FC<CardsProps> = ({ pets }) => {
         </div>
       ) : (
       <div className="flex justify-center items-center py-10">
-        <div className="w-96 p-6 bg-white dark:bg-slate-800 text-orange-600 shadow-md rounded-lg flex flex-col items-center text-center">
+        <div className="w-96 p-6 bg-white text-orange-600 shadow-md rounded-lg flex flex-col items-center text-center">
           <FontAwesomeIcon icon={faPaw} size='3x'/>
-          <h2 className="text-lg font-semibold text-gray-700 dark:text-white">
+          <h2 className="text-lg font-semibold text-gray-700">
             No Pets Available
           </h2>
-          <p className="text-gray-500 dark:text-gray-400">
+          <p className="text-gray-500">
             Check back later or try selecting different filters.
           </p>
         </div>

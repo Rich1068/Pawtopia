@@ -1,7 +1,7 @@
 import {useContext, useState} from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
-import { useNavigate } from 'react-router';
+import { useNavigate, Link } from 'react-router';
 import { AuthContext } from "../context/AuthContext";
 const Login = () => {
     const navigate = useNavigate();
@@ -72,7 +72,7 @@ const Login = () => {
               placeholder="Enter email"
               value={data.email}
               onChange={(e) => setData({ ...data, email: e.target.value })}
-              className="w-full bg-transparent text-sm text-gray-800 border-b border-gray-300 focus:border-blue-500 pl-2 pr-8 py-3 outline-none"
+              className="w-full bg-transparent text-sm text-gray-800 border-b border-gray-300 focus:border-orange-500 pl-2 pr-8 py-3 outline-none"
             /></label>
           </div>
 
@@ -84,7 +84,7 @@ const Login = () => {
               placeholder="Enter password"
               value={data.password}
               onChange={(e) => setData({ ...data, password: e.target.value })}
-              className="w-full bg-transparent text-sm text-gray-800 border-b border-gray-300 focus:border-blue-500 pl-2 pr-8 py-3 outline-none"
+              className="w-full bg-transparent text-sm text-gray-800 border-b border-gray-300 focus:border-orange-500 pl-2 pr-8 py-3 outline-none"
             /></label>
           </div>
 
@@ -99,7 +99,7 @@ const Login = () => {
             </label>
             <a
               href="javascript:void(0);"
-              className="ml-auto text-blue-500 font-semibold hover:underline"
+              className="ml-auto text-orange-500 font-semibold hover:underline"
             >
               Forgot your password?
             </a>
@@ -108,18 +108,18 @@ const Login = () => {
           <div className="mt-8">
             <button
               type="submit"
-              className="w-full shadow-xl py-2.5 px-4 text-sm font-semibold tracking-wider rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none transition-all"
+              className="w-full shadow-xl py-2.5 px-4 text-sm font-semibold tracking-wider rounded-md text-white bg-orange-600 hover:bg-orange-500 focus:outline-none transition-all"
             >
               Sign in
             </button>
             <p className="text-gray-800 text-sm mt-4 text-center">
               Don't have an account?
-              <a
-                href="javascript:void(0);"
-                className="text-blue-500 font-semibold hover:underline ml-1"
+              <Link
+                to="/register"
+                className="text-orange-500 font-semibold hover:underline ml-1"
               >
                 Register here
-              </a>
+              </Link>
             </p>
           </div>
           </div>

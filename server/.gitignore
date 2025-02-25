@@ -48,3 +48,6 @@ Thumbs.db
 .idea/
 *.swp
 *.swo
+
+# Profile pictures
+src/assets/img/profile_pic/*

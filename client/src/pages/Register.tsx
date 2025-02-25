@@ -1,43 +1,34 @@
 import {useState} from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
-import { useNavigate } from 'react-router';
-
+import { useNavigate, Link } from 'react-router';
+import validate from '../helper/validation';
 export const Register = () => {
     const navigate = useNavigate();
     const [data, setData] = useState({
         name: '',
         email: '',
+        phoneNumber: '',
         password: '',
         confirmPassword: ''
     })
     const registerUser = async (e:React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
-        const {name, email, password, confirmPassword} = data
-        const emailCheck = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-        if (!data.name || !data.email || !data.password) {
-          toast.error("All fields are required");
-          return;
-        }
-
-        if (data.email && !emailCheck.test(data.email)) {
-          toast.error("Invalid email format");
-          return
-        }
-        if (data.password !== data.confirmPassword) {
-          toast.error("Password does not Match");
+        const {name, email, phoneNumber, password, confirmPassword} = data
+        if(!validate(name, email, phoneNumber, password, confirmPassword, true)){
           return
         }
         try {
             await axios.post('http://localhost:8000/register', {
-                name, email, password, confirmPassword
+                name, email, phoneNumber, password, confirmPassword
             })
               setData({
                   name: '',
                   email: '',
+                  phoneNumber: '',
                   password: '',
                   confirmPassword: ''
+                  
               })
               toast.success('Login Successful. Welcome')
               navigate('/login')
@@ -71,7 +62,7 @@ export const Register = () => {
               placeholder="Enter name"
               value={data.name}
               onChange={(e) => setData({ ...data, name: e.target.value })}
-              className="w-full bg-transparent text-sm text-gray-800 border-b border-gray-300 focus:border-blue-500 pl-2 pr-8 py-3 outline-none"
+              className="w-full bg-transparent text-sm text-gray-800 border-b border-gray-300 focus:border-orange-500 pl-2 pr-8 py-3 outline-none"
             /></label>
           </div>
 
@@ -83,7 +74,19 @@ export const Register = () => {
               placeholder="Enter email"
               value={data.email}
               onChange={(e) => setData({ ...data, email: e.target.value })}
-              className="w-full bg-transparent text-sm text-gray-800 border-b border-gray-300 focus:border-blue-500 pl-2 pr-8 py-3 outline-none"
+              className="w-full bg-transparent text-sm text-gray-800 border-b border-gray-300 focus:border-orange-500 pl-2 pr-8 py-3 outline-none"
+            /></label>
+          </div>
+
+          <div className="mb-8">
+            <label className="text-gray-800 text-xs block mb-2">Phone Number
+            <input
+              type="text"
+              name="phoneNumber"
+              placeholder="Enter Phone Number (ex. 09171234987)"
+              value={data.phoneNumber}
+              onChange={(e) => setData({ ...data, phoneNumber: e.target.value })}
+              className="w-full bg-transparent text-sm text-gray-800 border-b border-gray-300 focus:border-orange-500 pl-2 pr-8 py-3 outline-none"
             /></label>
           </div>
 
@@ -95,7 +98,7 @@ export const Register = () => {
               placeholder="Enter password"
               value={data.password}
               onChange={(e) => setData({ ...data, password: e.target.value })}
-              className="w-full bg-transparent text-sm text-gray-800 border-b border-gray-300 focus:border-blue-500 pl-2 pr-8 py-3 outline-none"
+              className="w-full bg-transparent text-sm text-gray-800 border-b border-gray-300 focus:border-orange-500 pl-2 pr-8 py-3 outline-none"
             /></label>
           </div>
 
@@ -107,25 +110,25 @@ export const Register = () => {
               placeholder="Re-enter password"
               value={data.confirmPassword}
               onChange={(e) => setData({ ...data, confirmPassword: e.target.value })}
-              className="w-full bg-transparent text-sm text-gray-800 border-b border-gray-300 focus:border-blue-500 pl-2 pr-8 py-3 outline-none"
+              className="w-full bg-transparent text-sm text-gray-800 border-b border-gray-300 focus:border-orange-500 pl-2 pr-8 py-3 outline-none"
             /></label>
           </div>
 
           <div className="mt-8">
             <button
               type="submit"
-              className="w-full shadow-xl py-2.5 px-4 text-sm font-semibold tracking-wider rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none transition-all"
+              className="w-full shadow-xl py-2.5 px-4 text-sm font-semibold tracking-wider rounded-md text-white bg-orange-600 hover:bg-orange-500 focus:outline-none transition-all"
             >
               Register
             </button>
             <p className="text-gray-800 text-sm mt-4 text-center">
               Already have an account?
-              <a
-                href="javascript:void(0);"
-                className="text-blue-500 font-semibold hover:underline ml-1"
+              <Link
+                to="/login"
+                className="text-orange-500 font-semibold hover:underline ml-1"
               >
                 Login here
-              </a>
+              </Link>
             </p>
           </div>
         </form>

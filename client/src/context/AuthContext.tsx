@@ -6,6 +6,7 @@ import LoadingPage from "../components/LoadingPage/LoadingPage";
 export const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider = ({children}: {children: ReactNode}) => {
+    const SERVER_URL = import.meta.env.VITE_SERVER_URL
     const [user, setUser] = useState<User | null>(null)
     const [loading, setLoading] = useState(true);
     const isAuthenticated = !!user;
@@ -19,13 +20,15 @@ export const AuthProvider = ({children}: {children: ReactNode}) => {
                 return { success: false };
             }
 
-            const response = await axios.get<{user: User}>("http://localhost:8000/api/get-user", { withCredentials: true });
+            const response = await axios.get<{user: User}>("http://localhost:8000/user/get-user", { withCredentials: true });
             console.log(response.data.user)
+            response.data.user.profileImage = SERVER_URL + response.data.user.profileImage
             setUser(response.data.user);
 
             return { success: true, user: response.data.user };
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (error) {
-            console.error("Failed to verify token or fetch user:", error);
+            console.error("Failed to verify token or fetch user");
             setUser(null);
             return { success: false };
         } finally {
@@ -50,10 +53,11 @@ export const AuthProvider = ({children}: {children: ReactNode}) => {
     useEffect(() => {
         verifyToken();
         
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
     if (loading) return <LoadingPage fadeOut={false} />;
     return (
-        <AuthContext.Provider value={{user, isAuthenticated, loading, login, logout}}>
+        <AuthContext.Provider value={{user, isAuthenticated, loading, verifyToken, login, logout}}>
             {children}
         </AuthContext.Provider>
     )

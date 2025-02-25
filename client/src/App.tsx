@@ -8,7 +8,6 @@ import Register from './pages/Register';
 import User from './pages/Dashboard/User';
 import Admin from './pages/Dashboard/Admin';
 import ProtectedRoute from './middlewares/ProtectedRoutes';
-import ClearCookie from './middlewares/ClearCookie';
 import LayoutWithNavbar from './components/LayoutWithNavbar';
 import Adopt from './pages/Adopt';
 import Shop from './pages/Shop';
@@ -22,7 +21,6 @@ function App() {
   return (
     <>
     <Toaster position='bottom-left' toastOptions={{duration: 2000}} />
-        <ClearCookie />
         <Routes>
           <Route element={<LayoutWithNavbar />}>
             <Route path="/" element={<Landing />}/>

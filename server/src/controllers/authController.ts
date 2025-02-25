@@ -30,18 +30,6 @@ export const logoutUser = async (req:Request, res:Response) => {
 }
 
 // GET USER INFORMATION
-export const getUser = async (req: AuthRequest, res: Response) => {
-    try {
-        const user = await User.findById(req.userId).select("-password");   //query from database and exclude password
-        if (!user) {
-            res.status(404).json({ message: "User not found" });
-            return
-        }
-        res.json({ user });
-    } catch (error) {
-        console.error("Error fetching user:", error);
-        res.status(500).json({ message: "Server error" });
-    }
-};
 
-export default {verifyUserToken, logoutUser, getUser}
+
+export default {verifyUserToken, logoutUser}

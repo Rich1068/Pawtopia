@@ -38,38 +38,41 @@ Steps on how to run Locally
 1. Get a DB connection key from MongoDB Atlas
 2. Clone or Download the repository
 3. Install client npm packages
-   ```sh
+   ```console
    cd client/
    npm install
    ```
-5. Rename the .env.example on client folder to .env and add the keys
-    ```sh
-    BASE_URL = url here
+
+4. Rename the .env.example on client folder to .env and add the keys
+    ```console
+    BASE_URL = http://localhost:5173
     ```
 
-6. Install server npm packages
-   ```sh
+5. Install server npm packages
+   ```console
    cd server/
    npm install
    ```
-7. Rename the .env.example on server folder to .env and add the keys
-   ```sh
+
+6. Rename the .env.example on server folder to .env and add the keys
+   ```console
    ...
    DB_CONNECTION = MongoDB connection key
    ...
    ```
-8. Run the client 
-    ```sh
+7. Run the client 
+    ```console
     cd client/
     npm run dev
     ```
-9. Run the server on another terminal
-    ```sh
+
+8. Run the server on another terminal
+    ```console
     cd server/
     npm run dev
     ```
-10. Run the API on another terminal
-    ```sh
+9. Run the API on another terminal
+    ```console
     cd swagger-petstore/
     mvn jetty:run
     ```

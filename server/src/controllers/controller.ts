@@ -5,15 +5,20 @@ import { comparePassword, hashPassword, signToken, verifyToken } from "../helper
 
 export const registerUser = async (req:Request, res:Response):Promise<void | undefined>  => {
     try {
-        const {name, email, password, confirmPassword} = req.body
+        const {name, email, phoneNumber, password, confirmPassword} = req.body
         const user = await User.findOne({email})
         const emailCheck = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!name || !email || !password || !confirmPassword) {
+        const phoneCheck = /^\d{11}$/;
+        if (!name || !email || !phoneNumber || !password || !confirmPassword) {
             res.status(400).json({ error: "All fields are required" })
             return 
         }
         if (email && !emailCheck.test(email)) {
             res.status(400).json({error: "Invalid email format"})
+            return
+        }
+        if(phoneNumber && !phoneCheck.test(phoneNumber)) {
+            res.status(400).json({error: "Invalid phone number format"})
             return
         }
         if(user) {
@@ -28,6 +33,7 @@ export const registerUser = async (req:Request, res:Response):Promise<void | und
         const newUser = await User.create({
             name,
             email,
+            phoneNumber,
             password: hashedPassword,
             role: 'user'
         })
@@ -73,6 +79,7 @@ export const loginUser = async (req:Request, res:Response) => {
                     id: checkUser.id,
                     name: checkUser.name,
                     email: checkUser.email,
+                    phone: checkUser.phoneNumber,
                     role: checkUser.role
                 };
                 res.cookie("token", token, { httpOnly: true, secure: true }).status(200).json({userData})
