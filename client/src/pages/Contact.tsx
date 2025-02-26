@@ -1,11 +1,7 @@
-
 const Contact = () => {
-
   return (
     <>
-      <h1>
-        hello
-      </h1>
+      <h1>This is the Contact Page</h1>
     </>
   );
 };

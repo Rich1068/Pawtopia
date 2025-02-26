@@ -1,8 +1,8 @@
-import './cards.css';
-import { FC } from 'react';
-import { Pets } from '../../types/Types';
-import {faPaw} from '@fortawesome/free-solid-svg-icons'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import "./cards.css";
+import { FC } from "react";
+import { Pets } from "../../types/Types";
+import { faPaw } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 interface CardsProps {
   pets: Pets; // Accepts an array of pets
@@ -31,17 +31,17 @@ const Cards: FC<CardsProps> = ({ pets }) => {
           ))}
         </div>
       ) : (
-      <div className="flex justify-center items-center py-10">
-        <div className="w-96 p-6 bg-white text-orange-600 shadow-md rounded-lg flex flex-col items-center text-center">
-          <FontAwesomeIcon icon={faPaw} size='3x'/>
-          <h2 className="text-lg font-semibold text-gray-700">
-            No Pets Available
-          </h2>
-          <p className="text-gray-500">
-            Check back later or try selecting different filters.
-          </p>
+        <div className="flex justify-center items-center py-10">
+          <div className="w-96 p-6 bg-white text-orange-600 shadow-md rounded-lg flex flex-col items-center text-center">
+            <FontAwesomeIcon icon={faPaw} size="3x" />
+            <h2 className="text-lg font-semibold text-gray-700">
+              No Pets Available
+            </h2>
+            <p className="text-gray-500">
+              Check back later or try selecting different filters.
+            </p>
+          </div>
         </div>
-      </div>
       )}
     </div>
   );

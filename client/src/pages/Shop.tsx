@@ -1,14 +1,9 @@
-
 const Shop = () => {
+  return (
+    <>
+      <h1>This is the shopping page</h1>
+    </>
+  );
+};
 
-    return (
-      <>
-        <h1>
-          shop
-        </h1>
-      </>
-    );
-  };
-  
-  export default Shop;
-  
+export default Shop;

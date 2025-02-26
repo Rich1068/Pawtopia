@@ -1,46 +1,48 @@
 import mongoose from "mongoose";
 
-export const userSchema = new mongoose.Schema({
+export const userSchema = new mongoose.Schema(
+  {
     name: {
-        type: String,
-        require: true
+      type: String,
+      require: true,
     },
     email: {
-        type: String,
-        require: true,
-        unique: true
+      type: String,
+      require: true,
+      unique: true,
     },
     password: {
-        type: String,
-        require: true,
+      type: String,
+      require: true,
     },
     role: {
-        type: String, 
-        enum: ['admin', 'user'],
-        require: true
+      type: String,
+      enum: ["admin", "user"],
+      require: true,
     },
     profileImage: {
-        type: String, 
+      type: String,
     },
     phoneNumber: {
-        type: String,
-        require: true,
-        validate: {
-            validator: function (v: string) {
-                return /^\d{11}$/.test(v);
-            },
-            message: "Invalid phone number format"
-        }
+      type: String,
+      require: true,
+      validate: {
+        validator: function (v: string) {
+          return /^\d{11}$/.test(v);
+        },
+        message: "Invalid phone number format",
+      },
     },
     createdAt: {
-        type: Date,
-        default: Date.now
+      type: Date,
+      default: Date.now,
     },
     updatedAt: {
-        type: Date,
-        default: Date.now
-    }
+      type: Date,
+      default: Date.now,
+    },
+  },
+  { timestamps: true }
+);
 
-}, { timestamps: true })
-
-export default mongoose.model('User', userSchema)
+export default mongoose.model("User", userSchema);

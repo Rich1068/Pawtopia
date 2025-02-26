@@ -1,7 +1,6 @@
+import { URL } from "./setup";
 
-import { URL } from './setup';
-
-import { Page, expect, test } from '@playwright/test';
+import { Page, expect, test } from "@playwright/test";
 const navItems = [
   { name: "logo-nav", path: "" },
   { name: "home-nav", path: "" },
@@ -12,34 +11,29 @@ const navItems = [
   { name: "login-nav", path: "/login" },
 ];
 let page: Page;
-test.beforeAll(async ({browser}) => {
+test.beforeAll(async ({ browser }) => {
   const context = await browser.newContext();
   page = await context.newPage();
   await page.goto(URL);
 });
 
-test('has title', async () => {
-  await expect(page).toHaveTitle('Pawtopia'); // Expect a title "to contain" a substring.
+test("has title", async () => {
+  await expect(page).toHaveTitle("Pawtopia"); // Expect a title "to contain" a substring.
 });
 
-test.describe('Testing Navbar', () => {
+test.describe("Testing Navbar", () => {
   navItems.forEach(({ name, path }) => {
     test(`${name} exists and navigates correctly`, async () => {
       const testElement = page.getByTestId(name);
       await expect(testElement).toBeVisible();
 
-      await Promise.all([
-        testElement.click(),
-        page.waitForURL(URL + path) 
-      ]);
+      await Promise.all([testElement.click(), page.waitForURL(URL + path)]);
       // Verify the URL is correct
       await expect(page).toHaveURL(URL + path);
     });
   });
 });
 
-
 test.afterAll(async () => {
-  await page.close();  // Close the page after all tests
+  await page.close(); // Close the page after all tests
 });
-
