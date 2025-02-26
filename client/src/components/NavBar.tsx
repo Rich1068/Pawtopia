@@ -74,7 +74,6 @@ const NavBar = () => {
           </ul>
         </nav>
 
-        {/* Auth Buttons */}
         <div className="flex max-lg:ml-auto space-x-4">
           {user ? (
             <>
@@ -87,10 +86,10 @@ const NavBar = () => {
                     <img
                       src={user.profileImage}
                       alt="Profile"
-                      className="w-10 h-10 rounded-full object-cover group-hover:text-white"
+                      className="w-10 h-10 rounded-full object-cover group-hover:text-white cursor-pointer"
                     />
                   ) : (
-                    <UserRound className="w-8 h-8 text-orange-500 border rounded-full group-hover:text-white group-hover:bg-orange-500 group-hover:border-orange-500" />
+                    <UserRound className="w-8 h-8 text-orange-500 border rounded-full group-hover:text-white group-hover:bg-orange-500 group-hover:border-orange-500 cursor-pointer" />
                   )}
                 </button>
 

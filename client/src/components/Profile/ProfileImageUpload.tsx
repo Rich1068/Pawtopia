@@ -3,7 +3,7 @@ import ReactModal from "react-modal";
 interface ImageUploadPropTypes {
   isOpen: boolean;
   onClose: () => void;
-  onImageSave: (baseImage: string, image: File | null) => void | Promise<void>;
+  onImageSave: (image: File | null) => void | Promise<void>;
 }
 
 const ProfileImageUpload: FC<ImageUploadPropTypes> = ({
@@ -76,9 +76,7 @@ const ProfileImageUpload: FC<ImageUploadPropTypes> = ({
               ? "bg-orange-600 hover:bg-orange-700"
               : "bg-gray-400 cursor-not-allowed"
           }`}
-          onClick={() =>
-            onImageSave(selectedImage || " ", transferImage || null)
-          }
+          onClick={() => onImageSave(transferImage || null)}
           disabled={!selectedImage}
         >
           Save

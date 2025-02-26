@@ -31,13 +31,19 @@ export default function Carousel() {
           }}
           navigation={true}
           modules={[Autoplay, Pagination, Navigation]}
+          breakpoints={{
+            320: { slidesPerView: 1 }, // 1 slide for mobile screens
+            640: { slidesPerView: 2 }, // Slightly bigger screens get 1.5 slides
+            768: { slidesPerView: 2 }, // Tablets get 2 slides
+            1024: { slidesPerView: 3 }, // Desktops get 3 slides
+          }}
           className=""
         >
           {images.map((img) => (
             <SwiperSlide key={crypto.randomUUID()} className="">
               <img
                 src={img}
-                className="border-4 border-orange-600 max-h-100 max-w-80 rounded-xl"
+                className="border-4 border-orange-600 max-h-100 max-w-80 max-md:max-w-60 rounded-xl"
               />
             </SwiperSlide>
           ))}

@@ -1,12 +1,8 @@
 import { Response, Request } from "express";
 import User from "../models/User";
 import { AuthRequest } from "../Types/Types";
-import {
-  comparePassword,
-  hashPassword,
-  signToken,
-  verifyToken,
-} from "../helpers/auth";
+import { hashPassword, comparePassword } from "../helpers/auth";
+import { validateEdit, validateEditPassword } from "../helpers/validation";
 
 export const getUser = async (req: AuthRequest, res: Response) => {
   try {
@@ -28,6 +24,9 @@ export const editUser = async (
 ): Promise<void | undefined> => {
   try {
     const { name, email, phoneNumber } = req.body;
+
+    if (!validateEdit(req, res)) return;
+
     const updatedUser = await User.findByIdAndUpdate(
       req.userId, // Use req.user.id instead of req.userId
       { name, email, phoneNumber },
@@ -47,6 +46,36 @@ export const editUser = async (
     res.status(500).json({ message: "Server error" });
   }
 };
+
+export const editPassword = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void | undefined> => {
+  try {
+    const { password, confirmPassword } = req.body;
+
+    if (!(await validateEditPassword(req, res))) return;
+
+    const hashedPassword = await hashPassword(password);
+
+    const updatedUser = await User.findByIdAndUpdate(
+      req.userId, // Use req.user.id instead of req.userId
+      { password: hashedPassword },
+      { new: true } // Return the updated user
+    );
+
+    if (!updatedUser) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+
+    res.status(200).json({ message: "Password updated successfully" });
+  } catch (error) {
+    console.error("Error updating password:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 export const uploadProfileImage = async (
   req: Request,
   res: Response
@@ -65,4 +94,4 @@ export const uploadProfileImage = async (
   }
 };
 
-export default { getUser, editUser };
+export default { getUser, editUser, editPassword };

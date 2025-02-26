@@ -1,5 +1,20 @@
 import toast from "react-hot-toast";
 
+const passwordCheck = (
+  password: string | undefined,
+  confirmPassword: string | undefined
+): boolean => {
+  if (!password || !confirmPassword) {
+    toast.error("Password and Confirm Password are required");
+    return false;
+  }
+  if (password !== confirmPassword) {
+    toast.error("Passwords do not match");
+    return false;
+  }
+  return true;
+};
+
 export const validate = (
   name: string,
   email: string,
@@ -26,19 +41,14 @@ export const validate = (
     return false;
   }
 
-  if (isRegister) {
-    if (!password || !confirmPassword) {
-      toast.error("Password and Confirm Password are required");
-      return false;
-    }
-
-    if (password !== confirmPassword) {
-      toast.error("Passwords do not match");
-      return false;
-    }
+  if (isRegister && !passwordCheck(password, confirmPassword)) {
+    return false;
   }
-
   return true;
+};
+
+export const validatePassword = (password: string, confirmPassword: string) => {
+  return passwordCheck(password, confirmPassword);
 };
 
 export default validate;

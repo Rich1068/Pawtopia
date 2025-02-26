@@ -6,7 +6,7 @@ import serverAPI from "../../helper/axios";
 const ProfileImageCard: FC<{ user: User }> = ({ user }) => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
 
-  const handleImageSave = async (baseImage: string, image: File | null) => {
+  const handleImageSave = async (image: File | null) => {
     //console.log(profileImage)
     const formData = new FormData();
     if (image) {
@@ -32,7 +32,7 @@ const ProfileImageCard: FC<{ user: User }> = ({ user }) => {
         onClose={() => setModalIsOpen(false)}
         onImageSave={handleImageSave}
       />
-      <div className="flex flex-col  justify-center relative w-full min-h-60 max-w-80 ml-auto mr-10 text-center bg-white border border-gray-200 rounded-lg shadow-sm mt-30 max-[920px]:mr-auto">
+      <div className="flex flex-col  justify-center relative w-full min-h-60 max-w-80 ml-auto mr-10 text-center bg-white border border-gray-200 rounded-lg shadow-sm mt-30 max-[935px]:mr-auto max-[896px]:mt-15">
         <div className="inline-block">
           <div className="relative group w-30 h-30 mx-auto">
             {user.profileImage ? (

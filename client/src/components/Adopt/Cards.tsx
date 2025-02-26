@@ -3,6 +3,7 @@ import { FC } from "react";
 import { Pets } from "../../types/Types";
 import { faPaw } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Link } from "react-router";
 
 interface CardsProps {
   pets: Pets; // Accepts an array of pets
@@ -14,20 +15,19 @@ const Cards: FC<CardsProps> = ({ pets }) => {
       {pets.length > 0 ? (
         <div className="grid grid-cols-5 content-center w-full max-sm:grid-cols-1 sm:max-md:grid-cols-2 md:max-lg:grid-cols-3 lg:max-xl:grid-cols-4 gap-4">
           {pets.map((pet) => (
-            <div
-              key={pet.id}
-              className="inline-grid m-auto mt-11 w-60 transform overflow-hidden rounded-lg bg-white shadow-md duration-300 hover:scale-105 hover:shadow-lg"
-            >
-              <img
-                className="h-48 w-full object-cover object-center"
-                src={pet.photoUrls[0] || "assets/img/Logo1.png"}
-              />
-              <div className="p-4">
-                <h2 className="mb-2 text-lg font-medium text-center text-gray-900">
-                  {pet.name} {/* ✅ Display pet name */}
-                </h2>
+            <Link to={`/adopt/pets/${pet.id}`} key={pet.id}>
+              <div className="inline-grid m-auto mt-11 w-60 transform overflow-hidden rounded-lg bg-white shadow-md duration-300 hover:scale-105 hover:shadow-lg">
+                <img
+                  className="h-48 w-full object-cover object-center"
+                  src={pet.photoUrls[0] || "assets/img/Logo1.png"}
+                />
+                <div className="p-4">
+                  <h2 className="mb-2 text-lg font-medium text-center text-gray-900">
+                    {pet.name} {/* ✅ Display pet name */}
+                  </h2>
+                </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       ) : (
