@@ -2,7 +2,7 @@ import { useState } from "react";
 import ProfileField from "./ProfileField";
 import { FC } from "react";
 import { User } from "../../types/Types";
-import axios from "axios";
+import serverAPI from "../../helper/axios";
 const ProfileCard:FC<{user: User}> = ({ user }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState({
@@ -17,7 +17,7 @@ const ProfileCard:FC<{user: User}> = ({ user }) => {
     const handleSave = async () => {
         // TODO: Send updated data to backend
         try {
-            axios.post('http://localhost:8000/user/edit', {
+            serverAPI.post('/user/edit', {
                 name: formData.name,
                 email: formData.email
             }, {

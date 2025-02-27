@@ -1,4 +1,5 @@
-import axios from "axios";
+
+import serverAPI from "../helper/axios";
 import { useEffect, useState } from "react";
 import Cards from "../components/Adopt/Cards";
 import type { Pets } from "../types/Types";
@@ -14,7 +15,7 @@ const Adopt = () => {
 
 
   useEffect(() => {
-    axios.get<Pets>("http://localhost:8000/pet/getAvailablePets").then(({ data }) => {
+    serverAPI.get<Pets>("/pet/getAvailablePets").then(({ data }) => {
         setAllPets(data);  // Store original data
       })
       .catch((error) => {

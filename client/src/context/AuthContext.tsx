@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect, ReactNode } from "react";
-import axios from "axios";
+import serverAPI from "../helper/axios";
 import type {User, AuthContextType } from "../types/Types";
 import LoadingPage from "../components/LoadingPage/LoadingPage";
 
@@ -12,14 +12,14 @@ export const AuthProvider = ({children}: {children: ReactNode}) => {
 
     const verifyToken = async () => {
         try {
-            const { data } = await axios.post("http://localhost:8000/api/verify-token", {}, { withCredentials: true });
+            const { data } = await serverAPI.post("/api/verify-token", {}, { withCredentials: true });
 
             if (!data.verify) {
                 setUser(null);
                 return { success: false };
             }
 
-            const response = await axios.get<{user: User}>("http://localhost:8000/api/get-user", { withCredentials: true });
+            const response = await serverAPI.get<{user: User}>("/api/get-user", { withCredentials: true });
             console.log(response.data.user)
             setUser(response.data.user);
 
@@ -39,7 +39,7 @@ export const AuthProvider = ({children}: {children: ReactNode}) => {
     }
     const logout = async () => {
         try {
-            axios.post('http://localhost:8000/api/logout', {}, {withCredentials: true})
+            serverAPI.post('/api/logout', {}, {withCredentials: true})
             setUser(null);
         } catch (error) {
             console.log(error)

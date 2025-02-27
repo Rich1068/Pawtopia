@@ -1,5 +1,5 @@
 import {useContext, useState} from 'react';
-import axios from 'axios';
+import serverAPI from '../helper/axios';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router';
 import { AuthContext } from "../context/AuthContext";
@@ -26,7 +26,7 @@ const Login = () => {
             return
         }
         try {
-           const {data} = await axios.post('http://localhost:8000/login', {
+           const {data} = await serverAPI.post('/login', {
             email, password
            }, { withCredentials: true })
             await login();

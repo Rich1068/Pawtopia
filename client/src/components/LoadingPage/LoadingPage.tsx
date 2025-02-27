@@ -9,7 +9,6 @@ interface LoadingPageProps {
 const LoadingPage:FC<LoadingPageProps> = ({fadeOut}) => {
 
   return (
-    <>
     <motion.div
         initial={{ opacity: 1 }}
         animate={{ opacity: fadeOut ? 0 : 1 }}
@@ -57,7 +56,6 @@ const LoadingPage:FC<LoadingPageProps> = ({fadeOut}) => {
         </div>
       </div>
     </motion.div>
-    </>
   );
 };
   

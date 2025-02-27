@@ -35,7 +35,6 @@ const NavBar = () => {
 
 
     return( 
-        <>
         <header className="flex fixed shadow-md py-3 px-8 sm:px-10 bg-white font-sans min-h-[70px] tracking-wide z-50 mx-auto rounded-b-xl w-full">
         <div className="flex flex-wrap items-center justify-between gap-5 w-full">
             {/* Logo */}
@@ -209,7 +208,6 @@ const NavBar = () => {
             </div>
         )}
         </header>
-        </>
     );
 };
 

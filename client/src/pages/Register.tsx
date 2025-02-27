@@ -1,5 +1,5 @@
 import {useState} from 'react';
-import axios from 'axios';
+import serverAPI from '../helper/axios';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router';
 
@@ -30,7 +30,7 @@ export const Register = () => {
           return
         }
         try {
-            await axios.post('http://localhost:8000/register', {
+            await serverAPI.post('/register', {
                 name, email, password, confirmPassword
             })
               setData({
