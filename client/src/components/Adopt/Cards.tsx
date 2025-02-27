@@ -11,7 +11,7 @@ interface CardsProps {
 
 const Cards: FC<CardsProps> = ({ pets }) => {
   return (
-    <div className="rounded-xl bg-white p-4 h-full w-full flex-grow bottom-0">
+    <div className="rounded-t-xl bg-white p-4 h-full w-full flex-grow bottom-0">
       {pets.length > 0 ? (
         <div className="grid grid-cols-5 content-center w-full max-sm:grid-cols-1 sm:max-md:grid-cols-2 md:max-lg:grid-cols-3 lg:max-xl:grid-cols-4 gap-4">
           {pets.map((pet) => (

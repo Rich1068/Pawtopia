@@ -19,5 +19,21 @@ export const getAvailablePets = async (
     console.log("something wrong" + error);
   }
 };
+export const getPetDetail = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const response = await axios.get(`http:localhost:8080/api/v3/pet/${id}`, {
+      headers: {
+        api_key: "pet-store-api",
+      },
+    });
+    res.json(response.data);
+  } catch (error) {
+    console.log("something wrong" + error);
+  }
+};
 
-export default getAvailablePets;
+export default { getAvailablePets, getPetDetail };

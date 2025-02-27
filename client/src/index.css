@@ -6,3 +6,7 @@
   --color-orang: #ec955b;
   --color-dark: #4c240c;
 }
+html {
+  position: relative;
+  min-height: 100%;
+}
