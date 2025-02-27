@@ -1,9 +1,8 @@
 @import "tailwindcss";
 
 @theme {
-    --font-primary: "Fredoka", "sans-serif";
-    --font-secondary: "Nunito", "sans-serif";
-    --color-orang: #ec955b;
-    --color-dark: #4C240C;
-  
+  --font-primary: "Fredoka", "sans-serif";
+  --font-secondary: "Nunito", "sans-serif";
+  --color-orang: #ec955b;
+  --color-dark: #4c240c;
 }

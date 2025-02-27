@@ -1,8 +1,7 @@
 import express from "express";
 import { registerUser, loginUser } from "../controllers/controller";
-const route = express.Router()
+const route = express.Router();
 
-
-route.post('/register', registerUser)
-route.post('/login', loginUser)
-export default route
+route.post("/register", registerUser);
+route.post("/login", loginUser);
+export default route;
