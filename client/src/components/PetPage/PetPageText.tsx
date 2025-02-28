@@ -4,13 +4,12 @@ interface IPetPageText {
   id: string | undefined;
   petData: Pet | null;
 }
-export const PetPageText: FC<IPetPageText> = ({ id, petData }) => {
+export const PetPageText: FC<IPetPageText> = ({ petData }) => {
   return (
-    <div className="w-1/3 p-4 bg-white rounded-lg shadow-md">
-      <h2 className="text-xl font-bold mb-2">Pet Details</h2>
-      <p className="text-gray-600">Pet ID: {id}</p>
+    <div className="p-4 bg-white rounded-lg shadow-md min-w-full min-h-full inline-block font-secondary">
       {petData && (
         <>
+          <h2 className="text-3xl font-bold mb-2">{petData.name}</h2>
           <p className="text-gray-800 font-semibold">Name: {petData.name}</p>
           <p className="text-gray-600">Status: {petData.status}</p>
           {petData.category && (

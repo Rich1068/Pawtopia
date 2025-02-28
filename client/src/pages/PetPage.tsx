@@ -31,19 +31,19 @@ const PetPage = () => {
   return (
     <>
       <PetHeader />
-      <div className="bg-orange-600">
-        <div className=" mx-auto rounded-t-xl bg-white p-4 h-full w-full flex-grow bottom-0">
-          <div className="flex justify-between items-start">
-            {/* Left side - PetCarousel */}
-            <div className="w-2/3">
-              <PetCarousel
-                thumbsSwiper={thumbsSwiper}
-                setThumbsSwiper={setThumbsSwiper}
-                petData={petData}
-              />
-            </div>
+      <div className="bg-orange-600 ">
+        <div className="mx-auto rounded-t-xl bg-white p-4 h-full w-full grid grid-cols-2 grid-flow-col max-md:grid-rows-2 max-md:grid-cols-1 max-md:place-items-center max-md:justify-center">
+          {/* Left side - PetCarousel */}
+          <div className="mx-auto">
+            <PetCarousel
+              thumbsSwiper={thumbsSwiper}
+              setThumbsSwiper={setThumbsSwiper}
+              petData={petData}
+            />
+          </div>
 
-            {/* Right side - Pet Details */}
+          {/* Right side - PetPageText */}
+          <div className="mx-auto min-w-full min-h-full">
             <PetPageText id={id} petData={petData} />
           </div>
         </div>
