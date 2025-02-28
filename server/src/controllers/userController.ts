@@ -3,6 +3,8 @@ import User from "../models/User";
 import { AuthRequest } from "../Types/Types";
 import { hashPassword, comparePassword } from "../helpers/auth";
 import { validateEdit, validateEditPassword } from "../helpers/validation";
+import fs from "fs";
+import path from "path";
 
 export const getUser = async (req: AuthRequest, res: Response) => {
   try {
@@ -85,10 +87,17 @@ export const uploadProfileImage = async (
       res.status(400).json({ error: "No file uploaded" });
       return;
     }
-    const imagePath = `/assets/img/profile_pic/${req.file.filename}`;
     const userId = req.body.userId;
-    await User.findByIdAndUpdate(userId, { profileImage: imagePath });
-    res.json({ message: "Image Uploaded Successfulyy", imageUrl: imagePath });
+    const user = await User.findById(userId);
+    const imagePath = `/assets/img/profile_pic/${req.file.filename}`;
+    if (user?.profileImage) {
+      const oldImagePath = path.join(__dirname, "..", user.profileImage);
+      if (fs.existsSync(oldImagePath)) {
+        fs.unlinkSync(oldImagePath); // Delete the old image
+      }
+    }
+    await User.findByIdAndUpdate(userId, { profileImage: imagePath }).exec();
+    res.json({ message: "Image Uploaded Successfully", imageUrl: imagePath });
   } catch (error) {
     res.status(500).json({ error: "Server error" });
   }

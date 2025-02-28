@@ -1,6 +1,4 @@
-import { PawPrint } from "lucide-react";
 import { useParams } from "react-router";
-import { useNavigate } from "react-router";
 import { useEffect, useState } from "react";
 import type { Pet } from "../types/Types";
 import serverAPI from "../helper/axios";

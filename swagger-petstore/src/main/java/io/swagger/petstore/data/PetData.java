@@ -35,28 +35,28 @@ public class PetData {
         categories.add(createCategory(4, "Lions"));
 
         pets.add(createPet(1, categories.get(1), "Cat 1", new String[]{
-                "url1", "url2"}, new String[]{"tag1", "tag2"}, "available"));
+                "/assets/img/Logo1.png", "/assets/img/Logo1.png"}, new String[]{"tag1", "tag2"}, "available"));
         pets.add(createPet(2, categories.get(1), "Cat 2", new String[]{
-                "url1", "url2"}, new String[]{"tag2", "tag3"}, "available"));
+                "/assets/img/Logo1.png", "/assets/img/Logo1.png"}, new String[]{"tag2", "tag3"}, "available"));
         pets.add(createPet(3, categories.get(1), "Cat 3", new String[]{
-                "url1", "url2"}, new String[]{"tag3", "tag4"}, "pending"));
+                "/assets/img/Logo1.png", "/assets/img/Logo1.png"}, new String[]{"tag3", "tag4"}, "pending"));
 
         pets.add(createPet(4, categories.get(0), "Dog 1", new String[]{
-                "url1", "url2"}, new String[]{"tag1", "tag2"}, "available"));
+                "/assets/img/Logo1.png", "/assets/img/Logo1.png"}, new String[]{"tag1", "tag2"}, "available"));
         pets.add(createPet(5, categories.get(0), "Dog 2", new String[]{
-                "url1", "url2"}, new String[]{"tag2", "tag3"}, "sold"));
+                "/assets/img/Logo1.png", "/assets/img/Logo1.png"}, new String[]{"tag2", "tag3"}, "sold"));
         pets.add(createPet(6, categories.get(0), "Dog 3", new String[]{
-                "url1", "url2"}, new String[]{"tag3", "tag4"}, "pending"));
+                "/assets/img/Logo1.png", "/assets/img/Logo1.png"}, new String[]{"tag3", "tag4"}, "pending"));
 
         pets.add(createPet(7, categories.get(3), "Lion 1", new String[]{
-                "url1", "url2"}, new String[]{"tag1", "tag2"}, "available"));
+                "/assets/img/Logo1.png", "/assets/img/Logo1.png"}, new String[]{"tag1", "tag2"}, "available"));
         pets.add(createPet(8, categories.get(3), "Lion 2", new String[]{
-                "url1", "url2"}, new String[]{"tag2", "tag3"}, "available"));
+                "/assets/img/Logo1.png", "/assets/img/Logo1.png"}, new String[]{"tag2", "tag3"}, "available"));
         pets.add(createPet(9, categories.get(3), "Lion 3", new String[]{
-                "url1", "url2"}, new String[]{"tag3", "tag4"}, "available"));
+                "/assets/img/Logo1.png", "/assets/img/Logo1.png"}, new String[]{"tag3", "tag4"}, "available"));
 
         pets.add(createPet(10, categories.get(2), "Rabbit 1", new String[]{
-                "url1", "url2"}, new String[]{"tag3", "tag4"}, "available"));
+                "/assets/img/Logo1.png", "/assets/img/Logo1.png"}, new String[]{"tag3", "tag4"}, "available"));
     }
 
     public Pet getPetById(final long petId) {
