@@ -7,5 +7,4 @@ auth.post("/verify-token", verifyUserToken);
 
 auth.post("/logout", logoutUser);
 
-auth;
 export default auth;

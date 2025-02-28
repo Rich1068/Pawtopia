@@ -13,8 +13,8 @@ import Adopt from "./pages/Adopt";
 import Shop from "./pages/Shop";
 import Contact from "./pages/Contact";
 import Profile from "./pages/Profile";
-import Footer from "./components/Footer";
 import PetPage from "./components/Adopt/PetPage";
+import Footer from "./components/Footer";
 axios.defaults.withCredentials = true;
 
 function App() {

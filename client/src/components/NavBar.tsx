@@ -73,6 +73,26 @@ const NavBar = () => {
             ))}
           </ul>
         </nav>
+        {/* Desktop Navigation */}
+        <nav className="max-lg:hidden pl-20 lg:block absolute left-1/2 transform -translate-x-1/2">
+          <ul className="flex gap-x-6">
+            {navItems.map(({ name, path, testId }) => (
+              <li key={name}>
+                <NavLink
+                  to={path}
+                  className={({ isActive }) =>
+                    `hover:text-orange-600 text-amber-950 font-secondary  text-lg font-extrabold px-3 py-2 ${
+                      isActive ? "text-orange-500" : ""
+                    }`
+                  }
+                  data-testid={`${testId}-nav`}
+                >
+                  {name}
+                </NavLink>
+              </li>
+            ))}
+          </ul>
+        </nav>
 
         <div className="flex max-lg:ml-auto space-x-4">
           {user ? (
