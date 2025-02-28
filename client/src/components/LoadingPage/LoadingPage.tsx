@@ -1,21 +1,21 @@
-
-import './loading.css'
-import { motion } from 'motion/react';
-import { FC } from 'react';
+import "./loading.css";
+import { motion } from "motion/react";
+import { FC } from "react";
 
 interface LoadingPageProps {
   fadeOut: boolean;
 }
-const LoadingPage:FC<LoadingPageProps> = ({fadeOut}) => {
-
+const LoadingPage: FC<LoadingPageProps> = ({ fadeOut }) => {
   return (
     <motion.div
-        initial={{ opacity: 1 }}
-        animate={{ opacity: fadeOut ? 0 : 1 }}
-        transition={{ duration: 1}}
-        className="main flex-col-reverse items-center justify-center align-middle h-screen bg-white z-50"
-        >
-    <div className='font-primary pt-5 text-amber-950 text-2xl'>Loading...</div>
+      initial={{ opacity: 1 }}
+      animate={{ opacity: fadeOut ? 0 : 1 }}
+      transition={{ duration: 1 }}
+      className="main flex-col-reverse items-center justify-center align-middle h-screen bg-white z-50"
+    >
+      <div className="font-primary pt-5 text-amber-950 text-2xl">
+        Loading...
+      </div>
       <div className="dog">
         {/* Dog Paws */}
         <div className="dog__paws">
@@ -58,5 +58,5 @@ const LoadingPage:FC<LoadingPageProps> = ({fadeOut}) => {
     </motion.div>
   );
 };
-  
-  export default LoadingPage;
+
+export default LoadingPage;

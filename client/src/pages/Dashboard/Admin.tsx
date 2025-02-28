@@ -1,11 +1,10 @@
-import * as React from 'react';
-
+import * as React from "react";
 
 const Admin = () => {
-  return( 
-  <>
-  <h1>Admin Dashboard</h1>
-  </>
+  return (
+    <>
+      <h1>Admin Dashboard</h1>
+    </>
   );
 };
 
