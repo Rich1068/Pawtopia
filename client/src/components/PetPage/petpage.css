@@ -13,8 +13,6 @@
   opacity: 1;
 }
 .swiper {
-  width: 100%;
-  height: 100%;
   margin-left: auto;
   margin-right: auto;
 }
@@ -23,11 +21,6 @@
   background: no-repeat;
   background-size: cover;
   background-position: center;
-}
-
-.mySwiper2 {
-  height: 80%;
-  width: 90%;
 }
 
 .mySwiper {

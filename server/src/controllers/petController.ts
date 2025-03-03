@@ -5,12 +5,13 @@ export const getAvailablePets = async (
   req: Request,
   res: Response
 ): Promise<void> => {
+  const { page } = req.query;
   try {
     const response = await axios.get(
-      "http:localhost:8080/api/v3/pet/findByStatus?status=available",
+      "https://api.rescuegroups.org/v5/public/animals/search/available/haspic/isneedingfoster/?limit=250",
       {
         headers: {
-          api_key: "pet-store-api",
+          Authorization: "zKb4tfPS",
         },
       }
     );
@@ -25,11 +26,14 @@ export const getPetDetail = async (
 ): Promise<void> => {
   try {
     const { id } = req.params;
-    const response = await axios.get(`http:localhost:8080/api/v3/pet/${id}`, {
-      headers: {
-        api_key: "pet-store-api",
-      },
-    });
+    const response = await axios.get(
+      `https://api.rescuegroups.org/v5/public/animals/${id}`,
+      {
+        headers: {
+          Authorization: "zKb4tfPS",
+        },
+      }
+    );
     res.json(response.data);
   } catch (error) {
     console.log("something wrong" + error);
