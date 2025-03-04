@@ -88,7 +88,7 @@ export const uploadProfileImage = async (
     const imagePath = `/assets/img/profile_pic/${req.file.filename}`;
     const userId = req.body.userId;
     await User.findByIdAndUpdate(userId, { profileImage: imagePath });
-    res.json({ message: "Image Uploaded Successfulyy", imageUrl: imagePath });
+    res.json({ message: "Image Uploaded Successfully", imageUrl: imagePath });
   } catch (error) {
     res.status(500).json({ error: "Server error" });
   }
