@@ -38,7 +38,6 @@ jest.mock("../helper/axios", () => ({
   },
 }));
 
-// ✅ Wrap the component in `MockAuthProvider`
 const renderProfileImageCard = (user: User = mockUser) => {
   return render(<ProfileImageCard user={user} />);
 };
