@@ -5,6 +5,7 @@ import { faPaw } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link } from "react-router";
 import { petType } from "../../types/pet";
+import CardImages from "./CardImages";
 const Cards: FC<{ pets: petType[] }> = ({ pets }) => {
   const cleanImageUrl = (url: string | undefined): string | undefined => {
     let cleanedUrl = url?.split("?")[0];
@@ -25,19 +26,10 @@ const Cards: FC<{ pets: petType[] }> = ({ pets }) => {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <img
-                  className="h-48 w-full object-cover object-center"
-                  src={
-                    pet.attributes.pictureThumbnailUrl
-                      ? cleanImageUrl(pet.attributes.pictureThumbnailUrl) +
-                        (pet.relationships?.pictures?.data?.[0]?.id
-                          ? `/${pet.relationships.pictures.data[0].id}.jpg`
-                          : "") // Only add if ID exists
-                      : "assets/img/Logo1.png"
-                  }
-                />
+                <CardImages pet={pet} cleanImageUrl={cleanImageUrl} />
+
                 <div className="p-4">
-                  <h2 className="mb-2 text-lg font-medium text-center text-gray-900">
+                  <h2 className="mb-2 text-lg font-bold font-secondary text-center text-orange-600">
                     {pet.attributes.name} {/* ✅ Display pet name */}
                   </h2>
                 </div>

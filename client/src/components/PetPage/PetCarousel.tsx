@@ -26,6 +26,16 @@ export const PetCarousel: FC<IPetCarousel> = ({
   const [mainSwiper, setMainSwiper] = useState<SwiperClass | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
+  const pictures = petData?.relationships?.pictures?.data || [];
+  const hasPictures = pictures.length > 0;
+
+  const getImageUrl = (index: number) =>
+    petData?.attributes.pictureThumbnailUrl && pictures[index]
+      ? `${cleanImageUrl(petData.attributes.pictureThumbnailUrl)}/${
+          pictures[index].id
+        }.jpg`
+      : "assets/img/Logo1.png";
+
   const handleImageClick = (imageUrl: string) => {
     setSelectedImage(imageUrl);
   };
@@ -46,97 +56,87 @@ export const PetCarousel: FC<IPetCarousel> = ({
   const swiperRef = useRef<SwiperClass>();
   return (
     <>
-      {petData && (petData?.relationships?.pictures?.data ?? []).length > 0 ? (
-        <div className="max-w-140 w-[100%] max:lg:w-[90%] max-sm:w-[80%] mx-auto">
-          <Swiper
-            onSwiper={setMainSwiper}
-            spaceBetween={10}
-            slidesPerView={1}
-            thumbs={{ swiper: thumbsSwiper }}
-            onBeforeInit={(swiper) => {
-              swiperRef.current = swiper;
-            }}
-            modules={[FreeMode, Navigation, Thumbs]}
-            className="inherit mySwiper2 max-h-125 w-auto"
-          >
-            {petData?.relationships?.pictures?.data.map((url, i: number) => (
-              <SwiperSlide key={i} className="!w-full  m-auto">
+      <div className="max-w-140 w-[100%] max:lg:w-[90%] max-sm:w-[80%] mx-auto">
+        <Swiper
+          onSwiper={setMainSwiper}
+          spaceBetween={10}
+          slidesPerView={1}
+          thumbs={{ swiper: thumbsSwiper }}
+          onBeforeInit={(swiper) => {
+            swiperRef.current = swiper;
+          }}
+          modules={[FreeMode, Navigation, Thumbs]}
+          className="inherit mySwiper2 max-h-125 w-auto"
+        >
+          {hasPictures ? (
+            pictures.map((_, i) => (
+              <SwiperSlide key={i} className="!w-full m-auto">
                 <img
-                  src={
-                    petData.attributes.pictureThumbnailUrl
-                      ? cleanImageUrl(petData.attributes.pictureThumbnailUrl) +
-                        (petData.relationships?.pictures?.data?.[i]?.id
-                          ? `/${petData.relationships.pictures.data[i].id}.jpg`
-                          : "")
-                      : "assets/img/Logo1.png"
-                  }
-                  onClick={() =>
-                    handleImageClick(
-                      petData.attributes.pictureThumbnailUrl
-                        ? cleanImageUrl(
-                            petData.attributes.pictureThumbnailUrl
-                          ) +
-                            (petData.relationships?.pictures?.data?.[i]?.id
-                              ? `/${petData.relationships.pictures.data[i].id}.jpg`
-                              : "")
-                        : "assets/img/Logo1.png"
-                    )
-                  }
-                  alt={"picture"}
-                  className=" border rounded-xl border-orange-500 object-contain !h-auto !w-auto !max-h-125"
+                  src={getImageUrl(i)}
+                  onClick={() => handleImageClick(getImageUrl(i))}
+                  alt="Pet"
+                  className="border rounded-xl border-orange-500 object-contain !h-auto !w-auto !max-h-125"
                 />
               </SwiperSlide>
-            ))}
-          </Swiper>
-          <div className="flex">
-            <button onClick={() => swiperRef.current?.slidePrev()}>
-              <ChevronLeft className="text-orange-500 cursor-pointer" />
-            </button>
-            <Swiper
-              onSwiper={setThumbsSwiper}
-              spaceBetween={10}
-              slidesPerView={4}
-              freeMode={true}
-              watchSlidesProgress={true}
-              modules={[FreeMode, Navigation, Thumbs]}
-              className="mySwiper max-h-180 w-full max-w-140 cursor-pointer"
-            >
-              {petData?.relationships?.pictures?.data.map((url, i: number) => (
+            ))
+          ) : (
+            <SwiperSlide className="!w-full m-auto">
+              <img
+                src="/assets/img/Logo1.png"
+                alt="Placeholder Logo"
+                className="border rounded-xl border-orange-500 object-contain !h-auto !w-auto !max-h-125"
+              />
+            </SwiperSlide>
+          )}
+        </Swiper>
+        <div className="flex">
+          <button onClick={() => swiperRef.current?.slidePrev()}>
+            <ChevronLeft className="text-orange-500 cursor-pointer" />
+          </button>
+          <Swiper
+            onSwiper={setThumbsSwiper}
+            spaceBetween={10}
+            slidesPerView={4}
+            freeMode={true}
+            watchSlidesProgress={true}
+            modules={[FreeMode, Navigation, Thumbs]}
+            className="mySwiper max-h-180 w-full max-w-140 cursor-pointer"
+          >
+            {hasPictures ? (
+              pictures.map((_, i) => (
                 <SwiperSlide
                   key={i}
                   className="my-auto"
                   onMouseEnter={() => handleThumbnailHover(i)}
                 >
                   <img
-                    src={
-                      petData.attributes.pictureThumbnailUrl
-                        ? cleanImageUrl(
-                            petData.attributes.pictureThumbnailUrl
-                          ) +
-                          (petData.relationships?.pictures?.data?.[i]?.id
-                            ? `/${petData.relationships.pictures.data[i].id}.jpg`
-                            : "") // Only add if ID exists
-                        : "assets/img/Logo1.png"
-                    }
+                    src={getImageUrl(i)}
                     className="border rounded-md border-orange-500"
+                    alt="Thumbnail"
                   />
                 </SwiperSlide>
-              ))}
-            </Swiper>
-            <button onClick={() => swiperRef.current?.slideNext()}>
-              <ChevronRight className="text-orange-500 cursor-pointer" />
-            </button>
-          </div>
+              ))
+            ) : (
+              <SwiperSlide className="my-auto">
+                <img
+                  src="/assets/img/Logo1.png"
+                  className="border rounded-md border-orange-500"
+                  alt="Placeholder Thumbnail"
+                />
+              </SwiperSlide>
+            )}
+          </Swiper>
+          <button onClick={() => swiperRef.current?.slideNext()}>
+            <ChevronRight className="text-orange-500 cursor-pointer" />
+          </button>
         </div>
-      ) : (
-        <p>Loading pet data...</p>
-      )}
+      </div>
 
       <ReactModal
         isOpen={!!selectedImage}
         ariaHideApp={false}
         onRequestClose={handleCloseModal}
-        className="p-6 rounded-lg shadow-lg w-[100%] max-w-2xl mx-auto"
+        className="p-6 focus:outline-none rounded-lg shadow-lg w-[100%] max-w-2xl mx-auto"
         overlayClassName="fixed inset-0 bg-black/75 flex justify-center items-center z-50"
       >
         <div className="relative flex justify-center items-center">
