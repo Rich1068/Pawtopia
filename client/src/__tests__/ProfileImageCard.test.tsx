@@ -2,14 +2,18 @@ import { render, screen } from "@testing-library/react";
 import ProfileImageCard from "../components/Profile/ProfileImageCard";
 import { User } from "../types/Types";
 import "@testing-library/jest-dom";
+import React from "react";
 
-const renderProfileImageCard = (user: User = mockUser) => {
-  return render(<ProfileImageCard user={user} />);
-};
 jest.mock("lucide-react", () => ({
   UserRound: () => <svg data-testid="lucide-user-round" />,
   Pencil: () => <svg data-testid="lucide-pencil" />,
 }));
+jest.mock("../context/AuthContext", () => ({
+  AuthContext: {
+    Provider: ({ children }: { children: React.ReactNode }) => children,
+  },
+}));
+
 const mockUser: User = {
   _id: "1",
   name: "Bob",
@@ -18,6 +22,25 @@ const mockUser: User = {
   email: "bob@gmail.com",
   phoneNumber: "9017654897",
   createdAt: new Date(),
+};
+jest.spyOn(React, "useContext").mockReturnValue({
+  user: mockUser,
+  isAuthenticated: true,
+  loading: false,
+  verifyToken: jest.fn(),
+  login: jest.fn(),
+  logout: jest.fn(),
+});
+
+jest.mock("../helper/axios", () => ({
+  default: {
+    post: jest.fn(),
+  },
+}));
+
+// ✅ Wrap the component in `MockAuthProvider`
+const renderProfileImageCard = (user: User = mockUser) => {
+  return render(<ProfileImageCard user={user} />);
 };
 
 describe("ProfileImageCard Unit Test", () => {

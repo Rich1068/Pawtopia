@@ -2,10 +2,9 @@ import { createContext, useState, useEffect, ReactNode } from "react";
 import type { User, AuthContextType } from "../types/Types";
 import LoadingPage from "../components/LoadingPage/LoadingPage";
 import serverAPI from "../helper/axios";
+import SERVER_URL from "../helper/envVariables";
 export const AuthContext = createContext<AuthContextType | null>(null);
-
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const SERVER_URL = import.meta.env.VITE_SERVER_URL;
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const isAuthenticated = !!user;
