@@ -5,8 +5,8 @@ import Card from "./Card";
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
-
 import "./carousel.css";
+
 export default function Carousel() {
   const images = [
     "https://images.unsplash.com/photo-1537151625747-768eb6cf92b2?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTF8fGRvZ3xlbnwwfHwwfHx8MA%3D%3D",

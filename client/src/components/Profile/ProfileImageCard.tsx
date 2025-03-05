@@ -4,6 +4,7 @@ import { User } from "../../types/Types";
 import ProfileImageUpload from "./ProfileImageUpload";
 import { AuthContext } from "../../context/AuthContext";
 import serverAPI from "../../helper/axios";
+
 const ProfileImageCard: FC<{ user: User }> = ({ user }) => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const { verifyToken } = useContext(AuthContext)!;
@@ -44,9 +45,13 @@ const ProfileImageCard: FC<{ user: User }> = ({ user }) => {
                 className="w-30 h-30 rounded-full object-cover"
               />
             ) : (
-              <UserRound className="text-orange-600 border rounded-full w-30 h-30" />
+              <UserRound
+                data-testid="lucide-user-round"
+                className="text-orange-600 border rounded-full w-30 h-30"
+              />
             )}
             <div
+              data-testid="edit-profileImage-button"
               className="absolute inset-0 bg-orange-500 bg-opacity-10 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer"
               onClick={() => {
                 setModalIsOpen(true);

@@ -60,6 +60,7 @@ const ProfileImageUpload: FC<ImageUploadPropTypes> = ({
         accept="image/*"
         className="mt-4 block w-full text-sm text-gray-700 border border-gray-300 rounded-lg cursor-pointer focus:outline-none"
         onChange={handleImageUpload}
+        data-testid="file-input"
       />
 
       {/* Modal Actions */}
