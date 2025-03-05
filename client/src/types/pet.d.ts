@@ -73,6 +73,7 @@ export enum AgeGroup {
   Adult = "Adult",
   Baby = "Baby",
   Young = "Young",
+  Senior = "Senior",
 }
 
 export enum CoatLength {
@@ -90,6 +91,7 @@ export enum SizeGroup {
   Large = "Large",
   Medium = "Medium",
   Small = "Small",
+  XLarge = "X-Large",
 }
 
 export enum SizeUOM {

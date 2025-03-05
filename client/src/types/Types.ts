@@ -63,4 +63,16 @@ export interface AuthContextType {
   logout: () => void;
 }
 
+export interface PetFilter {
+  species: string[];
+  age: string[];
+  size: string[];
+  gender: string[];
+}
+export interface PetCounts {
+  species: { dog: number; cat: number };
+  age: { young: number; adult: number; senior: number };
+  size: { small: number; medium: number; large: number; xlarge: number };
+  gender: { male: number; female: number };
+}
 export type Pets = Pet[]; // Array of pets

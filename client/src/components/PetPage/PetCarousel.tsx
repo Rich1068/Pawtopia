@@ -29,12 +29,17 @@ export const PetCarousel: FC<IPetCarousel> = ({
   const pictures = petData?.relationships?.pictures?.data || [];
   const hasPictures = pictures.length > 0;
 
-  const getImageUrl = (index: number) =>
-    petData?.attributes.pictureThumbnailUrl && pictures[index]
-      ? `${cleanImageUrl(petData.attributes.pictureThumbnailUrl)}/${
-          pictures[index].id
-        }.jpg`
-      : "assets/img/Logo1.png";
+  const placeholderImage = "/assets/img/Logo1.png";
+
+  const getImageUrl = (index: number) => {
+    const url =
+      petData?.attributes.pictureThumbnailUrl && pictures[index]
+        ? `${cleanImageUrl(petData.attributes.pictureThumbnailUrl)}/${
+            pictures[index].id
+          }.jpg`
+        : placeholderImage;
+    return url;
+  };
 
   const handleImageClick = (imageUrl: string) => {
     setSelectedImage(imageUrl);
@@ -74,6 +79,7 @@ export const PetCarousel: FC<IPetCarousel> = ({
                 <img
                   src={getImageUrl(i)}
                   onClick={() => handleImageClick(getImageUrl(i))}
+                  onError={(e) => (e.currentTarget.src = placeholderImage)}
                   alt="Pet"
                   className="border rounded-xl border-orange-500 object-contain !h-auto !w-auto !max-h-125"
                 />
@@ -112,6 +118,7 @@ export const PetCarousel: FC<IPetCarousel> = ({
                   <img
                     src={getImageUrl(i)}
                     className="border rounded-md border-orange-500"
+                    onError={(e) => (e.currentTarget.src = placeholderImage)}
                     alt="Thumbnail"
                   />
                 </SwiperSlide>

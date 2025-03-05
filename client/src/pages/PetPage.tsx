@@ -3,10 +3,10 @@ import { useEffect, useState } from "react";
 import serverAPI from "../helper/axios";
 import PetCarousel from "../components/PetPage/PetCarousel";
 import { SwiperClass } from "swiper/react";
-import PetHeader from "../components/PetPage/PetHeader";
 import PetPageText from "../components/PetPage/PetPageText";
 import type { petType } from "../types/pet";
 import LoadingPage from "../components/LoadingPage/LoadingPage";
+import PageHeader from "../components/PageHeader";
 
 const PetPage = () => {
   const [thumbsSwiper, setThumbsSwiper] = useState<SwiperClass | null>(null);
@@ -40,7 +40,7 @@ const PetPage = () => {
   }
   return (
     <>
-      <PetHeader />
+      <PageHeader text="Pet Details" />
       <div className="bg-orange-600">
         <div className="mx-auto rounded-t-xl bg-white p-4 h-full w-full flex max-md:flex-col">
           {/* Left side - PetCarousel */}
