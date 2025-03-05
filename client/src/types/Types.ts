@@ -40,13 +40,25 @@ export interface User {
   _id: string;
   name: string;
   email: string;
+  phoneNumber: string;
   role: "admin" | "user";
   createdAt: Date;
+  profileImage: string;
 }
 export interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   loading: boolean;
+  verifyToken: () => Promise<
+    | {
+        success: boolean;
+        user?: undefined;
+      }
+    | {
+        success: boolean;
+        user: User;
+      }
+  >;
   login: () => Promise<boolean>;
   logout: () => void;
 }

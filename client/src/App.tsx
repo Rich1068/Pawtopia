@@ -13,12 +13,14 @@ import Adopt from "./pages/Adopt";
 import Shop from "./pages/Shop";
 import Contact from "./pages/Contact";
 import Profile from "./pages/Profile";
+import PetPage from "./components/Adopt/PetPage";
+import Footer from "./components/Footer";
 axios.defaults.withCredentials = true;
 
 function App() {
   return (
     <>
-      <Toaster position="bottom-left" toastOptions={{ duration: 2000 }} />
+      <Toaster position="top-center" toastOptions={{ duration: 2000 }} />
       <Routes>
         <Route element={<LayoutWithNavbar />}>
           <Route path="/" element={<Landing />} />
@@ -30,12 +32,14 @@ function App() {
             <Route path="/admin-dashboard" element={<Admin />} />
           </Route>
           <Route path="/adopt" element={<Adopt />} />
+          <Route path="/adopt/pets/:id" element={<PetPage />} />
           <Route path="/shop" element={<Shop />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
         </Route>
       </Routes>
+      <Footer />
     </>
   );
 }

@@ -1,6 +1,6 @@
 import { NavLink } from "react-router";
 import { useRef, useContext, useEffect, useState } from "react";
-import { PawPrint, User, LogOut, Menu, X } from "lucide-react";
+import { PawPrint, LogOut, Menu, X, UserRound } from "lucide-react";
 import { AuthContext } from "../context/AuthContext";
 
 const NavBar = () => {
@@ -73,22 +73,49 @@ const NavBar = () => {
             ))}
           </ul>
         </nav>
+        {/* Desktop Navigation */}
+        <nav className="max-lg:hidden pl-20 lg:block absolute left-1/2 transform -translate-x-1/2">
+          <ul className="flex gap-x-6">
+            {navItems.map(({ name, path, testId }) => (
+              <li key={name}>
+                <NavLink
+                  to={path}
+                  className={({ isActive }) =>
+                    `hover:text-orange-600 text-amber-950 font-secondary  text-lg font-extrabold px-3 py-2 ${
+                      isActive ? "text-orange-500" : ""
+                    }`
+                  }
+                  data-testid={`${testId}-nav`}
+                >
+                  {name}
+                </NavLink>
+              </li>
+            ))}
+          </ul>
+        </nav>
 
-        {/* Auth Buttons */}
         <div className="flex max-lg:ml-auto space-x-4">
           {user ? (
             <>
-              <div className="relative max-sm:hidden" ref={dropdownRef}>
+              <div className="relative" ref={dropdownRef}>
                 <button
                   onClick={() => setDropdownOpen(!dropdownOpen)}
-                  className="flex items-center p-2 rounded-full bg-white hover:bg-orange-500 border border-orange-500 group"
+                  className="flex items-center p-2 bg-white group rounded-full"
                 >
-                  <User className="w-6 h-6 text-orange-500 group-hover:text-white" />
+                  {user.profileImage ? (
+                    <img
+                      src={user.profileImage}
+                      alt="Profile"
+                      className="w-10 h-10 rounded-full object-cover group-hover:text-white cursor-pointer"
+                    />
+                  ) : (
+                    <UserRound className="w-8 h-8 text-orange-500 border rounded-full group-hover:text-white group-hover:bg-orange-500 group-hover:border-orange-500 cursor-pointer" />
+                  )}
                 </button>
 
                 {dropdownOpen && (
                   <div className="absolute right-0 mt-2 w-45 bg-white shadow-lg rounded-md p-2 border border-orange-500 divide-gray-300 divide-y">
-                    <div className="px-2 py-1 text-lg text-gray-900 dark:text-white font-secondary font-bold ">
+                    <div className="px-2 py-1 text-lg text-gray-900 font-secondary font-bold ">
                       <div>{user?.name}</div>
                       <div className="font-medium">{user?.email}</div>
                     </div>
@@ -142,7 +169,7 @@ const NavBar = () => {
       {isOpen && (
         <div className="bg-white fixed top-0 left-0 w-1/2 min-w-[300px] h-full shadow-md p-6 z-50">
           <div className=" flex relative">
-            <User className=" w-10 h-10 text-orange-500 border rounded-full border-orange-500 group-hover:text-white" />
+            <UserRound className=" w-10 h-10 text-orange-500 border rounded-full border-orange-500 group-hover:text-white" />
             <div className="content-center ml-2 font-primary font-semibold text-xl text-orange-500">
               {" "}
               {user?.name}

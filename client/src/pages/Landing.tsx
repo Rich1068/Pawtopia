@@ -7,13 +7,11 @@ import Carousel from "../components/Landing/Carousel/Carousel";
 
 const Landing = () => {
   return (
-    <>
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-        <HeroSection />
-        <CenterText />
-        <Carousel />
-      </motion.div>
-    </>
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+      <HeroSection />
+      <CenterText />
+      <Carousel />
+    </motion.div>
   );
 };
 

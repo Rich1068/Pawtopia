@@ -9,6 +9,7 @@ import pet from "./routes/pets";
 import user from "./routes/user";
 import swaggerUI from "swagger-ui-express";
 import petstoreApi from "../petstoreapi.json";
+import path from "path";
 db_connection();
 dotenv.config();
 const app = express();
@@ -16,13 +17,15 @@ const app = express();
 app.use(
   cors({
     origin: "http://localhost:5173",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type"],
     credentials: true,
   })
 );
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-
+app.use("/assets", express.static(path.join(__dirname, "assets")));
 app.use("/", route);
 app.use("/api", auth);
 app.use("/pet", pet);

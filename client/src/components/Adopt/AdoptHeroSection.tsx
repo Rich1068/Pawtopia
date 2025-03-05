@@ -13,9 +13,7 @@ const AdoptHeroSection: FC<Selection> = ({ selected, setSelected }) => {
         newState[item] = true;
         if (!toastShown.current) {
           // Prevent multiple toasts
-          toast.error("At least one option must remain selected", {
-            position: "top-center",
-          });
+          toast.error("At least one option must remain selected");
           toastShown.current = true;
 
           // Reset after a short delay so it can trigger again if needed

@@ -7,7 +7,7 @@ const CenterText = () => {
           <h1 className="mb-4 text-4xl font-semibold tracking-tight leading-none font-primary text-orange-600 md:text-5xl lg:text-6xl">
             Get Your Pet Here at Pawtopia
           </h1>
-          <p className="mb-8 text-lg font-normal font-secondary text-gray-500 lg:text-xl sm:px-16 xl:px-48 dark:text-gray-400">
+          <p className="mb-8 text-lg font-normal font-secondary text-gray-500 lg:text-xl sm:px-16 xl:px-48">
             Find healthy, happy, and well-cared-for pets ready to join your
             family. Quality, love, and companionship—only at Pawtopia!
           </p>
@@ -23,7 +23,7 @@ const CenterText = () => {
               <a
                 href="https://www.pedigree.com/"
                 target="_blank"
-                className="mr-5 mb-5 lg:mb-0 hover:text-gray-800 dark:hover:text-gray-400"
+                className="mr-5 mb-5 lg:mb-0 hover:text-gray-800"
               >
                 <img
                   className="h-30 pr-30"
@@ -34,7 +34,7 @@ const CenterText = () => {
               <a
                 href="https://www.royalcanin.com/ph"
                 target="_blank"
-                className="mr-5 mb-5 lg:mb-0 hover:text-gray-800 dark:hover:text-gray-400"
+                className="mr-5 mb-5 lg:mb-0 hover:text-gray-800"
               >
                 <img
                   className="h-30 pr-30"
@@ -45,7 +45,7 @@ const CenterText = () => {
               <a
                 href="https://www.purina.com/"
                 target="_blank"
-                className="mr-5 mb-5 lg:mb-0 hover:text-gray-800 dark:hover:text-gray-400"
+                className="mr-5 mb-5 lg:mb-0 hover:text-gray-800"
               >
                 <img
                   className="h-30 pr-30"
@@ -56,7 +56,7 @@ const CenterText = () => {
               <a
                 href="https://paws.org.ph/"
                 target="_blank"
-                className="mr-5 mb-5 lg:mb-0 hover:text-gray-800 dark:hover:text-gray-400"
+                className="mr-5 mb-5 lg:mb-0 hover:text-gray-800"
               >
                 <img
                   className="h-30 pr-30"
