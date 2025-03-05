@@ -30,8 +30,8 @@ describe("ProfileImageUpload Unit Test", () => {
 
   it("display the modal when isOpen is true", () => {
     renderProfileImageUpload();
-    expect(screen.getByText("Upload Profile Picture")).toBeInTheDocument();
-    expect(screen.getByText("No Image")).toBeInTheDocument();
+    expect(screen.getByText("Upload Profile Picture")).toBeVisible()();
+    expect(screen.getByText("No Image")).toBeVisible()();
   });
 
   it("does not display the modal when isOpen is false", () => {
@@ -44,7 +44,7 @@ describe("ProfileImageUpload Unit Test", () => {
     uploadImage();
 
     await waitFor(() => {
-      expect(screen.getByAltText("Preview")).toBeInTheDocument();
+      expect(screen.getByAltText("Preview")).toBeVisible()();
     });
   });
 

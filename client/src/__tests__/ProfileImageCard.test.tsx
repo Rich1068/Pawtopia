@@ -24,19 +24,19 @@ describe("ProfileImageCard Unit Test", () => {
   it("displays username and role", () => {
     renderProfileImageCard();
 
-    expect(screen.getByText("Bob")).toBeInTheDocument();
-    expect(screen.getByText("user")).toBeInTheDocument();
+    expect(screen.getByText("Bob")).toBeVisible();
+    expect(screen.getByText("user")).toBeVisible();
   });
   it("displays profile image if available", () => {
     renderProfileImageCard();
 
     const profileImage = screen.getByAltText("Profile");
-    expect(profileImage).toBeInTheDocument();
+    expect(profileImage).toBeVisible();
     expect(profileImage).toHaveAttribute("src", mockUser.profileImage);
   });
   it("displays placeholder icon when image is missing", () => {
     const userWithoutImage: User = { ...mockUser, profileImage: "" };
     renderProfileImageCard(userWithoutImage);
-    expect(screen.getByTestId("lucide-user-round")).toBeInTheDocument();
+    expect(screen.getByTestId("lucide-user-round")).toBeVisible();
   });
 });
