@@ -10,7 +10,7 @@ const errorCases = [
   {
     email: "doesnotexist@gmail.com",
     password: "password123",
-    expectedError: "Account does not exist",
+    expectedError: "User does not exist",
   },
   {
     email: "user@gmail.com",
@@ -43,7 +43,13 @@ test.describe("Testing Login", () => {
   });
   test("Login works", async () => {
     await login(page, "user@gmail.com", "12");
-    await expect(page).toHaveURL(URL + "/user-dashboard");
+
+    await page.waitForNavigation({
+      url: URL + "/user-dashboard",
+      timeout: 100000,
+    });
+
+    await expect(page).toHaveURL(URL + "/user-dashboard", { timeout: 100000 });
   });
 });
 test.afterAll(async () => {

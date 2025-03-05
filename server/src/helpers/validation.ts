@@ -73,7 +73,7 @@ export const validateLogin = async (
   }
 
   if (!(await isUserExists(email))) {
-    res.status(404).json({ error: "User Does not Exists" });
+    res.status(404).json({ error: "User does not exist" });
     return false;
   }
   return true;

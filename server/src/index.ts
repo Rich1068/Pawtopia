@@ -30,7 +30,6 @@ app.use("/", route);
 app.use("/api", auth);
 app.use("/pet", pet);
 app.use("/user", user);
-app.use("/api/v3", swaggerUI.serve, swaggerUI.setup(petstoreApi));
 const port = process.env.PORT || 8000;
 app.listen(port, () => {
   console.log("Backend Server running at Port: " + port);

@@ -41,8 +41,11 @@ export const validate = (
     return false;
   }
 
-  if (isRegister && !passwordCheck(password, confirmPassword)) {
-    return false;
+  if (isRegister) {
+    const passwordCheckResult = passwordCheck(password, confirmPassword);
+    if (passwordCheckResult === false) {
+      return false;
+    }
   }
   return true;
 };
