@@ -41,66 +41,73 @@ const Adopt = () => {
   });
 
   // Filter pets based on selection
-  const filteredPets = useMemo(() => {
-    return allPets.filter((pet) => {
-      const speciesId = pet.relationships.species.data[0]?.id;
-      const petAge = pet.attributes.ageGroup?.toLowerCase() ?? "";
-      const petSize = pet.attributes.sizeGroup?.toLowerCase() ?? "";
-      const petGender = pet.attributes.sex?.toLowerCase() ?? "";
-
-      const matchesSpecies =
-        selected.species.length === 0 ||
-        (selected.species.includes("dog") && speciesId === "8") ||
-        (selected.species.includes("cat") && speciesId === "3");
-
-      const matchesAge =
-        selected.age.length === 0 || selected.age.includes(petAge);
-
-      const matchesSize =
-        selected.size.length === 0 || selected.size.includes(petSize);
-
-      const matchesGender =
-        selected.gender.length === 0 || selected.gender.includes(petGender);
-
-      return matchesSpecies && matchesAge && matchesSize && matchesGender;
-    });
-  }, [selected, allPets]);
-
-  //Count of the pets with the attribute
-  const petCounts = useMemo(() => {
+  const { filteredPets, petCounts } = useMemo(() => {
+    //counter
     const counts = {
       species: { dog: 0, cat: 0 },
-      age: { young: 0, adult: 0, senior: 0, baby: 0 },
+      age: { baby: 0, young: 0, adult: 0, senior: 0 },
       size: { small: 0, medium: 0, large: 0, xlarge: 0 },
       gender: { male: 0, female: 0 },
     };
 
-    filteredPets.forEach((pet) => {
-      const speciesId = pet.relationships?.species?.data?.[0]?.id;
-      if (speciesId === "8") counts.species.dog++;
-      if (speciesId === "3") counts.species.cat++;
+    //Mapping of filters
+    const speciesMap = { "8": "dog", "3": "cat" } as const;
+    const ageMap = {
+      Baby: "baby",
+      Young: "young",
+      Adult: "adult",
+      Senior: "senior",
+    } as const;
+    const sizeMap = {
+      Small: "small",
+      Medium: "medium",
+      Large: "large",
+      "X-Large": "xlarge",
+    } as const;
+    const genderMap = { Male: "male", Female: "female" } as const;
 
-      const ageGroup = pet.attributes?.ageGroup;
-      if (ageGroup === "Young") counts.age.young++;
-      if (ageGroup === "Adult") counts.age.adult++;
-      if (ageGroup === "Senior") counts.age.senior++;
-      if (ageGroup === "Baby") counts.age.baby++;
+    const filtered = allPets.reduce<petType[]>((acc, pet) => {
+      const { relationships, attributes } = pet;
 
-      const sizeGroup = pet.attributes?.sizeGroup;
-      if (sizeGroup === "Small") counts.size.small++;
-      if (sizeGroup === "Medium") counts.size.medium++;
-      if (sizeGroup === "Large") counts.size.large++;
-      if (sizeGroup === "X-Large") counts.size.xlarge++;
+      // Get pet properties
+      const speciesId = relationships?.species?.data?.[0]?.id;
+      const petAge = attributes?.ageGroup;
+      const petSize = attributes?.sizeGroup;
+      const petGender = attributes?.sex;
 
-      const gender = pet.attributes?.sex;
-      if (gender === "Male") counts.gender.male++;
-      if (gender === "Female") counts.gender.female++;
+      // Check if pet matches selected filters
+      const matchesSpecies =
+        !selected.species.length ||
+        (selected.species.includes("dog") && speciesId === "8") ||
+        (selected.species.includes("cat") && speciesId === "3");
+      const matchesAge =
+        !selected.age.length ||
+        (petAge && selected.age.includes(petAge.toLowerCase()));
+      const matchesSize =
+        !selected.size.length ||
+        (petSize && selected.size.includes(petSize.toLowerCase()));
+      const matchesGender =
+        !selected.gender.length ||
+        (petGender && selected.gender.includes(petGender.toLowerCase()));
 
-      console.log("Size Group:", sizeGroup);
-    });
+      //update count if the pet matches
+      if (matchesSpecies && matchesAge && matchesSize && matchesGender) {
+        if (speciesId && speciesMap[speciesId as keyof typeof speciesMap]) {
+          counts.species[speciesMap[speciesId as keyof typeof speciesMap]]++;
+        }
+        if (petAge && ageMap[petAge]) counts.age[ageMap[petAge]]++;
+        if (petSize && sizeMap[petSize]) counts.size[sizeMap[petSize]]++;
+        if (petGender && genderMap[petGender])
+          counts.gender[genderMap[petGender]]++;
 
-    return counts;
-  }, [filteredPets]);
+        acc.push(pet); //Add pet to the filtered lists
+      }
+
+      return acc;
+    }, []);
+
+    return { filteredPets: filtered, petCounts: counts };
+  }, [selected, allPets]);
 
   // Update page count and ensure currentPage is valid
   const pageCount = Math.max(Math.ceil(filteredPets.length / petsPerPage), 1);
