@@ -35,7 +35,10 @@ const Cards: FC<ICards> = ({ pets, selected, setSelected, petCounts }) => {
         {pets.length > 0 ? (
           <div className="grid grid-cols-5 content-start w-full max-sm:grid-cols-2 sm:max-md:grid-cols-2 md:max-lg:grid-cols-3 lg:max-xl:grid-cols-4 max-xl:pl-0 max-xl:pr-0 max-[1600px]:pl-5 max-[1600px]:pr-5 max-[1700px]:pl-10 max-[1700px]:pr-10 pl-10 pr-10">
             {pets.map((pet) => (
-              <div className="inline-grid m-auto mt-11 w-60 max-sm:w-50 transform overflow-hidden rounded-lg bg-white shadow-md duration-300 hover:scale-105 hover:shadow-lg">
+              <div
+                key={pet.id}
+                className="inline-grid m-auto mt-11 w-60 max-sm:w-50 transform overflow-hidden rounded-lg bg-white shadow-md duration-300 hover:scale-105 hover:shadow-lg"
+              >
                 <Link
                   to={`/adopt/pets/${pet.id}`}
                   key={pet.id}

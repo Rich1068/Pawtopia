@@ -8,6 +8,16 @@ import LoadingPage from "../components/LoadingPage/LoadingPage";
 import ReactPaginate from "react-paginate";
 import PageHeader from "../components/PageHeader";
 import { PetFilter } from "../types/Types";
+import { useQuery } from "@tanstack/react-query";
+
+const fetchPets = async () => {
+  try {
+    const { data } = await serverAPI.get("/pet/getAvailablePets");
+    return data.data as petType[];
+  } catch (error) {
+    console.log("FetchPets error: ", error);
+  }
+};
 
 const Adopt = () => {
   //SELECTED FILTERS
@@ -18,21 +28,17 @@ const Adopt = () => {
     gender: [],
   });
 
-  const [allPets, setAllPets] = useState<petType[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const petsPerPage = 25;
 
-  // Fetch pets once
-  useEffect(() => {
-    serverAPI
-      .get("/pet/getAvailablePets")
-      .then(({ data }) => {
-        setAllPets(data.data);
-      })
-      .catch((error) => console.error("Error fetching pets:", error))
-      .finally(() => setIsLoading(false));
-  }, []);
+  //tanstack Query
+  const { data: allPets = [], isLoading } = useQuery({
+    queryKey: ["pets"],
+    queryFn: fetchPets,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
 
   // Filter pets based on selection
   const filteredPets = useMemo(() => {

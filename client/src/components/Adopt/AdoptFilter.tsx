@@ -25,41 +25,37 @@ export const AdoptFilter: FC<IAdoptFilter> = ({
         : [...prev[filterType], value], //add the filter
     }));
   };
-
+  const filterOptions: {
+    title: string;
+    options: string[];
+    type: keyof PetFilter;
+  }[] = [
+    { title: "Species", options: ["dog", "cat"], type: "species" },
+    {
+      title: "Age",
+      options: ["baby", "young", "adult", "senior"],
+      type: "age",
+    },
+    {
+      title: "Size",
+      options: ["small", "medium", "large", "x-large"],
+      type: "size",
+    },
+    { title: "Gender", options: ["male", "female"], type: "gender" },
+  ];
   return (
     <div className="w-64 bg-white p-4 font-secondary font-semibold">
-      <FilterSection
-        title="Species"
-        options={["dog", "cat"]}
-        selected={selected.species}
-        petCounts={petCounts.species}
-        filterType="species"
-        handleCheckboxChange={handleCheckboxChange}
-      />
-      <FilterSection
-        title="Age"
-        options={["baby", "young", "adult", "senior"]}
-        selected={selected.age}
-        petCounts={petCounts.age}
-        filterType="age"
-        handleCheckboxChange={handleCheckboxChange}
-      />
-      <FilterSection
-        title="Size"
-        options={["small", "medium", "large", "x-large"]}
-        selected={selected.size}
-        petCounts={petCounts.size}
-        filterType="size"
-        handleCheckboxChange={handleCheckboxChange}
-      />
-      <FilterSection
-        title="Gender"
-        options={["male", "female"]}
-        selected={selected.gender}
-        petCounts={petCounts.gender}
-        filterType="gender"
-        handleCheckboxChange={handleCheckboxChange}
-      />
+      {filterOptions.map(({ title, options, type }) => (
+        <FilterSection
+          key={type}
+          title={title}
+          options={options}
+          selected={selected[type]}
+          petCounts={petCounts[type]}
+          filterType={type}
+          handleCheckboxChange={handleCheckboxChange}
+        />
+      ))}
     </div>
   );
 };
