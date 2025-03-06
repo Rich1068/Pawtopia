@@ -7,9 +7,9 @@ const NavBar = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const { user, logout, loading } = useContext(AuthContext)!;
   const [dropdownOpen, setDropdownOpen] = useState(false);
-
+  const [closing, setClosing] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  //temporary solution
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -34,10 +34,17 @@ const NavBar = () => {
     { name: "Adopt", path: "/adopt", testId: "adopt" },
     { name: "Contact", path: "/contact", testId: "contact" },
   ];
+  const handleClose = () => {
+    setClosing(true);
+    setTimeout(() => {
+      setIsOpen(false);
+      setClosing(false);
+    }, 300); // Matches animation duration
+  };
 
   return (
-    <header className="flex fixed shadow-md py-3 px-8 sm:px-10 bg-white font-sans min-h-[70px] tracking-wide z-50 mx-auto rounded-b-xl w-full">
-      <div className="flex flex-wrap items-center justify-between gap-5 w-full">
+    <header className="flex fixed shadow-md py-3 px-8 sm:m-auto bg-white font-sans min-h-[70px] tracking-wide z-50 mx-auto rounded-b-xl min-w-screen w-auto z-1000">
+      <div className="flex flex-wrap flex-row items-center justify-between gap-5 w-full">
         {/* Logo */}
 
         <NavLink to="/" data-testid="logo-nav">
@@ -54,7 +61,7 @@ const NavBar = () => {
         </NavLink>
 
         {/* Desktop Navigation */}
-        <nav className="max-lg:hidden pl-20 lg:block absolute left-1/2 transform -translate-x-1/2">
+        <nav className="max-lg:hidden lg:block absolute left-1/2 transform -translate-x-1/2">
           <ul className="flex gap-x-6">
             {navItems.map(({ name, path, testId }) => (
               <li key={name}>
@@ -74,7 +81,7 @@ const NavBar = () => {
           </ul>
         </nav>
 
-        <div className="flex max-lg:ml-auto space-x-4">
+        <div className="flex max-lg:ml-auto space-x-4 w-auto">
           {user ? (
             <>
               <div className="relative" ref={dropdownRef}>
@@ -139,7 +146,10 @@ const NavBar = () => {
           )}
 
           {/* Mobile Menu Button */}
-          <button className="lg:hidden" onClick={() => setIsOpen(!isOpen)}>
+          <button
+            className="lg:hidden"
+            onClick={() => (isOpen ? handleClose() : setIsOpen(true))}
+          >
             {isOpen ? <X size={28} /> : <Menu size={28} />}
           </button>
         </div>
@@ -147,18 +157,27 @@ const NavBar = () => {
 
       {/* Mobile Menu */}
       {isOpen && (
-        <div className="bg-white fixed top-0 left-0 w-1/2 min-w-[300px] h-full shadow-md p-6 z-50">
+        <div
+          className={`bg-white fixed top-0 left-0 w-3/4 sm:w-1/2 min-w-[300px] h-full shadow-md p-6 z-50 
+    transform transition-transform duration-300 ease-in-out 
+    ${closing ? "animate-slide-out" : "animate-slide-in"}`}
+        >
           <div className=" flex relative">
-            <UserRound className=" w-10 h-10 text-orange-500 border rounded-full border-orange-500 group-hover:text-white" />
+            {user?.profileImage ? (
+              <img
+                src={user.profileImage}
+                alt="Profile"
+                className="w-10 h-10 rounded-full object-cover group-hover:text-white cursor-pointer"
+              />
+            ) : (
+              <UserRound className="w-8 h-8 text-orange-500 border rounded-full group-hover:text-white group-hover:bg-orange-500 group-hover:border-orange-500 cursor-pointer" />
+            )}
             <div className="content-center ml-2 font-primary font-semibold text-xl text-orange-500">
               {" "}
               {user?.name}
             </div>
           </div>
-          <button
-            onClick={() => setIsOpen(false)}
-            className="absolute top-2 right-4"
-          >
+          <button onClick={handleClose} className="absolute top-2 right-4">
             <X size={24} />
           </button>
           <div className="mt-5">
