@@ -2,8 +2,8 @@ import Marquee from "react-fast-marquee";
 const CenterText = () => {
   return (
     <>
-      <section className="bg-[url(/assets/img/wallpaper.jpg)] relative bg-fixed bg-center bg-cover bg-no-repeat">
-        <div className=" px-4 mx-auto max-w-screen-xl text-center lg:pt-16 lg:px-12">
+      <section className="">
+        <div className=" px-4 mx-auto max-w-screen-xl text-center pt-16 lg:px-12">
           <h1 className="mb-4 text-4xl font-semibold tracking-tight leading-none font-primary text-orange-600 md:text-5xl lg:text-6xl">
             Get Your Pet Here at Pawtopia
           </h1>

@@ -1,48 +1,76 @@
+import { ArrowRight } from "lucide-react";
+import { Link } from "react-router";
 export const HeroSection2 = () => {
   return (
-    <section className="bg-white">
-      <div className="grid max-w-screen-xl px-4 py-8 mx-auto lg:gap-8 xl:gap-0 lg:py-16 lg:grid-cols-12">
-        <div className="mr-auto place-self-center lg:col-span-7">
-          <h1 className="max-w-2xl mb-4 text-4xl font-extrabold text-amber-950 tracking-tight leading-none md:text-5xl xl:text-6xl">
-            Payments tool for software companies
-          </h1>
-          <p className="max-w-2xl mb-6 font-light text-amber-950  lg:mb-8 md:text-lg lg:text-xl">
-            From checkout to global sales tax compliance, companies around the
-            world use Flowbite to simplify their payment stack.
-          </p>
-          <a
-            href="#"
-            className="inline-flex items-center justify-center px-5 py-3 mr-3 text-base font-medium text-center text-white rounded-lg bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300"
-          >
-            Get started
-            <svg
-              className="w-5 h-5 ml-2 -mr-1"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                fill-rule="evenodd"
-                d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
-                clip-rule="evenodd"
-              ></path>
-            </svg>
-          </a>
-          <a
-            href="#"
-            className="inline-flex items-center justify-center px-5 py-3 text-base font-medium text-center text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-4 focus:ring-gray-100"
-          >
-            Speak to Sales
-          </a>
-        </div>
-        <div className="hidden lg:mt-0 lg:col-span-5 lg:flex">
-          <img
-            src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/hero/phone-mockup.png"
-            alt="mockup"
-          />
-        </div>
+    <>
+      <div className="w-full ">
+        <svg
+          viewBox="0 0 1440 100"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M0 43.9999C106.667 43.9999 213.333 7.99994 320 7.99994C426.667 7.99994 533.333 43.9999 640 43.9999C746.667 43.9999 853.333 7.99994 960 7.99994C1066.67 7.99994 1173.33 43.9999 1280 43.9999C1386.67 43.9999 1440 19.0266 1440 9.01329V100H0V43.9999Z"
+            className="fill-current text-white"
+          ></path>
+        </svg>
       </div>
-    </section>
+      <section className="relative bg-white  max-w-[100%] m-auto">
+        <div className="relative grid max-w-screen-xl px-5 mx-auto lg:gap-8 xl:gap-0 lg:py-10 lg:grid-cols-12 max-lg:py-5">
+          <div className="mr-auto place-self-center lg:col-span-7">
+            <h1 className="max-w-2xl mb-4 text-4xl font-primary font-semibold text-orange-600 tracking-tight leading-tight md:text-5xl xl:text-6xl">
+              Adopt & Shop – Give Your Pet the Best Start
+            </h1>
+            <p className="max-w-2xl mb-6 font-secondary text-amber-950 lg:mb-8 md:text-lg lg:text-xl">
+              Bringing home a new furry friend is just the beginning of a
+              beautiful journey. Make sure they have everything they need with
+              our selection of high-quality pet food, toys, and essentials.
+              Whether you're adopting or already have a pet, we've got you
+              covered. Start shopping now and give your pet the love and care
+              they deserve!
+            </p>
+
+            <div className="flex flex-wrap gap-4">
+              <Link
+                to="/adopt"
+                className="inline-flex items-center justify-center px-6 py-3 text-lg font-semibold text-white bg-orange-600 rounded-lg shadow-lg hover:bg-orange-700 focus:ring-4 focus:ring-orange-400 transition-all duration-300"
+              >
+                Find a Pet
+                <ArrowRight
+                  className="pl-2 animate-[bounce-right_2s_infinite]"
+                  size={30}
+                />
+              </Link>
+              <Link
+                to="/shop"
+                className="inline-flex items-center justify-center px-6 py-3 text-lg font-medium text-orange-600 border-2 border-orange-600 rounded-lg hover:bg-orange-500 hover:text-white focus:ring-4 focus:ring-orange-400 transition-all duration-300"
+              >
+                Visit Our Store
+              </Link>
+            </div>
+          </div>
+          <div className="max-lg:hidden col-span-5 pl-4 z-10 items-end justify-end">
+            <img
+              src="/assets/img/dogfood.png"
+              alt="dogfood"
+              className="object-contain drop-shadow-lg w-fit"
+            />
+          </div>
+        </div>
+      </section>
+      <div className="w-full rotate-180">
+        <svg
+          viewBox="0 0 1440 100"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M0 43.9999C106.667 43.9999 213.333 7.99994 320 7.99994C426.667 7.99994 533.333 43.9999 640 43.9999C746.667 43.9999 853.333 7.99994 960 7.99994C1066.67 7.99994 1173.33 43.9999 1280 43.9999C1386.67 43.9999 1440 19.0266 1440 9.01329V100H0V43.9999Z"
+            className="fill-current text-white"
+          ></path>
+        </svg>
+      </div>
+    </>
   );
 };
 
