@@ -118,7 +118,7 @@ const Adopt = () => {
 
   return (
     <>
-      <div className="bg-orange-500 min-h-screen flex flex-col">
+      <div className="min-h-screen flex flex-col">
         <PageHeader text="Adopt List" />
         <div className="flex flex-row">
           <Cards
@@ -129,30 +129,32 @@ const Adopt = () => {
           />
         </div>
       </div>
-      <ReactPaginate
-        forcePage={currentPage - 1}
-        previousLabel={"← Previous"}
-        nextLabel={"Next →"}
-        breakLabel={"..."}
-        pageCount={pageCount}
-        marginPagesDisplayed={2}
-        pageRangeDisplayed={3}
-        onPageChange={handlePageClick}
-        containerClassName={"flex justify-center space-x-2 mt-6"}
-        activeLinkClassName={"bg-orange-600 text-white"}
-        pageLinkClassName={
-          "border border-gray-300 px-3 py-1 rounded-md cursor-pointer"
-        }
-        previousLinkClassName={
-          "border border-gray-300 px-3 py-1 rounded-md cursor-pointer"
-        }
-        nextLinkClassName={
-          "border border-gray-300 px-3 py-1 rounded-md cursor-pointer"
-        }
-        breakLinkClassName={
-          "border border-gray-300 px-3 py-1 rounded-md cursor-pointer"
-        }
-      />
+      <div className="pb-5">
+        <ReactPaginate
+          forcePage={currentPage - 1}
+          previousLabel={"← Previous"}
+          nextLabel={"Next →"}
+          breakLabel={"..."}
+          pageCount={pageCount}
+          marginPagesDisplayed={2}
+          pageRangeDisplayed={3}
+          onPageChange={handlePageClick}
+          containerClassName={"flex justify-center space-x-2 mt-6"}
+          activeLinkClassName={"bg-orange-600 text-white"}
+          pageLinkClassName={
+            "border border-gray-300 px-3 py-1 rounded-md cursor-pointer"
+          }
+          previousLinkClassName={
+            "border border-gray-300 px-3 py-1 rounded-md cursor-pointer"
+          }
+          nextLinkClassName={
+            "border border-gray-300 px-3 py-1 rounded-md cursor-pointer"
+          }
+          breakLinkClassName={
+            "border border-gray-300 px-3 py-1 rounded-md cursor-pointer"
+          }
+        />
+      </div>
     </>
   );
 };

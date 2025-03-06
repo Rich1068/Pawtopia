@@ -8,14 +8,14 @@ export const Footer = () => {
   ];
   return (
     <footer className="mx-auto w-full max-w-container">
-      <div className="border-t border-slate-900/5 py-8 mt-10 rounded-t-2xl bg-[url(/assets/img/wallpaper.jpg)] bg-center bg-no-repeat text-center">
+      <div className="border-t border-slate-900/5 rounded-t-3xl py-5 bg-white bg-center bg-no-repeat text-center">
         <div className="inline-block left-[50%]">
           <NavLink to="/" data-testid="logo-footer">
             <div className="flex justify-center mx-auto">
               <img
                 src="/assets/img/Logo1.png"
                 alt="logo"
-                className=" m-2  h-10 w-auto"
+                className=" m-2 h-8 w-auto"
               />
               <h1 className="text-3xl font-semibold text-orange-600 content-center font-primary">
                 Pawtopia
