@@ -39,8 +39,8 @@ const Cards: FC<ICards> = ({ pets, cleanImageUrl }) => {
           ))}
         </div>
       ) : (
-        <div className="flex justify-center items-center py-10">
-          <div className="w-96 p-6 bg-white text-orange-600 shadow-md rounded-lg flex flex-col items-center text-center">
+        <div className="absolute left-0 right-0 flex py-10">
+          <div className="w-96 p-6 bg-white text-orange-600 shadow-md rounded-lg flex flex-col items-center text-center left-0 right-0 mx-auto">
             <FontAwesomeIcon icon={faPaw} size="3x" />
             <h2 className="text-lg font-semibold text-gray-700">
               No Pets Available

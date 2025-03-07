@@ -2,7 +2,11 @@ import { useMemo } from "react";
 import { petType } from "../types/pet";
 import { PetFilter } from "../types/Types";
 
-export const useFilteredPets = (allPets: petType[], selected: PetFilter) => {
+export const useFilteredPets = (
+  allPets: petType[],
+  selected: PetFilter,
+  searchQuery: string
+) => {
   return useMemo(() => {
     // Mapping definitions
     const speciesMap = { "8": "dog", "3": "cat" } as const;
@@ -36,6 +40,9 @@ export const useFilteredPets = (allPets: petType[], selected: PetFilter) => {
       const petSize = attributes?.sizeGroup;
       const petGender = attributes?.sex;
 
+      const searchField = attributes?.searchString?.toLowerCase() || "";
+      const matchesSearch = searchField.includes(searchQuery.toLowerCase());
+
       const mappedSpecies =
         speciesId && speciesId in speciesMap
           ? speciesMap[speciesId as keyof typeof speciesMap]
@@ -52,7 +59,8 @@ export const useFilteredPets = (allPets: petType[], selected: PetFilter) => {
         matchesFilter(selected.species, mappedSpecies) &&
         matchesFilter(selected.age, mappedAge) &&
         matchesFilter(selected.size, mappedSize) &&
-        matchesFilter(selected.gender, mappedGender)
+        matchesFilter(selected.gender, mappedGender) &&
+        matchesSearch
       ) {
         if (mappedSpecies) petCounts.species[mappedSpecies]++;
         if (mappedAge) petCounts.age[mappedAge]++;
@@ -66,5 +74,5 @@ export const useFilteredPets = (allPets: petType[], selected: PetFilter) => {
     }, []);
 
     return { filteredPets, petCounts };
-  }, [selected, allPets]);
+  }, [selected, allPets, searchQuery]);
 };

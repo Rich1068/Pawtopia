@@ -23,13 +23,18 @@ const AdoptContainer: FC<IAdoptContainer> = ({ allPets }) => {
       : { species: ["dog", "cat"], age: [], size: [], gender: [] };
   });
   const [isOpen, setIsOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     localStorage.setItem("selectedFilters", JSON.stringify(selected));
   }, [selected]);
 
   //custom hooks for filterpets, petcount, and pagination logic
-  const { filteredPets, petCounts } = useFilteredPets(allPets, selected);
+  const { filteredPets, petCounts } = useFilteredPets(
+    allPets,
+    selected,
+    searchQuery
+  );
   const { currentPets, currentPage, setCurrentPage, pageCount } = usePagination(
     filteredPets,
     25
@@ -73,6 +78,8 @@ const AdoptContainer: FC<IAdoptContainer> = ({ allPets }) => {
               selected={selected}
               setSelected={setSelected}
               petCounts={petCounts}
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
             />
           </div>
         </div>
@@ -83,6 +90,8 @@ const AdoptContainer: FC<IAdoptContainer> = ({ allPets }) => {
             selected={selected}
             setSelected={setSelected}
             petCounts={petCounts}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
           />
         </div>
         <Cards pets={currentPets} cleanImageUrl={cleanImageUrl} />

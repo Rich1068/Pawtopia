@@ -1,17 +1,22 @@
 import { FC } from "react";
 import { PetCounts, PetFilter } from "../../types/Types";
 import { FilterSection } from "./FilterSection";
+import { Search } from "lucide-react";
 
 interface IAdoptFilter {
   selected: PetFilter;
   setSelected: React.Dispatch<React.SetStateAction<PetFilter>>;
   petCounts: PetCounts;
+  searchQuery: string;
+  setSearchQuery: React.Dispatch<React.SetStateAction<string>>;
 }
 
 export const AdoptFilter: FC<IAdoptFilter> = ({
   selected,
   setSelected,
   petCounts,
+  searchQuery,
+  setSearchQuery,
 }) => {
   // Updates the selected filter
   const handleCheckboxChange = (filterType: keyof PetFilter, value: string) => {
@@ -46,6 +51,7 @@ export const AdoptFilter: FC<IAdoptFilter> = ({
       <div className="w-64 bg-white p-4 font-secondary font-semibold">
         <div className="flex justify-between items-center">
           <h2 className="text-xl font-bold">Filters</h2>
+
           <button
             onClick={() => {
               const defaultFilters = {
@@ -54,12 +60,23 @@ export const AdoptFilter: FC<IAdoptFilter> = ({
                 size: [],
                 gender: [],
               };
+              setSearchQuery("");
               setSelected(defaultFilters);
             }}
             className="text-sm text-red-600 underline hover:text-red-700"
           >
             Reset
           </button>
+        </div>
+        <div className="relative w-full">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Search for a pet..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="border p-2 pl-10 rounded-md w-full"
+          />
         </div>
         {filterOptions.map(({ title, options, type }) => (
           <FilterSection
