@@ -1,4 +1,4 @@
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import type { PetFilter } from "../../types/Types";
 import { ChevronDown, ChevronUp } from "lucide-react";
 interface IFilterSection {
@@ -17,7 +17,14 @@ export const FilterSection: FC<IFilterSection> = ({
   filterType,
   handleCheckboxChange,
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(() => {
+    const storedState = localStorage.getItem(`dropdown-${filterType}`);
+    return storedState ? JSON.parse(storedState) : selected.length > 0; // Open if any checkbox is checked
+  });
+  useEffect(() => {
+    localStorage.setItem(`dropdown-${filterType}`, JSON.stringify(isOpen));
+  }, [isOpen]);
+
   return (
     <div className="border-b border-gray-300 py-2">
       {/* Title - Click to Toggle */}
@@ -44,6 +51,7 @@ export const FilterSection: FC<IFilterSection> = ({
                 type="checkbox"
                 checked={selected.includes(option)}
                 onChange={() => handleCheckboxChange(filterType, option)}
+                className="accent-orange-500"
               />
               <span>
                 {option.charAt(0).toUpperCase() + option.slice(1)} (

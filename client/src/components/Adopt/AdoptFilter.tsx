@@ -13,18 +13,16 @@ export const AdoptFilter: FC<IAdoptFilter> = ({
   setSelected,
   petCounts,
 }) => {
-  //Updates the selected filter
-  const handleCheckboxChange = (
-    filterType: keyof typeof selected,
-    value: string
-  ) => {
+  // Updates the selected filter
+  const handleCheckboxChange = (filterType: keyof PetFilter, value: string) => {
     setSelected((prev) => ({
-      ...prev, //current filter
+      ...prev,
       [filterType]: prev[filterType].includes(value)
-        ? prev[filterType].filter((item) => item !== value) //remove filter if exists
-        : [...prev[filterType], value], //add the filter
+        ? prev[filterType].filter((item) => item !== value) // Remove filter if exists
+        : [...prev[filterType], value], // Add the filter
     }));
   };
+
   const filterOptions: {
     title: string;
     options: string[];
@@ -44,19 +42,38 @@ export const AdoptFilter: FC<IAdoptFilter> = ({
     { title: "Gender", options: ["male", "female"], type: "gender" },
   ];
   return (
-    <div className="w-64 bg-white p-4 font-secondary font-semibold">
-      {filterOptions.map(({ title, options, type }) => (
-        <FilterSection
-          key={type}
-          title={title}
-          options={options}
-          selected={selected[type]}
-          petCounts={petCounts[type]}
-          filterType={type}
-          handleCheckboxChange={handleCheckboxChange}
-        />
-      ))}
-    </div>
+    <>
+      <div className="w-64 bg-white p-4 font-secondary font-semibold">
+        <div className="flex justify-between items-center">
+          <h2 className="text-xl font-bold">Filters</h2>
+          <button
+            onClick={() => {
+              const defaultFilters = {
+                species: ["dog", "cat"],
+                age: [],
+                size: [],
+                gender: [],
+              };
+              setSelected(defaultFilters);
+            }}
+            className="text-sm text-red-600 underline hover:text-red-700"
+          >
+            Reset
+          </button>
+        </div>
+        {filterOptions.map(({ title, options, type }) => (
+          <FilterSection
+            key={type}
+            title={title}
+            options={options}
+            selected={selected[type]}
+            petCounts={petCounts[type]}
+            filterType={type}
+            handleCheckboxChange={handleCheckboxChange}
+          />
+        ))}
+      </div>
+    </>
   );
 };
 

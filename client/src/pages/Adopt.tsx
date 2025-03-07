@@ -21,12 +21,17 @@ const fetchPets = async () => {
 
 const Adopt = () => {
   //SELECTED FILTERS
-  const [selected, setSelected] = useState<PetFilter>({
-    species: ["dog", "cat"],
-    age: [],
-    size: [],
-    gender: [],
+  const [selected, setSelected] = useState<PetFilter>(() => {
+    const storedFilters = localStorage.getItem("selectedFilters");
+    return storedFilters
+      ? JSON.parse(storedFilters)
+      : { species: ["dog", "cat"], age: [], size: [], gender: [] };
   });
+
+  // Save filters to localStorage whenever `selected` changes
+  useEffect(() => {
+    localStorage.setItem("selectedFilters", JSON.stringify(selected));
+  }, [selected]);
 
   const [currentPage, setCurrentPage] = useState<number>(1);
   const petsPerPage = 25;
@@ -68,7 +73,6 @@ const Adopt = () => {
 
     const filtered = allPets.reduce<petType[]>((acc, pet) => {
       const { relationships, attributes } = pet;
-
       // Get pet properties
       const speciesId = relationships?.species?.data?.[0]?.id;
       const petAge = attributes?.ageGroup;
