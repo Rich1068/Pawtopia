@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import "./cards.css";
-import { FC } from "react";
-import { faPaw } from "@fortawesome/free-solid-svg-icons";
+import { FC, useState } from "react";
+import { faFilter, faPaw } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link } from "react-router";
 import { petType } from "../../types/pet";
@@ -23,15 +22,47 @@ const Cards: FC<ICards> = ({ pets, selected, setSelected, petCounts }) => {
     cleanedUrl = cleanedUrl?.replace(/\.\w+$/, "");
     return cleanedUrl;
   };
+  const [isOpen, setIsOpen] = useState(false); // State for mobile filter dropdown
 
+  const toggleFilter = () => {
+    setIsOpen(!isOpen);
+  };
   return (
     <div className="rounded-t-xl bg-white p-4 h-full w-full flex-grow bottom-0 min-h-svh">
+      {/* Mobile Filter Button */}
+      <button
+        className="md:hidden ml-auto bg-orange-600 text-white px-4 py-2 rounded-lg shadow-md flex items-center space-x-2"
+        onClick={toggleFilter}
+      >
+        <FontAwesomeIcon icon={faFilter} />
+        <span>Filters</span>
+      </button>
+      {/* Mobile Filter Dropdown */}
+      {isOpen && (
+        <div className="absolute right-2 md:hidden bg-white shadow-lg p-4 rounded-lg z-50 w-64">
+          <button
+            className="absolute top-2 right-2 text-gray-600"
+            onClick={toggleFilter}
+          >
+            ✖
+          </button>
+          <div className="-ml-4">
+            <AdoptFilter
+              selected={selected}
+              setSelected={setSelected}
+              petCounts={petCounts}
+            />
+          </div>
+        </div>
+      )}
       <div className="flex flex-row min-h-svh">
-        <AdoptFilter
-          selected={selected}
-          setSelected={setSelected}
-          petCounts={petCounts}
-        />
+        <div className="hidden md:block">
+          <AdoptFilter
+            selected={selected}
+            setSelected={setSelected}
+            petCounts={petCounts}
+          />
+        </div>
         {pets.length > 0 ? (
           <div className="grid grid-cols-5 content-start w-full max-sm:grid-cols-2 sm:max-md:grid-cols-2 md:max-lg:grid-cols-3 lg:max-xl:grid-cols-4 max-xl:pl-0 max-xl:pr-0 max-[1600px]:pl-5 max-[1600px]:pr-5 max-[1700px]:pl-10 max-[1700px]:pr-10 pl-10 pr-10">
             {pets.map((pet) => (
