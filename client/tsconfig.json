@@ -5,7 +5,7 @@
     "esModuleInterop": true,
     "moduleResolution": "bundler",
     "jsx": "react-jsx",
-    "types": ["vite/client"]
+    "types": ["vite/client", "jest"]
   },
   "files": [],
   "references": [
