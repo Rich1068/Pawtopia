@@ -63,7 +63,7 @@ export const AdoptFilter: FC<IAdoptFilter> = ({
               setSearchQuery("");
               setSelected(defaultFilters);
             }}
-            className="text-sm text-red-600 underline hover:text-red-700"
+            className="text-sm text-red-600 underline hover:text-red-700 cursor-pointer"
           >
             Reset
           </button>
