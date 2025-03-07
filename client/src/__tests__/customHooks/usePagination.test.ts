@@ -33,6 +33,7 @@ describe("usePagination Hook", () => {
     expect(result.current.currentPets[1].id).toBe("4");
   });
 
+  //Emulate reduction of pets due to filter or other situation
   it("resets page when filteredPets change", () => {
     const { result, rerender } = renderHook(
       ({ pets }) => usePagination(pets, 2),
