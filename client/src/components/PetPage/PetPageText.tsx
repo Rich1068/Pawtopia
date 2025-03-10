@@ -2,62 +2,78 @@ import { FC } from "react";
 import type { petType } from "../../types/pet";
 
 interface IPetPageText {
-  id: string | undefined;
   petData: petType | null;
 }
 
 export const PetPageText: FC<IPetPageText> = ({ petData }) => {
-  console.log("this is from pagetext", petData);
+  if (!petData) return null;
+
+  const {
+    name,
+    breedString,
+    ageGroup,
+    sex,
+    sizeGroup,
+    coatLength,
+    isCurrentVaccinations,
+    isAdoptionPending,
+    descriptionHtml,
+  } = petData.attributes || {};
+
+  const petAttributes = [
+    {
+      label: "Age Group",
+      value: ageGroup ?? "N/A",
+      testId: "pet-age-group",
+    },
+    { label: "Sex", value: sex, testId: "pet-sex" },
+    { label: "Size", value: sizeGroup ?? "N/A", testId: "pet-size" },
+    {
+      label: "Coat Length",
+      value: coatLength ?? "N/A",
+      testId: "pet-coat-length",
+    },
+    {
+      label: "Vaccinated",
+      value: isCurrentVaccinations ? "Yes" : "No",
+      testId: "pet-vaccinated",
+    },
+    {
+      label: "Status",
+      value: isAdoptionPending ? "Pending" : "Available",
+      testId: "pet-status",
+    },
+  ];
   return (
-    <div className="p-4 bg-white rounded-lg shadow-md min-w-full min-h-full inline-block font-secondary">
-      {petData && (
-        <>
-          {/* Pet Name */}
-          <h2 className="text-3xl font-bold mb-2 text-orange-600">
-            {petData.attributes?.name}
-          </h2>
+    <div
+      className="p-4 bg-white rounded-lg shadow-md min-w-full min-h-full inline-block font-secondary"
+      data-testid="pet-page"
+    >
+      <h2
+        className="text-3xl font-bold mb-2 text-orange-600"
+        data-testid="pet-name"
+      >
+        {name}
+      </h2>
 
-          {/* Pet Details */}
-          <p className="text-gray-800 font-semibold">
-            <strong>Breed:</strong> {petData.attributes?.breedString}
-          </p>
-          <p className="text-gray-600">
-            <strong>Age Group:</strong> {petData.attributes?.ageGroup ?? "N/A"}
-          </p>
-          <p className="text-gray-600">
-            <strong>Sex:</strong> {petData.attributes?.sex}
-          </p>
-          <p className="text-gray-600">
-            <strong>Size:</strong> {petData.attributes?.sizeGroup ?? "N/A"}
-          </p>
-          <p className="text-gray-600">
-            <strong>Coat Length:</strong>{" "}
-            {petData.attributes?.coatLength ?? "N/A"}
-          </p>
-          <p className="text-gray-600">
-            <strong>Vaccinated:</strong>{" "}
-            {petData.attributes?.isCurrentVaccinations ? "Yes" : "No"}
-          </p>
+      <p className="text-gray-800 font-semibold" data-testid="pet-breed">
+        <strong>Breed:</strong> {breedString}
+      </p>
 
-          {/* Adoption Status */}
-          <p className="text-gray-600">
-            <strong>Status:</strong>{" "}
-            {petData.attributes?.isAdoptionPending ? "Pending" : "Available"}
-          </p>
+      {petAttributes.map(({ label, value, testId }) => (
+        <p key={testId} className="text-gray-600" data-testid={testId}>
+          <strong>{label}:</strong> {value}
+        </p>
+      ))}
 
-          {/* Description */}
-          {petData.attributes?.descriptionHtml && (
-            <div className="mt-4">
-              <strong className="text-gray-800">About:</strong>
-              <p
-                className="text-gray-600"
-                dangerouslySetInnerHTML={{
-                  __html: petData.attributes.descriptionHtml,
-                }}
-              />
-            </div>
-          )}
-        </>
+      {descriptionHtml && (
+        <div className="mt-4" data-testid="pet-description">
+          <strong className="text-gray-800">About:</strong>
+          <p
+            className="text-gray-600"
+            dangerouslySetInnerHTML={{ __html: descriptionHtml }}
+          />
+        </div>
       )}
     </div>
   );

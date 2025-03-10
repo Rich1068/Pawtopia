@@ -97,7 +97,10 @@ export const PetCarousel: FC<IPetCarousel> = ({
           )}
         </Swiper>
         <div className="flex">
-          <button onClick={() => swiperRef.current?.slidePrev()}>
+          <button
+            onClick={() => swiperRef.current?.slidePrev()}
+            data-testid="prev-button"
+          >
             <ChevronLeft className="text-orange-500 cursor-pointer" />
           </button>
           <Swiper
@@ -134,7 +137,10 @@ export const PetCarousel: FC<IPetCarousel> = ({
               </SwiperSlide>
             )}
           </Swiper>
-          <button onClick={() => swiperRef.current?.slideNext()}>
+          <button
+            onClick={() => swiperRef.current?.slideNext()}
+            data-testid="next-button"
+          >
             <ChevronRight className="text-orange-500 cursor-pointer" />
           </button>
         </div>
@@ -152,6 +158,7 @@ export const PetCarousel: FC<IPetCarousel> = ({
           <button
             onClick={handleCloseModal}
             className="absolute top-2 right-2 text-white text-2xl"
+            data-testid="close-modal-button"
           >
             <X size={30} />
           </button>
