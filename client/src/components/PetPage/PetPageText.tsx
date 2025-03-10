@@ -1,9 +1,11 @@
 import { FC } from "react";
 import type { petType } from "../../types/pet";
+
 interface IPetPageText {
   id: string | undefined;
   petData: petType | null;
 }
+
 export const PetPageText: FC<IPetPageText> = ({ petData }) => {
   console.log("this is from pagetext", petData);
   return (

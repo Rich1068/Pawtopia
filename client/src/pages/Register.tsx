@@ -3,6 +3,7 @@ import serverAPI from "../helper/axios";
 import toast from "react-hot-toast";
 import { useNavigate, Link } from "react-router";
 import validate from "../helper/validation";
+
 export const Register = () => {
   const navigate = useNavigate();
   const [data, setData] = useState({

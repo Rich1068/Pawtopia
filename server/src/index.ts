@@ -7,9 +7,8 @@ import db_connection from "./db-config";
 import auth from "./routes/auth";
 import pet from "./routes/pets";
 import user from "./routes/user";
-import swaggerUI from "swagger-ui-express";
-import petstoreApi from "../petstoreapi.json";
 import path from "path";
+
 db_connection();
 dotenv.config();
 const app = express();

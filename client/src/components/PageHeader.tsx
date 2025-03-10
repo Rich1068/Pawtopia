@@ -1,6 +1,7 @@
 import { PawPrint } from "lucide-react";
 import Breadcrumbs from "./BreadCrumbs";
 import { FC } from "react";
+
 export const PageHeader: FC<{ text: string }> = ({ text }) => {
   return (
     <div className="flex items-center h-[240px] bg-orange-600 ">

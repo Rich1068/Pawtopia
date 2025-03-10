@@ -1,6 +1,5 @@
 import { Response, Request } from "express";
 import User from "../models/User";
-
 import {
   comparePassword,
   hashPassword,

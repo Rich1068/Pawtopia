@@ -1,5 +1,6 @@
 import { PawPrint } from "lucide-react";
 import { Link } from "react-router";
+
 export const HeroSection = () => {
   return (
     <section className="relative h-[500px] bg-cover bg-center flex bg-[url('https://www.petside.com/wp-content/uploads/2021/01/Happy-Dog.jpg')] items-center text-white">

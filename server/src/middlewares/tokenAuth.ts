@@ -1,8 +1,8 @@
 import { JwtPayload } from "jsonwebtoken";
 import { verifyToken } from "../helpers/auth";
 import { Request, Response, NextFunction } from "express";
-
 import type { AuthRequest } from "../Types/Types";
+
 export const authMiddleware = async (
   req: AuthRequest,
   res: Response,

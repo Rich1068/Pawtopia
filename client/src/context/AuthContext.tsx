@@ -3,6 +3,7 @@ import type { User, AuthContextType } from "../types/Types";
 import LoadingPage from "../components/LoadingPage/LoadingPage";
 import serverAPI from "../helper/axios";
 import SERVER_URL from "../helper/envVariables";
+
 export const AuthContext = createContext<AuthContextType | null>(null);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);

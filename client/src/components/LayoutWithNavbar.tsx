@@ -1,5 +1,6 @@
 import NavBar from "./NavBar";
 import { Outlet } from "react-router";
+
 const LayoutWithNavbar = () => {
   return (
     <>

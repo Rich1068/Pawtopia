@@ -1,4 +1,5 @@
 import { FC } from "react";
+
 interface IFormInput {
   label: string;
   name?: string;
@@ -7,6 +8,7 @@ interface IFormInput {
   isEditing: boolean;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
+
 const ProfileField: FC<IFormInput> = ({
   label,
   name,

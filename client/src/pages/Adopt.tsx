@@ -1,10 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-
 import serverAPI from "../helper/axios";
 import type { petType } from "../types/pet";
 import LoadingPage from "../components/LoadingPage/LoadingPage";
 import PageHeader from "../components/PageHeader";
-
 import { useQuery } from "@tanstack/react-query";
 import AdoptContainer from "../components/Adopt/AdoptContainer";
 

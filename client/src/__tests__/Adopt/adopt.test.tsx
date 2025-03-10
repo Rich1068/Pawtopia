@@ -2,7 +2,6 @@ import { render, screen, waitFor } from "@testing-library/react";
 import serverAPI from "../../helper/axios";
 import Adopt from "../../pages/Adopt";
 import { mockPets } from "../../__mocks__/mockPets";
-
 import "@testing-library/jest-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 

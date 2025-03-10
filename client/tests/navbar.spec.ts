@@ -1,6 +1,6 @@
 import { URL } from "./setup";
-
 import { Page, expect, test } from "@playwright/test";
+
 const navItems = [
   { name: "logo-nav", path: "" },
   { name: "home-nav", path: "" },

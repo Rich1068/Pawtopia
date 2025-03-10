@@ -1,6 +1,4 @@
-//import {useState} from 'react';
 import HeroSection from "../components/Landing/HeroSection";
-//import HeroSection2 from '../components/Landing/HereSection2';
 import CenterText from "../components/Landing/CenterText";
 import { motion } from "motion/react";
 import Carousel from "../components/Landing/Carousel/Carousel";

@@ -1,6 +1,7 @@
 import { FC, useEffect, useState } from "react";
 import type { PetFilter } from "../../types/Types";
 import { ChevronDown, ChevronUp } from "lucide-react";
+
 interface IFilterSection {
   title: string;
   options: string[];
@@ -9,6 +10,7 @@ interface IFilterSection {
   filterType: keyof PetFilter;
   handleCheckboxChange: (filterType: keyof PetFilter, value: string) => void;
 }
+
 export const FilterSection: FC<IFilterSection> = ({
   title,
   options,

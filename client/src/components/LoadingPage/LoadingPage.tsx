@@ -5,6 +5,7 @@ import { FC } from "react";
 interface LoadingPageProps {
   fadeOut: boolean;
 }
+
 const LoadingPage: FC<LoadingPageProps> = ({ fadeOut }) => {
   return (
     <motion.div

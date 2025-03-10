@@ -15,6 +15,7 @@ import Contact from "./pages/Contact";
 import Profile from "./pages/Profile";
 import Footer from "./components/Footer";
 import PetPage from "./pages/PetPage";
+
 axios.defaults.withCredentials = true;
 
 function App() {

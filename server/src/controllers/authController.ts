@@ -1,9 +1,7 @@
 import { Request, Response } from "express";
-import dotenv from "dotenv";
 import { verifyToken } from "../helpers/auth";
-import User from "../models/User";
-
 import type { AuthRequest, UserType } from "../Types/Types";
+
 export const verifyUserToken = async (req: AuthRequest, res: Response) => {
   const token = req.cookies.token;
   if (token) {

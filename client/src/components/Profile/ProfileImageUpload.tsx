@@ -1,5 +1,6 @@
 import { useState, FC } from "react";
 import ReactModal from "react-modal";
+
 interface ImageUploadPropTypes {
   isOpen: boolean;
   onClose: () => void;

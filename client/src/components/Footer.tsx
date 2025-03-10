@@ -1,4 +1,5 @@
 import { NavLink } from "react-router";
+
 export const Footer = () => {
   const footerItems = [
     { name: "Home", path: "/", testId: "home" },

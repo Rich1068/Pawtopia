@@ -17,6 +17,7 @@ interface IPetCarousel {
   petData: petType | null;
   cleanImageUrl: (url: string | undefined) => string | undefined;
 }
+
 export const PetCarousel: FC<IPetCarousel> = ({
   thumbsSwiper,
   setThumbsSwiper,

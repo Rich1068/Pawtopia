@@ -1,5 +1,6 @@
 import { test, Page, expect } from "@playwright/test";
 import { URL } from "./setup";
+
 const errorCases = [
   {
     name: "",
