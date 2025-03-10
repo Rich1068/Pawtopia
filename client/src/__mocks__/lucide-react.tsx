@@ -2,7 +2,7 @@
 import React from "react";
 
 const createMockIcon = (name: string) =>
-  function MockIcon(props: object) {
+  function MockIcon(props: React.HTMLAttributes<HTMLDivElement>) {
     return <div data-testid={`icon-${name}`} {...props} />;
   };
 

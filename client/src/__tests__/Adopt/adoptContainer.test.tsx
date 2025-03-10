@@ -11,8 +11,22 @@ jest.mock("../../hooks/useFilteredPets", () => ({
 jest.mock("../../hooks/usePagination", () => ({
   usePagination: jest.fn(),
 }));
+jest.mock("../../components/Adopt/AdoptFilter", () => () => (
+  <div data-testid="mock-filter" />
+));
+jest.mock("../../components/Adopt/Cards", () => () => (
+  <div data-testid="mock-cards" />
+));
+jest.mock("react-paginate", () => (props: any) => (
+  <button
+    data-testid="mock-paginate"
+    onClick={() => props.onPageChange({ selected: 1 })}
+  >
+    Next →
+  </button>
+));
 
-describe("AdoptContainer", () => {
+describe("AdoptContainer (Unit)", () => {
   const mockPetCounts = { dog: 1, cat: 1 };
   const mockFilteredPets = mockPets;
   const mockCurrentPets = mockPets.slice(0, 1);
@@ -38,28 +52,21 @@ describe("AdoptContainer", () => {
     jest.clearAllMocks();
   });
 
-  it("renders Filters button and pet cards", () => {
+  it("renders Filters button and Cards component", () => {
     render(<AdoptContainer allPets={mockPets} />);
-
     expect(screen.getByText("Filters")).toBeVisible();
-    expect(screen.getByText(mockCurrentPets[0].attributes.name)).toBeVisible();
+    expect(screen.getByTestId("mock-cards")).toBeVisible();
   });
 
   it("toggles mobile filter dropdown on click", () => {
     render(<AdoptContainer allPets={mockPets} />);
-
-    // Click mobile filter button
     fireEvent.click(screen.getByText("Filters"));
-
-    // Expect close button to show up
     expect(screen.getByText("✖")).toBeVisible();
   });
 
   it("calls setCurrentPage on pagination click", () => {
     render(<AdoptContainer allPets={mockPets} />);
-
-    fireEvent.click(screen.getByText("Next →"));
-
-    expect(mockSetCurrentPage).toHaveBeenCalledWith(2); // Because ReactPaginate uses 0-based index
+    fireEvent.click(screen.getByTestId("mock-paginate"));
+    expect(mockSetCurrentPage).toHaveBeenCalledWith(2);
   });
 });
