@@ -4,10 +4,6 @@ import { User } from "../types/Types";
 import "@testing-library/jest-dom";
 import React from "react";
 
-jest.mock("lucide-react", () => ({
-  UserRound: () => <svg data-testid="lucide-user-round" />,
-  Pencil: () => <svg data-testid="lucide-pencil" />,
-}));
 jest.mock("../context/AuthContext", () => ({
   AuthContext: {
     Provider: ({ children }: { children: React.ReactNode }) => children,
@@ -31,12 +27,6 @@ jest.spyOn(React, "useContext").mockReturnValue({
   login: jest.fn(),
   logout: jest.fn(),
 });
-
-jest.mock("../helper/axios", () => ({
-  default: {
-    post: jest.fn(),
-  },
-}));
 
 const renderProfileImageCard = (user: User = mockUser) => {
   return render(<ProfileImageCard user={user} />);

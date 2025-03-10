@@ -1,29 +1,11 @@
-import { act, render, screen, waitFor } from "@testing-library/react";
-import {
-  QueryClient,
-  QueryClientProvider,
-  useQuery,
-} from "@tanstack/react-query";
+import { render, screen, waitFor } from "@testing-library/react";
 import serverAPI from "../../helper/axios";
 import Adopt from "../../pages/Adopt";
-import { mockPets } from "../../__mocks__/mockPets"; // Mock pet data
+import { mockPets } from "../../__mocks__/mockPets";
 
 import "@testing-library/jest-dom";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-jest.mock("../../helper/axios", () => ({
-  default: {
-    get: jest.fn(),
-  },
-}));
-
-serverAPI.get = jest.fn();
-jest.mock("@tanstack/react-query", () => ({
-  useQuery: jest.fn(),
-}));
-
-jest.mock("../../helper/envVariables", () => ({
-  VITE_SERVER_URL: "http://localhost:8000",
-}));
 jest.mock("../../components/LoadingPage/LoadingPage", () => () => (
   <div data-testid="loading-component">Loading...</div>
 ));
@@ -33,52 +15,56 @@ jest.mock("../../components/PageHeader", () => () => (
 jest.mock("../../components/Adopt/AdoptContainer", () => () => (
   <div data-testid="mock-adopt-container"></div>
 ));
-const queryClient = new QueryClient();
+
+const renderWithClient = (ui: React.ReactElement) => {
+  const queryClient = new QueryClient();
+  return render(
+    <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>
+  );
+};
+
 describe("Adopt Page", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  it("shows loading state initially", () => {
-    (serverAPI.get as jest.Mock).mockReturnValue(new Promise(() => {})); // Simulate pending request
-
-    render(
-      <QueryClientProvider client={queryClient}>
-        <Adopt />
-      </QueryClientProvider>
+  it("shows loading state initially", async () => {
+    // Simulate slow fetch
+    (serverAPI.get as jest.Mock).mockImplementation(
+      () => new Promise(() => {}) // never resolves
     );
+
+    renderWithClient(<Adopt />);
+    expect(screen.getByTestId("loading-component")).toBeInTheDocument();
   });
 
-  it("fetches and display header and adopt-container", async () => {
-    render(
-      <QueryClientProvider client={queryClient}>
-        <Adopt />
-      </QueryClientProvider>
-    );
+  it("displays header and adopt-container when data is loaded", async () => {
+    (serverAPI.get as jest.Mock).mockResolvedValue({
+      data: { data: mockPets },
+    });
 
+    renderWithClient(<Adopt />);
+
+    // Wait for the adopt content to show
     await waitFor(() => {
-      expect(screen.getByTestId("mock-page-header")).toBeVisible();
-      expect(screen.getByTestId("mock-adopt-container")).toBeVisible();
+      expect(screen.getByTestId("mock-page-header")).toBeInTheDocument();
+      expect(screen.getByTestId("mock-adopt-container")).toBeInTheDocument();
     });
   });
 
   it("handles API errors gracefully", async () => {
-    jest.spyOn(console, "log").mockImplementation(() => {}); // Suppress console logs
-    serverAPI.get = jest.fn().mockRejectedValue(new Error("API Error"));
+    const consoleSpy = jest.spyOn(console, "log").mockImplementation(() => {});
+    (serverAPI.get as jest.Mock).mockRejectedValue(new Error("API Error"));
 
-    render(
-      <QueryClientProvider client={queryClient}>
-        <Adopt />
-      </QueryClientProvider>
-    );
+    renderWithClient(<Adopt />);
 
     await waitFor(() => {
-      expect(console.log).toHaveBeenCalledWith(
-        expect.stringContaining("FetchPets error "),
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining("FetchPets error: "),
         expect.any(Error)
       );
     });
 
-    jest.restoreAllMocks();
+    consoleSpy.mockRestore();
   });
 });
