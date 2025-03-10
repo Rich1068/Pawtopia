@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import ProfileImageCard from "../components/Profile/ProfileImageCard";
 import { User } from "../types/Types";
 import "@testing-library/jest-dom";
@@ -35,7 +35,6 @@ const renderProfileImageCard = (user: User = mockUser) => {
 describe("ProfileImageCard Unit Test", () => {
   it("displays username and role", () => {
     renderProfileImageCard();
-
     expect(screen.getByText("Bob")).toBeVisible();
     expect(screen.getByText("user")).toBeVisible();
   });
@@ -45,6 +44,12 @@ describe("ProfileImageCard Unit Test", () => {
     const profileImage = screen.getByAltText("Profile");
     expect(profileImage).toBeVisible();
     expect(profileImage).toHaveAttribute("src", mockUser.profileImage);
+  });
+  it("opens modal on edit button click", () => {
+    renderProfileImageCard();
+    const editButton = screen.getByTestId("edit-profileImage-button");
+    expect(editButton).toBeVisible();
+    fireEvent.click(editButton);
   });
   it("displays placeholder icon when image is missing", () => {
     const userWithoutImage: User = { ...mockUser, profileImage: "" };

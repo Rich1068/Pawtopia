@@ -60,6 +60,12 @@ describe("ProfileImageUpload Unit Test", () => {
     expect(mockOnImageSave).toHaveBeenCalledWith(mockFile);
   });
 
+  it("calls onClose when cancel button is clicked", () => {
+    renderProfileImageUpload();
+    fireEvent.click(screen.getByText("Cancel"));
+    expect(mockOnClose).toHaveBeenCalled();
+  });
+
   it("disables save button when no image is selected", () => {
     renderProfileImageUpload(true);
     const saveButton = screen.getByText("Save");
