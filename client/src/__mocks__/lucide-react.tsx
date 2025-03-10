@@ -9,16 +9,25 @@ const createMockIcon = (name: string) =>
 // Export commonly used icons or mock them dynamically
 export const ChevronDown = createMockIcon("ChevronDown");
 export const ChevronUp = createMockIcon("ChevronUp");
+export const ChevronLeft = createMockIcon("ChevronLeft");
+export const ChevronRight = createMockIcon("ChevronRight");
+export const PawPrint = createMockIcon("PawPrint");
 export const Filter = createMockIcon("Filter");
 export const UserRound = createMockIcon("lucide-user-round");
 export const Pencil = createMockIcon("lucide-pencil");
-
+export const Search = createMockIcon("Search");
+export const X = createMockIcon("X");
 // Default export fallback if needed
 export default {
   __esModule: true,
   ChevronDown,
   ChevronUp,
+  ChevronLeft,
+  ChevronRight,
+  PawPrint,
   Filter,
   UserRound,
   Pencil,
+  Search,
+  X,
 };

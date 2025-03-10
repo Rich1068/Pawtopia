@@ -11,7 +11,7 @@ interface IFilterSection {
   handleCheckboxChange: (filterType: keyof PetFilter, value: string) => void;
 }
 
-export const FilterSection: FC<IFilterSection> = ({
+const FilterSection: FC<IFilterSection> = ({
   title,
   options,
   selected,

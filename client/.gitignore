@@ -36,4 +36,6 @@ dist-ssr
 .env.test.local
 .env.production.local
 
+coverage/
+
 .vite/deps/_metadata.json

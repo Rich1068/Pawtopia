@@ -64,7 +64,10 @@ export const mockPets: petType[] = [
       },
       orgs: { data: [{ type: "orgs" as IncludedType.Orgs, id: "6690" }] },
       pictures: {
-        data: [{ type: "pictures" as IncludedType.Pictures, id: "58004491" }],
+        data: [
+          { type: "pictures" as IncludedType.Pictures, id: "58004491" },
+          { type: "pictures" as IncludedType.Pictures, id: "74458732" },
+        ],
       },
     },
   },
@@ -91,9 +94,8 @@ export const mockPets: petType[] = [
       descriptionText: "Milo is a playful and affectionate cat...",
       isDogsOk: true,
       name: "Milo Whiskers",
-      pictureCount: 1,
-      pictureThumbnailUrl:
-        "https://cdn.rescuegroups.org/6690/pictures/animals/20227/20227890/58004492.jpg?width=100",
+      pictureCount: 0,
+      pictureThumbnailUrl: "",
       searchString: "Milo Whiskers Gray Male Small Domestic Shorthair",
       sex: "Male" as Sex.Male,
       sizeCurrent: 10,
@@ -122,7 +124,7 @@ export const mockPets: petType[] = [
       },
       orgs: { data: [{ type: "orgs" as IncludedType.Orgs, id: "6690" }] },
       pictures: {
-        data: [{ type: "pictures" as IncludedType.Pictures, id: "58004492" }],
+        data: [],
       },
     },
   },

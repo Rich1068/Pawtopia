@@ -34,7 +34,7 @@ describe("Adopt Page", () => {
     );
 
     renderWithClient(<Adopt />);
-    expect(screen.getByTestId("loading-component")).toBeInTheDocument();
+    expect(screen.getByTestId("loading-component")).toBeVisible();
   });
 
   it("displays header and adopt-container when data is loaded", async () => {
@@ -46,8 +46,8 @@ describe("Adopt Page", () => {
 
     // Wait for the adopt content to show
     await waitFor(() => {
-      expect(screen.getByTestId("mock-page-header")).toBeInTheDocument();
-      expect(screen.getByTestId("mock-adopt-container")).toBeInTheDocument();
+      expect(screen.getByTestId("mock-page-header")).toBeVisible();
+      expect(screen.getByTestId("mock-adopt-container")).toBeVisible();
     });
   });
 

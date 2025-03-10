@@ -1,6 +1,6 @@
 import { FC } from "react";
 import { PetCounts, PetFilter } from "../../types/Types";
-import { FilterSection } from "./FilterSection";
+import FilterSection from "./FilterSection";
 import { Search } from "lucide-react";
 
 interface IAdoptFilter {
