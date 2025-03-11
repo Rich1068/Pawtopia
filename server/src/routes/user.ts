@@ -5,6 +5,8 @@ import {
   getUser,
   uploadProfileImage,
   editPassword,
+  getUserFavorites,
+  toggleFavorite,
 } from "../controllers/userController";
 import upload from "../helpers/image";
 
@@ -14,5 +16,7 @@ user.post("/edit", tokenAuth, editUser);
 user.post("/edit-password", tokenAuth, editPassword);
 user.get("/get-user", tokenAuth, getUser);
 user.post("/upload-image", upload.single("image"), uploadProfileImage);
+user.get("/favorites", tokenAuth, getUserFavorites);
+user.post("/favorites", tokenAuth, toggleFavorite);
 
 export default user;

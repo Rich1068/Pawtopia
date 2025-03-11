@@ -1,5 +1,6 @@
 import { FC } from "react";
 import type { petType } from "../../types/pet";
+import FavoriteButton from "../Adopt/FavoriteButton";
 
 interface IPetPageText {
   petData: petType | null;
@@ -46,7 +47,7 @@ export const PetPageText: FC<IPetPageText> = ({ petData }) => {
   ];
   return (
     <div
-      className="p-4 bg-white rounded-lg shadow-md min-w-full min-h-full inline-block font-secondary"
+      className="p-4 bg-white rounded-lg shadow-md min-w-full min-h-full relative inline-block font-secondary"
       data-testid="pet-page"
     >
       <h2
@@ -55,7 +56,7 @@ export const PetPageText: FC<IPetPageText> = ({ petData }) => {
       >
         {name}
       </h2>
-
+      <FavoriteButton pet={petData} />
       <p className="text-gray-800 font-semibold" data-testid="pet-breed">
         <strong>Breed:</strong> {breedString}
       </p>

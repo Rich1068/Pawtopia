@@ -1,4 +1,10 @@
-import { createContext, useState, useEffect, ReactNode } from "react";
+import {
+  createContext,
+  useState,
+  useEffect,
+  ReactNode,
+  useContext,
+} from "react";
 import type { User, AuthContextType } from "../types/Types";
 import LoadingPage from "../components/LoadingPage/LoadingPage";
 import serverAPI from "../helper/axios";
@@ -27,8 +33,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         withCredentials: true,
       });
       console.log(response.data.user);
-      response.data.user.profileImage =
-        SERVER_URL + response.data.user.profileImage;
+      if (response.data.user.profileImage) {
+        response.data.user.profileImage =
+          SERVER_URL + response.data.user.profileImage;
+      }
       setUser(response.data.user);
 
       return { success: true, user: response.data.user };
@@ -68,4 +76,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       {children}
     </AuthContext.Provider>
   );
+};
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
 };

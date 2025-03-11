@@ -76,3 +76,10 @@ export interface PetCounts {
   gender: { male: number; female: number };
 }
 export type Pets = Pet[]; // Array of pets
+
+export interface FavoritePets {
+  userId: string;
+  petId: string;
+  petImage: string;
+  petName: string;
+}

@@ -1,15 +1,17 @@
-import { NavLink } from "react-router";
+import { Link, NavLink } from "react-router";
 import { useRef, useContext, useEffect, useState } from "react";
-import { PawPrint, LogOut, Menu, X, UserRound } from "lucide-react";
+import { PawPrint, LogOut, Menu, X, UserRound, Heart } from "lucide-react";
 import { AuthContext } from "../context/AuthContext";
+import { useFavorites } from "../context/FavoritesContext";
 
 const NavBar = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [isFavoriteOpen, setIsFavoriteOpen] = useState<boolean>(false);
   const { user, logout, loading } = useContext(AuthContext)!;
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [closing, setClosing] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-
+  const { favorites } = useFavorites();
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -17,6 +19,7 @@ const NavBar = () => {
         !dropdownRef.current.contains(event.target as Node)
       ) {
         setDropdownOpen(false);
+        setIsFavoriteOpen(false);
       }
     };
 
@@ -43,7 +46,7 @@ const NavBar = () => {
   };
 
   return (
-    <header className="flex fixed shadow-md py-3 px-8 sm:m-auto bg-white font-sans min-h-[70px] tracking-wide z-50 mx-auto rounded-b-xl min-w-screen w-auto z-1000">
+    <header className="flex fixed shadow-md py-3 px-8 sm:m-auto bg-white font-sans min-h-[70px] tracking-wide z-50 mx-auto rounded-b-xl min-w-screen w-auto">
       <div className="flex flex-wrap flex-row items-center justify-between gap-5 w-full">
         {/* Logo */}
 
@@ -81,9 +84,66 @@ const NavBar = () => {
           </ul>
         </nav>
 
-        <div className="flex max-lg:ml-auto space-x-4 w-auto">
+        <div className="flex max-lg:ml-auto space-x-4 w-auto" ref={dropdownRef}>
           {user ? (
             <>
+              <div className="relative">
+                <button
+                  className="relative p-2 text-orange-500 items-center"
+                  onClick={() => setIsFavoriteOpen(!isFavoriteOpen)}
+                >
+                  <Heart size={28} />
+                  {favorites.length > 0 && (
+                    <span className="absolute -top-0 -right-0 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+                      {favorites.length}
+                    </span>
+                  )}
+                </button>
+
+                {isFavoriteOpen && (
+                  <div className="absolute right-0 mt-2 w-60 bg-white border border-orange-500 shadow-lg rounded-lg z-50">
+                    <ul className="max-h-60 overflow-y-auto divide-y divide-gray-300 mx-3">
+                      {favorites.length > 0 ? (
+                        favorites.map((pet) => (
+                          <Link
+                            to={`/adopt/pets/${pet.petId}`}
+                            className="flex items-center p-2"
+                            onClick={() => setIsFavoriteOpen(false)}
+                          >
+                            <li
+                              key={pet.petId}
+                              className="flex items-center p-2"
+                            >
+                              <img
+                                src={pet.petImage || "/assets/img/Logo1.jpg"}
+                                alt={pet.petName}
+                                className="w-10 h-10 rounded-full mr-2"
+                              />
+                              <span className="text-sm">{pet.petName}</span>
+                            </li>
+                          </Link>
+                        ))
+                      ) : (
+                        <li className="p-4 text-center text-gray-500">
+                          No favorites yet
+                        </li>
+                      )}
+                    </ul>
+
+                    {/* Show All Button */}
+                    <div className="p-2 border-t border-orange-500 text-center">
+                      <Link
+                        to="/favorites"
+                        className="text-orange-600 hover:underline"
+                        onClick={() => setIsFavoriteOpen(false)}
+                      >
+                        Show All
+                      </Link>
+                    </div>
+                  </div>
+                )}
+              </div>
+
               <div className="relative" ref={dropdownRef}>
                 <button
                   onClick={() => setDropdownOpen(!dropdownOpen)}
@@ -109,6 +169,7 @@ const NavBar = () => {
                     <NavLink
                       to="/profile"
                       className="block px-4 py-2 font-secondary font-semibold hover:bg-gray-100"
+                      onClick={() => setDropdownOpen(false)}
                     >
                       Profile
                     </NavLink>

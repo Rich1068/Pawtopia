@@ -5,6 +5,7 @@ import { hashPassword, comparePassword } from "../helpers/auth";
 import { validateEdit, validateEditPassword } from "../helpers/validation";
 import fs from "fs";
 import path from "path";
+import Favorite from "../models/Favorite";
 
 export const getUser = async (req: AuthRequest, res: Response) => {
   try {
@@ -32,7 +33,7 @@ export const editUser = async (
     const updatedUser = await User.findByIdAndUpdate(
       req.userId, // Use req.user.id instead of req.userId
       { name, email, phoneNumber },
-      { new: true } // Return the updated user
+      { new: true }
     );
 
     if (!updatedUser) {
@@ -63,7 +64,7 @@ export const editPassword = async (
     const updatedUser = await User.findByIdAndUpdate(
       req.userId, // Use req.user.id instead of req.userId
       { password: hashedPassword },
-      { new: true } // Return the updated user
+      { new: true }
     );
 
     if (!updatedUser) {
@@ -102,5 +103,47 @@ export const uploadProfileImage = async (
     res.status(500).json({ error: "Server error" });
   }
 };
+export const getUserFavorites = async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.userId;
+    const favorites = await Favorite.find({ userId });
 
-export default { getUser, editUser, editPassword };
+    res.json(favorites);
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+};
+export const toggleFavorite = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const userId = req.userId;
+    const { petId, petName, petImage } = req.body;
+    if (!userId) {
+      res.status(401).json({ message: "Unauthorized: No user ID provided" });
+      return;
+    }
+    const existingFavorite = await Favorite.findOne({ userId, petId });
+
+    if (existingFavorite) {
+      await Favorite.findOneAndDelete({ userId, petId });
+      res.json({ message: "Removed from favorites" });
+      return;
+    } else {
+      const newFavorite = new Favorite({ userId, petId, petName, petImage });
+      await newFavorite.save();
+      res.json({ message: "Added to favorites" });
+      return;
+    }
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+};
+export default {
+  getUser,
+  editUser,
+  editPassword,
+  getUserFavorites,
+  toggleFavorite,
+};
