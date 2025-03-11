@@ -37,6 +37,7 @@ const FavoriteButton: React.FC<FavoriteButtonProps> = ({ pet }) => {
     <>
       <button
         onClick={handleToggleFavorite}
+        data-testid={"favorite-button"}
         className="absolute top-2 right-2 p-2 bg-white rounded-full shadow-md hover:bg-gray-200"
       >
         <Heart
@@ -51,7 +52,7 @@ const FavoriteButton: React.FC<FavoriteButtonProps> = ({ pet }) => {
         onRequestClose={() => setIsModalOpen(false)}
         className="bg-white w-96 flex flex-col p-6 rounded-lg shadow-lg max-w-sm mx-auto font-primary"
         overlayClassName="fixed inset-0 bg-black/50 flex justify-center items-center"
-        ariaHideApp={false} // Disable warning in development
+        ariaHideApp={false}
       >
         <div className=" text-orange-600 rounded-lg flex flex-col items-center text-center left-0 right-0 mx-auto">
           <FontAwesomeIcon icon={faPaw} size="3x" />

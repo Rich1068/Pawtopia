@@ -17,6 +17,7 @@ export const UserRound = createMockIcon("lucide-user-round");
 export const Pencil = createMockIcon("lucide-pencil");
 export const Search = createMockIcon("Search");
 export const X = createMockIcon("X");
+export const Heart = createMockIcon("Heart");
 // Default export fallback if needed
 export default {
   __esModule: true,
@@ -30,4 +31,5 @@ export default {
   Pencil,
   Search,
   X,
+  Heart,
 };
