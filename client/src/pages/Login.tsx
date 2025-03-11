@@ -27,7 +27,7 @@ const Login = () => {
       return;
     }
     try {
-      const { data } = await serverAPI.post(
+      await serverAPI.post(
         "/login",
         {
           email,
@@ -40,11 +40,7 @@ const Login = () => {
         email: "",
         password: "",
       });
-      if (data.userData.role === "user") {
-        navigate("/user-dashboard");
-      } else {
-        navigate("/admin-dashboard");
-      }
+      navigate("/");
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {

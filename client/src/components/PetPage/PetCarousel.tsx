@@ -57,9 +57,8 @@ export const PetCarousel: FC<IPetCarousel> = ({
       }, 100); // 100ms delay to prevent flickering
     }
   };
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  //@ts-ignore
-  const swiperRef = useRef<SwiperClass>();
+
+  const swiperRef = useRef<SwiperClass | undefined>(undefined);
   return (
     <>
       <div className="max-w-140 w-[100%] max:lg:w-[90%] max-sm:w-[80%] mx-auto">
