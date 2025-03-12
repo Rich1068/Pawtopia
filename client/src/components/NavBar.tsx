@@ -138,7 +138,7 @@ const NavBar = () => {
                       )}
                     </ul>
 
-                    <div className="p-2 border-t border-orange-500 text-center">
+                    <div className="p-2 border-t border-orange-500 text-center font-primary">
                       <Link
                         to="/favorites"
                         className="text-orange-600 hover:underline"

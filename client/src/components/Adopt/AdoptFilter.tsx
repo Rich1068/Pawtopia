@@ -47,7 +47,7 @@ export const AdoptFilter: FC<IAdoptFilter> = ({
   ];
   return (
     <>
-      <div className=" bg-white mt-9 min-w-auto m-4 font-secondary font-semibold">
+      <div className=" mt-9 min-w-auto m-4 font-secondary font-semibold">
         <div className="flex justify-between items-center">
           <h2 className="text-xl font-semibold">
             Filters ({petCounts.species.dog + petCounts.species.cat})

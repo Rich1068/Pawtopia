@@ -47,7 +47,7 @@ const PetPage = () => {
     return (
       <>
         <PageHeader text="Pet Details" />
-        <div className="flex flex-col items-center justify-center min-h-[40vh] p-10 text-center bg-white text-orange-600 shadow-md rounded-lg mx-4">
+        <div className="flex flex-col items-center justify-center min-h-[40vh] p-10 text-center bg-fixed bg-center bg-cover bg-no-repeat bg-[url(/assets/img/wallpaper.jpg)] text-orange-600 shadow-md rounded-lg mx-4">
           <FontAwesomeIcon icon={faPaw} size="3x" />
           <h2 className="text-3xl font-semibold font-primary">Pet Not Found</h2>
           <p className="text-gray-600 mt-2 font-secondary">
@@ -62,7 +62,7 @@ const PetPage = () => {
     <>
       <PageHeader text="Pet Details" />
       <div className="bg-orange-600">
-        <div className="mx-auto rounded-t-xl bg-white p-4 h-full w-full flex max-md:flex-col">
+        <div className="mx-auto rounded-t-xl bg-fixed bg-center bg-cover bg-no-repeat bg-[url(/assets/img/wallpaper.jpg)] p-4 h-full w-full flex max-md:flex-col">
           {/* Left side - PetCarousel */}
           <div className="flex-1 min-w-[50%] flex justify-center">
             <PetCarousel

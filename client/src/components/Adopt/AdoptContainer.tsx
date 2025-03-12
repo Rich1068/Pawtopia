@@ -55,7 +55,7 @@ const AdoptContainer: FC<IAdoptContainer> = ({ allPets }) => {
     setIsOpen(!isOpen);
   };
   return (
-    <div className="h-full w-full bottom-0 px-[8%]">
+    <div className="h-full w-full bottom-0 px-[8%] bg-fixed bg-center bg-cover bg-no-repeat bg-[url(/assets/img/wallpaper.jpg)] rounded-t-xl">
       {/* Mobile Filter Button */}
       <button
         className="md:hidden ml-auto bg-orange-600 text-white px-4 my-4 py-2 rounded-lg shadow-md flex items-center space-x-2 z-50"
