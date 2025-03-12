@@ -10,6 +10,7 @@ export const contact = async (req: Request, res: Response) => {
   try {
     await sendEmail(
       "pawtopia21@gmail.com",
+      email,
       "Contact Form Submission",
       `<h1>New Message from ${fullname}</h1>
         <p><strong>Email:</strong> ${email}</p>

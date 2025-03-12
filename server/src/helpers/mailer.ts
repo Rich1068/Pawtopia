@@ -11,11 +11,17 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-export const sendEmail = async (to: string, subject: string, html: string) => {
+export const sendEmail = async (
+  to: string,
+  replyTo: string,
+  subject: string,
+  html: string
+) => {
   try {
     await transporter.sendMail({
       from: `"Pawtopia" <${process.env.SMTP_GMAIL_ACC}>`,
       to,
+      replyTo,
       subject,
       html,
     });
