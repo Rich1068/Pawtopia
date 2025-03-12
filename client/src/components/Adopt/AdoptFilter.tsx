@@ -27,7 +27,6 @@ export const AdoptFilter: FC<IAdoptFilter> = ({
         : [...prev[filterType], value], // Add the filter
     }));
   };
-
   const filterOptions: {
     title: string;
     options: string[];
@@ -48,9 +47,11 @@ export const AdoptFilter: FC<IAdoptFilter> = ({
   ];
   return (
     <>
-      <div className="w-64 bg-white p-4 font-secondary font-semibold">
+      <div className=" bg-white min-w-auto m-4 font-secondary font-semibold">
         <div className="flex justify-between items-center">
-          <h2 className="text-xl font-bold">Filters</h2>
+          <h2 className="text-xl font-semibold">
+            Filters ({petCounts.species.dog + petCounts.species.cat})
+          </h2>
 
           <button
             onClick={() => {

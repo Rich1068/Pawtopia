@@ -28,9 +28,9 @@ const Adopt = () => {
 
   return (
     <>
-      <div className="min-h-screen flex flex-col">
+      <div className="min-h-screen flex flex-col bg-orange-600">
         <PageHeader text="Adopt List" />
-        <div className="flex flex-row">
+        <div className="flex flex-row rounded-t-xl bg-white">
           <AdoptContainer allPets={allPets} />
         </div>
       </div>

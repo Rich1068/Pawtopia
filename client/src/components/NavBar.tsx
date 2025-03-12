@@ -10,23 +10,27 @@ const NavBar = () => {
   const { user, logout, loading } = useContext(AuthContext)!;
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [closing, setClosing] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const favoriteDropdownRef = useRef<HTMLDivElement>(null);
+  const profileDropdownRef = useRef<HTMLDivElement>(null);
   const { favorites } = useFavorites();
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
+        favoriteDropdownRef.current &&
+        !favoriteDropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsFavoriteOpen(false);
+      }
+      if (
+        profileDropdownRef.current &&
+        !profileDropdownRef.current.contains(event.target as Node)
       ) {
         setDropdownOpen(false);
-        setIsFavoriteOpen(false);
       }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   if (loading) return null;
@@ -84,12 +88,12 @@ const NavBar = () => {
           </ul>
         </nav>
 
-        <div className="flex max-lg:ml-auto space-x-4 w-auto" ref={dropdownRef}>
+        <div className="flex max-lg:ml-auto space-x-4 w-auto">
           {user ? (
             <>
-              <div className="relative">
+              <div className="relative max-sm:hidden" ref={favoriteDropdownRef}>
                 <button
-                  className="relative p-2 text-orange-500 items-center"
+                  className="relative p-2 text-orange-500 items-center mt-1"
                   onClick={() => setIsFavoriteOpen(!isFavoriteOpen)}
                 >
                   <Heart size={28} />
@@ -102,13 +106,17 @@ const NavBar = () => {
 
                 {isFavoriteOpen && (
                   <div className="absolute right-0 mt-2 w-60 bg-white border border-orange-500 shadow-lg rounded-lg z-50">
-                    <ul className="max-h-60 overflow-y-auto divide-y divide-gray-300 mx-3">
+                    <ul className="max-h-60 overflow-y-auto divide-y divide-gray-300 mx-3 font-primary text-amber-950">
                       {favorites.length > 0 ? (
                         favorites.map((pet) => (
                           <Link
                             to={`/adopt/pets/${pet.petId}`}
                             className="flex items-center p-2"
-                            onClick={() => setIsFavoriteOpen(false)}
+                            onClick={(e) => {
+                              e.stopPropagation(); // Prevents dropdown from closing
+                              setIsFavoriteOpen(false); // Closes after navigation
+                            }}
+                            key={pet.petId}
                           >
                             <li
                               key={pet.petId}
@@ -130,12 +138,14 @@ const NavBar = () => {
                       )}
                     </ul>
 
-                    {/* Show All Button */}
                     <div className="p-2 border-t border-orange-500 text-center">
                       <Link
                         to="/favorites"
                         className="text-orange-600 hover:underline"
-                        onClick={() => setIsFavoriteOpen(false)}
+                        onClick={(e) => {
+                          e.stopPropagation(); // Prevents dropdown from closing
+                          setIsFavoriteOpen(false); // Closes after navigation
+                        }}
                       >
                         Show All
                       </Link>
@@ -144,7 +154,7 @@ const NavBar = () => {
                 )}
               </div>
 
-              <div className="relative" ref={dropdownRef}>
+              <div className="relative" ref={profileDropdownRef}>
                 <button
                   onClick={() => setDropdownOpen(!dropdownOpen)}
                   className="flex items-center p-2 bg-white group rounded-full"
@@ -219,9 +229,8 @@ const NavBar = () => {
       {/* Mobile Menu */}
       {isOpen && (
         <div
-          className={`bg-white fixed top-0 left-0 w-3/4 sm:w-1/2 min-w-[300px] h-full shadow-md p-6 z-50 
-    transform transition-transform duration-300 ease-in-out 
-    ${closing ? "animate-slide-out" : "animate-slide-in"}`}
+          className={`bg-white fixed top-0 left-0 w-3/4 sm:w-1/2 min-w-[300px] h-full shadow-md p-6 z-50 transform transition-transform duration-300 ease-in-out 
+            ${closing ? "animate-slide-out" : "animate-slide-in"}`}
         >
           <div className=" flex relative">
             {user?.profileImage ? (
@@ -267,6 +276,27 @@ const NavBar = () => {
                   <hr className="bg-amber-950" />
                 </li>
               ))}
+              <NavLink
+                to={"/favorites"}
+                className={({ isActive }) =>
+                  `block text-lg font-extrabold px-4 py-2 font-secondary ${
+                    isActive ? "text-orange-600" : "text-amber-950"
+                  } hover:text-orange-500`
+                }
+                onClick={() => setIsOpen(false)}
+                data-testid={`fav-nav`}
+              >
+                {({ isActive }) => (
+                  <div className="flex items-center">
+                    Favorites
+                    {favorites.length === 0 ? "" : `(${favorites.length})`}
+                    {isActive && (
+                      <PawPrint className="ml-2 motion-safe:animate-bounce" />
+                    )}
+                  </div>
+                )}
+              </NavLink>
+              <hr className="bg-amber-950" />
               {user ? (
                 <>
                   <li>

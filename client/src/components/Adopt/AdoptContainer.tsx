@@ -55,10 +55,10 @@ const AdoptContainer: FC<IAdoptContainer> = ({ allPets }) => {
     setIsOpen(!isOpen);
   };
   return (
-    <div className="rounded-t-xl bg-white p-4 h-full w-full flex-grow bottom-0 min-h-svh">
+    <div className=" h-full w-full bottom-0 px-[8%]">
       {/* Mobile Filter Button */}
       <button
-        className="md:hidden ml-auto bg-orange-600 text-white px-4 py-2 rounded-lg shadow-md flex items-center space-x-2"
+        className="md:hidden ml-auto bg-orange-600 text-white px-4 my-4 py-2 rounded-lg shadow-md flex items-center space-x-2"
         onClick={toggleFilter}
       >
         <FontAwesomeIcon icon={faFilter} />
@@ -84,8 +84,8 @@ const AdoptContainer: FC<IAdoptContainer> = ({ allPets }) => {
           </div>
         </div>
       )}
-      <div className="flex flex-row min-h-svh">
-        <div className="hidden md:block">
+      <div className="flex flex-row min-h-svh shrink">
+        <div className="relative max-md:hidden min-w-50 max-w-64 w-full">
           <AdoptFilter
             selected={selected}
             setSelected={setSelected}
@@ -94,7 +94,14 @@ const AdoptContainer: FC<IAdoptContainer> = ({ allPets }) => {
             setSearchQuery={setSearchQuery}
           />
         </div>
-        <Cards pets={currentPets} cleanImageUrl={cleanImageUrl} />
+        <div className="flex max-md:-mt-10">
+          <Cards
+            pets={currentPets}
+            cleanImageUrl={cleanImageUrl}
+            header={"No Pets Available"}
+            text={"Check back later or try selecting different filters."}
+          />
+        </div>
       </div>
       <div className="pb-5">
         <ReactPaginate
