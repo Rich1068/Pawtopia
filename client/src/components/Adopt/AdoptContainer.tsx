@@ -55,10 +55,10 @@ const AdoptContainer: FC<IAdoptContainer> = ({ allPets }) => {
     setIsOpen(!isOpen);
   };
   return (
-    <div className=" h-full w-full bottom-0 px-[8%]">
+    <div className="h-full w-full bottom-0 px-[8%]">
       {/* Mobile Filter Button */}
       <button
-        className="md:hidden ml-auto bg-orange-600 text-white px-4 my-4 py-2 rounded-lg shadow-md flex items-center space-x-2"
+        className="md:hidden ml-auto bg-orange-600 text-white px-4 my-4 py-2 rounded-lg shadow-md flex items-center space-x-2 z-50"
         onClick={toggleFilter}
       >
         <FontAwesomeIcon icon={faFilter} />
@@ -73,15 +73,13 @@ const AdoptContainer: FC<IAdoptContainer> = ({ allPets }) => {
           >
             ✖
           </button>
-          <div className="-ml-4">
-            <AdoptFilter
-              selected={selected}
-              setSelected={setSelected}
-              petCounts={petCounts}
-              searchQuery={searchQuery}
-              setSearchQuery={setSearchQuery}
-            />
-          </div>
+          <AdoptFilter
+            selected={selected}
+            setSelected={setSelected}
+            petCounts={petCounts}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+          />
         </div>
       )}
       <div className="flex flex-row min-h-svh shrink">
@@ -94,7 +92,7 @@ const AdoptContainer: FC<IAdoptContainer> = ({ allPets }) => {
             setSearchQuery={setSearchQuery}
           />
         </div>
-        <div className="flex max-md:-mt-10">
+        <div className=" max-md:-mt-10 w-full">
           <Cards
             pets={currentPets}
             cleanImageUrl={cleanImageUrl}

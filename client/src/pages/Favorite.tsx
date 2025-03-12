@@ -53,7 +53,6 @@ const Favorite = () => {
           cleanImageUrl={cleanImageUrl}
           header={"No Favorites Yet"}
           text={"Start adding pets to your favorites!"}
-          cardClassName="!justify-start !gap-x-10"
         />
       </div>
     </>

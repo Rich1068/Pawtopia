@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { FC } from "react";
 import { faPaw } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -11,24 +10,15 @@ interface ICards {
   cleanImageUrl: (url: string | undefined) => string | undefined;
   header: string;
   text: string;
-  cardClassName?: string;
 }
 
-const Cards: FC<ICards> = ({
-  pets,
-  cleanImageUrl,
-  header,
-  text,
-  cardClassName,
-}) => {
+const Cards: FC<ICards> = ({ pets, cleanImageUrl, header, text }) => {
   return (
     <>
       {pets.length > 0 ? (
-        <div
-          className={`flex flex-wrap justify-between ${cardClassName} gap-x-auto`}
-        >
+        <div className="grid grid-cols-[repeat(auto-fill,_minmax(240px,_1fr))] m-auto">
           {pets.map((pet) => (
-            <div className="">
+            <div className="mx-auto">
               <div
                 key={pet.id}
                 className=" mt-11 w-60 max-sm:w-50 transform overflow-hidden rounded-lg bg-white shadow-md duration-300 hover:scale-105 hover:shadow-lg"
