@@ -1,10 +1,15 @@
+import ContactSection from "../components/Contact/ContactSection";
 import PageHeader from "../components/PageHeader";
 
 const Contact = () => {
   return (
     <>
-      <PageHeader text={"Contact Page"} />
-      <h1>This is the Contact Page</h1>
+      <div className="fixed inset-0 min-w-full min-h-full pt-18">
+        <PageHeader />
+        <div className="relative z-100">
+          <ContactSection />
+        </div>
+      </div>
     </>
   );
 };

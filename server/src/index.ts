@@ -8,6 +8,7 @@ import auth from "./routes/auth";
 import pet from "./routes/pets";
 import user from "./routes/user";
 import path from "path";
+import email from "./routes/email";
 
 db_connection();
 dotenv.config();
@@ -29,6 +30,7 @@ app.use("/", route);
 app.use("/api", auth);
 app.use("/pet", pet);
 app.use("/user", user);
+app.use("/email", email);
 const port = process.env.PORT || 8000;
 app.listen(port, () => {
   console.log("Backend Server running at Port: " + port);
