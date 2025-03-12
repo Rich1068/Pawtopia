@@ -15,6 +15,7 @@ import Contact from "./pages/Contact";
 import Profile from "./pages/Profile";
 import Footer from "./components/Footer";
 import PetPage from "./pages/PetPage";
+import Favorite from "./pages/Favorite";
 
 axios.defaults.withCredentials = true;
 
@@ -34,6 +35,7 @@ function App() {
           </Route>
           <Route path="/adopt" element={<Adopt />} />
           <Route path="/adopt/pets/:id" element={<PetPage />} />
+          <Route path="/favorites" element={<Favorite />} />
           <Route path="/shop" element={<Shop />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/login" element={<Login />} />
