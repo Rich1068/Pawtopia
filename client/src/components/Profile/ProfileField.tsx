@@ -20,7 +20,7 @@ const ProfileField: FC<IFormInput> = ({
   return (
     <div className="bg-gray-50 px-4 py-5 grid grid-cols-3 gap-4 sm:px-6">
       <dt className="text-sm font-medium text-gray-500">{label}</dt>
-      <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+      <dd className="mt-1 text-sm text-gray-900 sm:mt-0 col-span-2 w-[80%]">
         {isEditing && name ? (
           <input
             type={type}
