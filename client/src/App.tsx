@@ -16,6 +16,7 @@ import Profile from "./pages/Profile";
 import Footer from "./components/Footer";
 import PetPage from "./pages/PetPage";
 import Favorite from "./pages/Favorite";
+import ForgotPassword from "./pages/ForgotPassword";
 
 axios.defaults.withCredentials = true;
 
@@ -40,6 +41,7 @@ function App() {
           <Route path="/contact" element={<Contact />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
         </Route>
       </Routes>
       <Footer />

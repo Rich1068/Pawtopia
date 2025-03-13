@@ -13,18 +13,20 @@ const transporter = nodemailer.createTransport({
 
 export const sendEmail = async (
   to: string,
-  replyTo: string,
   subject: string,
-  html: string
+  html: string,
+  replyTo?: string // Marked as optional with "?"
 ) => {
   try {
-    await transporter.sendMail({
+    const mailOptions: any = {
       from: `"Pawtopia" <${process.env.SMTP_GMAIL_ACC}>`,
       to,
-      replyTo,
       subject,
       html,
-    });
+      ...(replyTo && { replyTo }),
+    };
+
+    await transporter.sendMail(mailOptions);
   } catch (error) {
     console.error("Error sending email:", error);
     throw new Error("Email sending failed");

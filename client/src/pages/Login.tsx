@@ -107,7 +107,7 @@ const Login = () => {
                 <input
                   id="remember-me"
                   type="checkbox"
-                  className="h-4 w-4 shrink-0 rounded"
+                  className="h-4 w-4 shrink-0 rounded accent-orange-500"
                   checked={data.rememberMe}
                   onChange={() =>
                     setData({ ...data, rememberMe: !data.rememberMe })
@@ -116,12 +116,12 @@ const Login = () => {
                 <label htmlFor="remember-me" className="ml-3 text-sm">
                   Remember me
                 </label>
-                <a
-                  href="javascript:void(0);"
+                <Link
+                  to="/forgot-password"
                   className="ml-auto text-orange-500 font-semibold hover:underline"
                 >
                   Forgot your password?
-                </a>
+                </Link>
               </div>
 
               <div className="mt-8">
