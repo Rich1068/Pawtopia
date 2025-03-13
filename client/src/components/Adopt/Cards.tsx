@@ -18,14 +18,10 @@ const Cards: FC<ICards> = ({ pets, cleanImageUrl, header, text }) => {
       {pets.length > 0 ? (
         <div className="grid grid-cols-[repeat(auto-fill,_minmax(240px,_1fr))] m-auto">
           {pets.map((pet) => (
-            <div className="mx-auto">
-              <div
-                key={pet.id}
-                className=" mt-11 w-60 max-sm:w-50 transform overflow-hidden rounded-lg bg-white shadow-md duration-300 hover:scale-105 hover:shadow-lg"
-              >
+            <div className="mx-auto" key={pet.id}>
+              <div className=" mt-11 w-60 max-sm:w-50 transform overflow-hidden rounded-lg bg-white shadow-md duration-300 hover:scale-105 hover:shadow-lg">
                 <Link
                   to={`/adopt/pets/${pet.id}`}
-                  key={pet.id}
                   target="_blank"
                   rel="noopener noreferrer"
                 >

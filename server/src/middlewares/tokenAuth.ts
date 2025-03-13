@@ -12,20 +12,20 @@ export const authMiddleware = async (
     const token = req.cookies.token; // Get token from cookies
 
     if (!token) {
-      res.status(401).json({ message: "Unauthorized" });
+      res.status(401).json({ error: "Unauthorized. Please Login" });
       return;
     }
 
     const decoded = await verifyToken(token); // Decode & verify token
     if (!decoded) {
-      res.status(403).json({ message: "Invalid token" });
+      res.status(403).json({ error: "Invalid token" });
       return;
     }
     //requests the ID of the user of the token
     req.userId = decoded.id;
     next();
   } catch (error) {
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ error: "Server error" });
   }
 };
 

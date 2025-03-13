@@ -80,7 +80,7 @@ export const editPassword = async (
 };
 
 export const uploadProfileImage = async (
-  req: Request,
+  req: AuthRequest,
   res: Response
 ): Promise<void> => {
   try {

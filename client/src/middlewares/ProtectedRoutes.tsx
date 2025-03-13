@@ -1,19 +1,13 @@
 import { Navigate, Outlet } from "react-router";
-import { AuthContext } from "../context/AuthContext";
-import { FC, useContext } from "react";
-
+import { FC } from "react";
+import { useAuth } from "../context/AuthContext";
 type Props = "user" | "admin";
 
 export const ProtectedRoute: FC<{ allowedRoles: Props }> = ({
   allowedRoles,
 }) => {
-  const auth = useContext(AuthContext);
-  if (!auth) {
-    throw new Error(
-      "useContext(AuthContext) must be used within an AuthProvider"
-    );
-  }
-  const { user, loading } = auth;
+  const { user, loading } = useAuth();
+
   if (loading) {
     console.log("🔄 Loading user...");
     return <div>Loading...</div>;
