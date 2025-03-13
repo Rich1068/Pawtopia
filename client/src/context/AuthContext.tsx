@@ -10,11 +10,32 @@ import LoadingPage from "../components/LoadingPage/LoadingPage";
 import serverAPI from "../helper/axios";
 import SERVER_URL from "../helper/envVariables";
 
+export let globalLogout: (() => void) | null = null;
+
 export const AuthContext = createContext<AuthContextType | null>(null);
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const isAuthenticated = !!user;
+
+  const fetchUserData = async () => {
+    try {
+      const { data } = await serverAPI.get<{ user: User }>("/user/get-user", {
+        withCredentials: true,
+      });
+
+      if (data.user.profileImage) {
+        data.user.profileImage = SERVER_URL + data.user.profileImage;
+      }
+      setUser(data.user);
+      return { success: true, user: data.user };
+    } catch (error) {
+      console.error("Failed to fetch user data", error);
+      setUser(null);
+      return { success: false };
+    }
+  };
 
   const verifyToken = async () => {
     try {
@@ -29,20 +50,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return { success: false };
       }
 
-      const response = await serverAPI.get<{ user: User }>("/user/get-user", {
-        withCredentials: true,
-      });
-      console.log(response.data.user);
-      if (response.data.user.profileImage) {
-        response.data.user.profileImage =
-          SERVER_URL + response.data.user.profileImage;
-      }
-      setUser(response.data.user);
+      return await fetchUserData();
 
-      return { success: true, user: response.data.user };
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      console.error("Failed to verify token or fetch user");
+      console.error("Failed to verify token");
       setUser(null);
       return { success: false };
     } finally {
@@ -50,25 +62,43 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const login = async () => {
-    await verifyToken();
-    return isAuthenticated;
+  const login = async (rememberMe: boolean) => {
+    const { success } = await verifyToken();
+
+    if (success && rememberMe) {
+      localStorage.setItem("rememberMe", "true");
+    } else {
+      localStorage.removeItem("rememberMe");
+    }
+
+    return success;
   };
+
   const logout = async () => {
     try {
-      serverAPI.post("/api/logout", {}, { withCredentials: true });
+      await serverAPI.post("/api/logout", {}, { withCredentials: true });
       setUser(null);
     } catch (error) {
-      console.log(error);
+      console.error("Logout failed", error);
+    } finally {
+      localStorage.removeItem("rememberMe");
     }
   };
 
   useEffect(() => {
     verifyToken();
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const interval = setInterval(() => {
+      verifyToken();
+    }, 5 * 60 * 1000);
+
+    return () => clearInterval(interval);
   }, []);
+
   if (loading) return <LoadingPage fadeOut={false} />;
+
+  globalLogout = logout;
+
   return (
     <AuthContext.Provider
       value={{ user, isAuthenticated, loading, verifyToken, login, logout }}

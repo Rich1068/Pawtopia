@@ -3,8 +3,8 @@ import User from "../models/User";
 import {
   comparePassword,
   hashPassword,
+  signRefreshToken,
   signToken,
-  verifyToken,
 } from "../helpers/auth";
 import { validateRegister, validateLogin } from "../helpers/validation";
 
@@ -39,7 +39,7 @@ export const registerUser = async (
 };
 export const loginUser = async (req: Request, res: Response) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, rememberMe } = req.body;
     const user = await User.findOne({ email });
 
     if (!(await validateLogin(req, res))) return;
@@ -51,7 +51,7 @@ export const loginUser = async (req: Request, res: Response) => {
     }
     const match = await comparePassword(password, user.password!);
     if (match) {
-      const token = await signToken({
+      const accessToken = await signToken({
         id: user.id,
         name: user.name as string,
         role: user.role as "admin" | "user",
@@ -64,8 +64,19 @@ export const loginUser = async (req: Request, res: Response) => {
         phone: user.phoneNumber,
         role: user.role,
       };
+      if (rememberMe) {
+        const refreshToken = await signRefreshToken({ id: user.id });
+
+        res.cookie("refreshToken", refreshToken, {
+          httpOnly: true,
+          secure: true,
+          sameSite: "strict",
+          path: "/",
+          maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        });
+      }
       res
-        .cookie("token", token, { httpOnly: true, secure: true })
+        .cookie("token", accessToken, { httpOnly: true, secure: true })
         .status(200)
         .json({ userData });
     } else {
