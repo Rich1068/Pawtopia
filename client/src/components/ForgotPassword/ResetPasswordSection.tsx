@@ -2,7 +2,7 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import serverAPI from "../../helper/axios";
 
-const ForgotPasswordSection = () => {
+const ResetPasswordSection = () => {
   const [email, setEmail] = useState<string>("");
   const [isloading, setIsLoading] = useState<boolean>(false);
 
@@ -61,4 +61,4 @@ const ForgotPasswordSection = () => {
   );
 };
 
-export default ForgotPasswordSection;
+export default ResetPasswordSection;

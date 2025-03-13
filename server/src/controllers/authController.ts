@@ -83,7 +83,10 @@ export const logoutUser = async (req: Request, res: Response) => {
   }
 };
 
-export const requestPasswordReset = async (req: Request, res: Response) => {
+export const requestPasswordReset = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   try {
     const { email } = req.body;
     if (!isValidEmail(email)) {
@@ -110,12 +113,61 @@ export const requestPasswordReset = async (req: Request, res: Response) => {
       );
     } catch (emailError) {
       console.error("Failed to send reset email:", emailError);
-      return res.status(500).json({ error: "Failed to send reset email" });
+      res.status(500).json({ error: "Failed to send reset email" });
+      return;
     }
     res.json({ message: "Reset link sent to email", email: user.email });
     return;
   } catch (error) {
     res.status(500).json({ error: "Something Went Wrong" });
+  }
+};
+
+export const verifyResetToken = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { token } = req.params;
+    const user = await User.findOne({
+      resetPasswordToken: { $exists: true },
+      resetPasswordExpires: { $gt: new Date() }, // Check if token is not expired
+    });
+
+    if (!user || !(await bcrypt.compare(token, user.resetPasswordToken!))) {
+      res.status(400).json({ error: "Invalid or expired token" });
+      return;
+    }
+
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: "Something went wrong" });
+  }
+};
+
+export const resetPassword = async (req: Request, res: Response) => {
+  try {
+    const { token } = req.params;
+    const { newPassword } = req.body;
+
+    const user = await User.findOne({
+      resetPasswordToken: { $exists: true },
+      resetPasswordExpires: { $gt: new Date() },
+    });
+
+    if (!user || !(await bcrypt.compare(token, user.resetPasswordToken!))) {
+      res.status(400).json({ error: "Invalid or expired token" });
+      return;
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
+    user.resetPasswordToken = null;
+    user.resetPasswordExpires = null;
+    await user.save();
+
+    res.json({ message: "Password successfully reset" });
+  } catch (error) {
+    res.status(500).json({ error: "Something went wrong" });
   }
 };
 export default { verifyUserToken, logoutUser };

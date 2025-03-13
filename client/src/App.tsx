@@ -16,7 +16,7 @@ import Profile from "./pages/Profile";
 import Footer from "./components/Footer";
 import PetPage from "./pages/PetPage";
 import Favorite from "./pages/Favorite";
-import ForgotPassword from "./pages/ForgotPassword";
+import ForgotPassword from "./pages/ForgotPassword/ForgotPassword";
 
 axios.defaults.withCredentials = true;
 

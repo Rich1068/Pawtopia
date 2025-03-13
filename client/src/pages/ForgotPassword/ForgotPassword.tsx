@@ -1,5 +1,5 @@
-import ForgotPasswordSection from "../components/ForgotPassword/ForgotPasswordSection";
-import PageHeader from "../components/PageHeader";
+import ForgotPasswordSection from "../../components/ForgotPassword/ForgotPasswordSection";
+import PageHeader from "../../components/PageHeader";
 
 const ForgotPassword = () => {
   return (
