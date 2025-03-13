@@ -33,10 +33,10 @@ const ProfileImageUpload: FC<ImageUploadPropTypes> = ({
       isOpen={isOpen}
       ariaHideApp={false}
       onRequestClose={onClose}
-      className="bg-white p-6 rounded-lg shadow-lg w-[90%] max-w-md mx-auto"
+      className="bg-white p-6 rounded-lg shadow-lg w-[90%] max-w-md mx-auto font-primary"
       overlayClassName="fixed inset-0 bg-black/50 flex justify-center items-center z-50"
     >
-      <h2 className="text-xl font-semibold text-gray-800 text-center mb-4">
+      <h2 className="text-xl font-semibold text-orange-600 text-center mb-4">
         Upload Profile Picture
       </h2>
 

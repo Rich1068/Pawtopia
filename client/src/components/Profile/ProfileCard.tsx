@@ -114,7 +114,7 @@ const ProfileCard: FC<{ user: User }> = ({ user }) => {
     setIsEditing(true);
   };
   return (
-    <div className="bg-white w-xl max-w-full shadow overflow-hidden sm:rounded-lg mr-auto mt-30 z-20 max-[896px]:mt-10 max-[936px]:ml-auto">
+    <div className="bg-white w-xl max-w-full shadow overflow-hidden max-lg:mt-10 rounded-lg mr-auto">
       {/* Tabs */}
       <div className="flex">
         <button
