@@ -59,7 +59,7 @@ export interface AuthContextType {
         user: User;
       }
   >;
-  login: () => Promise<boolean>;
+  login: (rememberMe: boolean) => Promise<boolean>;
   logout: () => void;
 }
 

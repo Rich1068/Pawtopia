@@ -28,8 +28,8 @@ export const signToken = async (user: {
     const token = await new Promise<string>((resolve, reject) => {
       jwt.sign(
         { id: user.id, name: user.name, role: user.role },
-        process.env.JWT_SECRET!,
-        {},
+        process.env.JWT_ACCESS_SECRET!,
+        { expiresIn: "15m" },
         (error, token) => {
           if (error) {
             reject(error);
@@ -45,15 +45,36 @@ export const signToken = async (user: {
     throw new Error("Error creating token: " + error);
   }
 };
+export const signRefreshToken = async (user: {
+  id: object;
+}): Promise<string> => {
+  try {
+    const token = await new Promise<string>((resolve, reject) => {
+      jwt.sign(
+        { id: user.id },
+        process.env.JWT_REFRESH_SECRET!,
+        { expiresIn: "7d" },
+        (error, token) => {
+          if (error) reject(error);
+          else resolve(token!);
+        }
+      );
+    });
 
+    return token;
+  } catch (error) {
+    throw new Error("Error creating refresh token: " + error);
+  }
+};
 export const verifyToken = async (
-  token: string
+  token: string,
+  secret: string = process.env.JWT_ACCESS_SECRET!
 ): Promise<JwtPayload | null> => {
   try {
-    return jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload;
+    return jwt.verify(token, secret) as JwtPayload;
   } catch (error) {
     console.error("Error verifying token:", error);
-    return null; // Return null instead of throwing an error
+    return null;
   }
 };
 
