@@ -1,6 +1,8 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { sendEmail } from "../../helper/email";
+import { useAuth } from "../../context/AuthContext";
+import WarningModal from "../WarningModal";
 
 interface IContactData {
   fullname: string;
@@ -15,12 +17,18 @@ const ContactSection = () => {
     message: "",
   });
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const { user } = useAuth();
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     setIsLoading(true);
     e.preventDefault();
     const emailCheck = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
+    if (!user) {
+      setIsModalOpen(true);
+      setIsLoading(false);
+      return;
+    }
     if (!contactData.fullname || !contactData.email || !contactData.message) {
       toast.error("All fields are required");
       setIsLoading(false);
@@ -28,7 +36,7 @@ const ContactSection = () => {
     }
 
     if (contactData.email && !emailCheck.test(contactData.email)) {
-      toast.error("Invalid email format");
+      toast.error("Invalid Email Format");
       setIsLoading(false);
       return;
     }
@@ -89,15 +97,17 @@ const ContactSection = () => {
               placeholder="Full Name"
               className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
               value={contactData.fullname}
+              data-testid="fullname-form"
               onChange={(e) =>
                 setContactData({ ...contactData, fullname: e.target.value })
               }
             />
             <input
-              type="email"
+              type="text"
               placeholder="Email Address"
               className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
               value={contactData.email}
+              data-testid="email-form"
               onChange={(e) =>
                 setContactData({ ...contactData, email: e.target.value })
               }
@@ -107,6 +117,7 @@ const ContactSection = () => {
               rows={4}
               className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
               value={contactData.message}
+              data-testid="message-form"
               onChange={(e) =>
                 setContactData({ ...contactData, message: e.target.value })
               }
@@ -114,6 +125,7 @@ const ContactSection = () => {
             <button
               className="w-full bg-orange-500 text-white py-3 rounded-lg hover:bg-orange-600 transition"
               disabled={isLoading}
+              data-testid="contact-submit-button"
             >
               {isLoading ? (
                 <svg
@@ -140,6 +152,12 @@ const ContactSection = () => {
           </form>
         </div>
       </div>
+      <WarningModal
+        header="Login Required"
+        text="Please Login to Submit"
+        isModalOpen={isModalOpen}
+        setIsModalOpen={setIsModalOpen}
+      />
     </div>
   );
 };

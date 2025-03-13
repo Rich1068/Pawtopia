@@ -12,7 +12,8 @@ export const contact = async (req: Request, res: Response) => {
     return;
   }
   if (!isValidEmail(email)) {
-    res.status(400).json({ error: "Invalid Email" });
+    res.status(400).json({ error: "Invalid Email Format" });
+    return;
   }
 
   try {
@@ -28,7 +29,7 @@ export const contact = async (req: Request, res: Response) => {
     );
     res.json({ success: "Message sent successfully!" });
   } catch (error) {
-    res.status(500).json({ error: "Failed to send message." });
+    res.status(500).json({ error: "Failed to send email." });
   }
 };
 

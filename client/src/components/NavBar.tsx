@@ -50,7 +50,7 @@ const NavBar = () => {
   };
 
   return (
-    <header className="flex fixed shadow-md py-3 px-8 sm:m-auto bg-white font-sans min-h-[70px] tracking-wide z-50 mx-auto rounded-b-xl min-w-screen w-auto">
+    <header className="flex fixed shadow-md py-3 px-8 sm:m-auto bg-white font-sans min-h-[70px] tracking-wide z-100 mx-auto rounded-b-xl min-w-screen w-auto">
       <div className="flex flex-wrap flex-row items-center justify-between gap-5 w-full">
         {/* Logo */}
 

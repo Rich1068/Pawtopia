@@ -6,7 +6,7 @@ const Contact = () => {
     <>
       <div className=" min-w-full min-h-screen">
         <PageHeader />
-        <div className="relative z-100">
+        <div className="relative z-50">
           <ContactSection />
         </div>
       </div>
