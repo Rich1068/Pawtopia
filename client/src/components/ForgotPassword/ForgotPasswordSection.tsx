@@ -5,8 +5,6 @@ import serverAPI from "../../helper/axios";
 const ForgotPasswordSection = () => {
   const [email, setEmail] = useState<string>("");
   const [isloading, setIsLoading] = useState<boolean>(false);
-  const [isCodeSent, setIsCodeSent] = useState<boolean>(false);
-  const [verificationCode, setVerificationCode] = useState<string>("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,6 +22,7 @@ const ForgotPasswordSection = () => {
       await serverAPI.post("/api/forgot-password", { email });
       toast.success("Password reset link sent to your email");
       setEmail("");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       toast.error(
         error.response?.data?.message || "Something went wrong, try again"

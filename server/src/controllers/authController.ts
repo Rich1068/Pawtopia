@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { signToken, verifyToken } from "../helpers/auth";
+import { comparePassword, signToken, verifyToken } from "../helpers/auth";
 import type { AuthRequest, UserType } from "../Types/Types";
 import User from "../models/User";
 import { isValidEmail } from "../helpers/validation";
@@ -120,6 +120,52 @@ export const requestPasswordReset = async (
     return;
   } catch (error) {
     res.status(500).json({ error: "Something Went Wrong" });
+  }
+};
+
+export const verifyResetToken = async (req: Request, res: Response) => {
+  try {
+    const { token } = req.params;
+    const user = await User.findOne({
+      resetPasswordToken: { $exists: true },
+      resetPasswordExpires: { $gt: new Date() }, // Check if token is not expired
+    });
+
+    if (!user || !(await bcrypt.compare(token, user.resetPasswordToken!))) {
+      res.status(400).json({ error: "Invalid or expired token" });
+      return;
+    }
+
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: "Something went wrong" });
+  }
+};
+
+export const resetPassword = async (req: Request, res: Response) => {
+  try {
+    const { token } = req.params;
+    const { password } = req.body;
+
+    const user = await User.findOne({
+      resetPasswordToken: { $exists: true },
+      resetPasswordExpires: { $gt: new Date() },
+    });
+
+    if (!user || !(await bcrypt.compare(token, user.resetPasswordToken!))) {
+      res.status(400).json({ error: "Invalid or expired token" });
+      return;
+    }
+    console.log(password);
+    user.password = await bcrypt.hash(password, 10);
+    await user.updateOne({
+      $unset: { resetPasswordToken: "", resetPasswordExpires: "" },
+    });
+    user.save();
+    res.json({ message: "Password successfully reset" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Something went wrong" });
   }
 };
 export default { verifyUserToken, logoutUser };
