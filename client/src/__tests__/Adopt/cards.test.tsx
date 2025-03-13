@@ -13,7 +13,12 @@ const renderCard = (pets = mockPets) => {
     <AuthProvider>
       <FavoritesProvider>
         <MemoryRouter>
-          <Cards pets={pets} cleanImageUrl={mockCleanImageUrl} />
+          <Cards
+            pets={pets}
+            cleanImageUrl={mockCleanImageUrl}
+            header={""}
+            text={""}
+          />
         </MemoryRouter>
       </FavoritesProvider>
     </AuthProvider>
