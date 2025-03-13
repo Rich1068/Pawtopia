@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+@theme {
+  --font-primary: "Fredoka", "sans-serif";
+  --font-secondary: "Nunito", "sans-serif";
+  --color-orang: #ec955b;
+  --color-dark: #4c240c;
+}
+html {
+  position: relative;
+  min-height: 100%;
+  background-image: url(/assets/img/wallpaper.jpg);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+@keyframes bounce-right {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(8px);
+  }
+}
+
+@keyframes slide-in {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-out {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.animate-slide-in {
+  animation: slide-in 0.3s ease-out forwards;
+}
+
+.animate-slide-out {
+  animation: slide-out 0.3s ease-in forwards;
+}
