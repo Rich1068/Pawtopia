@@ -1,5 +1,9 @@
 import { Response, Request } from "express";
 import { sendEmail } from "../helpers/mailer";
+import { isValidEmail } from "../helpers/validation";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 export const contact = async (req: Request, res: Response) => {
   const { fullname, email, message } = req.body;
@@ -7,9 +11,15 @@ export const contact = async (req: Request, res: Response) => {
     res.status(400).json({ error: "All fields are required." });
     return;
   }
+  if (!isValidEmail(email)) {
+    res.status(400).json({ error: "Invalid Email" });
+  }
+
   try {
     await sendEmail(
-      "pawtopia21@gmail.com",
+      process.env.SMTP_GMAIL_ACC
+        ? process.env.SMTP_GMAIL_ACC
+        : "pawtopia21@gmail.com",
       email,
       "Contact Form Submission",
       `<h1>New Message from ${fullname}</h1>

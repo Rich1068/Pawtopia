@@ -3,7 +3,7 @@ import User from "../models/User";
 import { comparePassword } from "./auth";
 import { AuthRequest } from "../Types/Types";
 
-const isValidEmail = (email: string): boolean => {
+export const isValidEmail = (email: string): boolean => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
 };
