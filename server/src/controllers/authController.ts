@@ -64,7 +64,11 @@ export const refreshToken = async (
       role: user.role as "admin" | "user",
     });
     res
-      .cookie("token", newAccessToken, { httpOnly: true, secure: true })
+      .cookie("token", newAccessToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
+      })
       .status(200)
       .json({ userData });
     return;
@@ -77,8 +81,16 @@ export const refreshToken = async (
 
 export const logoutUser = async (req: Request, res: Response) => {
   try {
-    res.clearCookie("token", { httpOnly: true, secure: true });
-    res.clearCookie("refreshToken", { httpOnly: true, secure: true });
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+    });
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+    });
     res.status(200).json({ message: "logged out successfully" });
     return;
   } catch (error) {
