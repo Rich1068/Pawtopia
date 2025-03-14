@@ -9,15 +9,17 @@ import { sendEmail } from "../helpers/mailer";
 
 export const verifyUserToken = async (req: AuthRequest, res: Response) => {
   const token = req.cookies.token;
-  if (token) {
-    const verify = await verifyToken(token);
-    if (!verify) {
-      res.status(401).json({ message: "Invalid Token" });
-    }
-    res.json({ verify });
-  } else {
+  if (!token) {
     res.status(400).json({ message: "No token provided" });
+    return;
   }
+  const verify = await verifyToken(token);
+  if (!verify) {
+    res.status(401).json({ message: "Invalid Token" });
+    return;
+  }
+  res.json({ verify });
+  return;
 };
 
 export const refreshToken = async (
@@ -67,6 +69,7 @@ export const refreshToken = async (
       .json({ userData });
     return;
   } catch (error) {
+    console.log(error);
     res.status(403).json({ error: "Invalid refresh token" });
     return;
   }
