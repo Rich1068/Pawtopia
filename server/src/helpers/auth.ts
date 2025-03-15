@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import jwt, { JwtPayload, verify } from "jsonwebtoken";
+import jwt, { JwtPayload, TokenExpiredError, verify } from "jsonwebtoken";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -69,13 +69,16 @@ export const signRefreshToken = async (user: {
 export const verifyToken = async (
   token: string,
   secret: string = process.env.JWT_ACCESS_SECRET!
-): Promise<JwtPayload | null> => {
+): Promise<JwtPayload | "expired" | null> => {
   try {
     return jwt.verify(token, secret) as JwtPayload;
   } catch (error) {
+    if (error instanceof TokenExpiredError) {
+      console.warn("Token has expired.");
+      return "expired"; // Special return value
+    }
     console.error("Error verifying token:", error);
     return null;
   }
 };
-
 export default { hashPassword, comparePassword, signToken, verifyToken };
