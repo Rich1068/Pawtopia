@@ -17,7 +17,7 @@ export const HeroSection2 = () => {
         </svg>
       </div>
       <section className="relative bg-white  max-w-[100%] m-auto">
-        <div className="relative grid max-w-screen-xl px-5 mx-auto lg:gap-8 xl:gap-0 lg:py-10 lg:grid-cols-12 max-lg:py-5">
+        <div className="relative grid max-w-screen-xl max-sm:px-8 sm:px-12 mx-auto lg:gap-8 xl:gap-0 lg:py-10 lg:grid-cols-12 max-lg:py-5">
           <div className="mr-auto place-self-center lg:col-span-7">
             <h1 className="max-w-2xl mb-4 text-4xl font-primary font-semibold text-orange-600 tracking-tight leading-tight md:text-5xl xl:text-6xl">
               Adopt & Shop – Give Your Pet the Best Start
@@ -31,7 +31,7 @@ export const HeroSection2 = () => {
               they deserve!
             </p>
 
-            <div className="flex flex-wrap gap-4">
+            <div className="flex flex-wrap gap-4 max-sm:justify-center">
               <Link
                 to="/adopt"
                 className="inline-flex items-center justify-center px-6 py-3 text-lg font-semibold text-white bg-orange-600 rounded-lg shadow-lg hover:bg-orange-700 focus:ring-4 focus:ring-orange-400 transition-all duration-300"
