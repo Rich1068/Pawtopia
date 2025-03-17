@@ -19,13 +19,14 @@ serverAPI.interceptors.response.use(
           {},
           { withCredentials: true }
         );
-
+        console.log("refreshed");
         // Retry the original request
         return serverAPI(originalRequest);
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (refreshError) {
         console.error("Refresh token expired, logging out...");
         if (globalLogout) globalLogout();
+        return Promise.reject(refreshError);
       }
     }
 
