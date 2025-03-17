@@ -1,17 +1,19 @@
-import ForgotPasswordSection from "../../components/ForgotPassword/ForgotPasswordSection";
+import ResetPasswordSection from "../../components/ForgotPassword/ResetPasswordSection";
+
 import PageHeader from "../../components/PageHeader";
 
-const ForgotPassword = () => {
+const ResetPassword = () => {
   return (
     <>
       <div className=" min-w-full min-h-screen">
         <PageHeader />
+
         <div className="relative z-50">
-          <ForgotPasswordSection />
+          <ResetPasswordSection />
         </div>
       </div>
     </>
   );
 };
 
-export default ForgotPassword;
+export default ResetPassword;

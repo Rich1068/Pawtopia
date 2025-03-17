@@ -1,60 +1,100 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router";
 import toast from "react-hot-toast";
 import serverAPI from "../../helper/axios";
 
 const ResetPasswordSection = () => {
-  const [email, setEmail] = useState<string>("");
-  const [isloading, setIsLoading] = useState<boolean>(false);
+  const { token } = useParams();
+  const navigate = useNavigate();
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isValidToken, setIsValidToken] = useState(false);
+
+  useEffect(() => {
+    const verifyToken = async () => {
+      try {
+        await serverAPI.get(`/api/reset-password/${token}`);
+
+        setIsValidToken(true);
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } catch (error: any) {
+        console.log(error);
+
+        toast.error("Invalid or expired token");
+
+        navigate("/forgot-password");
+      }
+    };
+
+    verifyToken();
+  }, [token, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const emailCheck = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email) {
-      toast.error("Please enter your email");
+    if (password !== confirmPassword) {
+      toast.error("Passwords do not match");
       return;
     }
-    if (email && !emailCheck.test(email)) {
-      toast.error("Invalid email format");
+    if (password.length < 1) {
+      toast.error("Password must be at least 1 characters");
       return;
     }
+
     setIsLoading(true);
+
     try {
-      await serverAPI.post("/api/forgot-password", { email });
-      toast.success("Password reset link sent to your email");
-      setEmail("");
+      await serverAPI.post(`/api/reset-password/${token}`, { password });
+      toast.success("Password reset successful! Please log in.");
+      navigate("/login");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      toast.error(
-        error.response?.data?.message || "Something went wrong, try again"
-      );
+      toast.error(error.response?.data?.error || "Something went wrong");
     } finally {
       setIsLoading(false);
     }
   };
 
+  if (!isValidToken) return null;
+
   return (
     <div className="max-w-md mx-auto p-6 bg-white shadow-lg -mt-20 rounded-xl">
       <h2 className="text-2xl font-semibold text-center text-orange-600 mb-4 font-primary">
-        Forgot Password
+        Reset Password
       </h2>
-      <p className="text-gray-500 text-center mb-6 font-secondary">
-        Enter your email to receive a reset link
+
+      <p className="text-gray-500 text-center mb-6">
+        Enter a new password below.
       </p>
+
       <form onSubmit={handleSubmit}>
         <label className="block mb-4">
           <input
-            type="email"
+            type="password"
             className="w-full mt-1 p-2 border border-gray-300 rounded"
-            placeholder="Enter your email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            placeholder="New Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
           />
         </label>
+
+        <label className="block mb-4">
+          <input
+            type="password"
+            className="w-full mt-1 p-2 border border-gray-300 rounded"
+            placeholder="Confirm Password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+          />
+        </label>
+
         <button
           type="submit"
           className="w-full py-2 px-4 bg-orange-600 text-white font-semibold rounded hover:bg-orange-500 transition"
-          disabled={isloading}
+          disabled={isLoading}
         >
-          {isloading ? "Sending..." : "Send Reset Link"}
+          {isLoading ? "Resetting..." : "Reset Password"}
         </button>
       </form>
     </div>

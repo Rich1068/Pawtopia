@@ -22,6 +22,7 @@ const ForgotPasswordSection = () => {
       await serverAPI.post("/api/forgot-password", { email });
       toast.success("Password reset link sent to your email");
       setEmail("");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       toast.error(
         error.response?.data?.message || "Something went wrong, try again"

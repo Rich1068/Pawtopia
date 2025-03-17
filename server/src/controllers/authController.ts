@@ -9,15 +9,17 @@ import { sendEmail } from "../helpers/mailer";
 
 export const verifyUserToken = async (req: AuthRequest, res: Response) => {
   const token = req.cookies.token;
-  if (token) {
-    const verify = await verifyToken(token);
-    if (!verify) {
-      res.status(401).json({ message: "Invalid Token" });
-    }
-    res.json({ verify });
-  } else {
+  if (!token) {
     res.status(400).json({ message: "No token provided" });
+    return;
   }
+  const verify = await verifyToken(token);
+  if (!verify) {
+    res.status(401).json({ message: "Invalid Token" });
+    return;
+  }
+  res.json({ verify });
+  return;
 };
 
 export const refreshToken = async (
@@ -123,19 +125,19 @@ export const requestPasswordReset = async (
   }
 };
 
-export const verifyResetToken = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+export const verifyResetToken = async (req: Request, res: Response) => {
   try {
     const { token } = req.params;
+
     const user = await User.findOne({
       resetPasswordToken: { $exists: true },
+
       resetPasswordExpires: { $gt: new Date() }, // Check if token is not expired
     });
 
     if (!user || !(await bcrypt.compare(token, user.resetPasswordToken!))) {
       res.status(400).json({ error: "Invalid or expired token" });
+
       return;
     }
 
@@ -148,25 +150,35 @@ export const verifyResetToken = async (
 export const resetPassword = async (req: Request, res: Response) => {
   try {
     const { token } = req.params;
-    const { newPassword } = req.body;
+
+    const { password } = req.body;
 
     const user = await User.findOne({
       resetPasswordToken: { $exists: true },
+
       resetPasswordExpires: { $gt: new Date() },
     });
 
     if (!user || !(await bcrypt.compare(token, user.resetPasswordToken!))) {
       res.status(400).json({ error: "Invalid or expired token" });
+
       return;
     }
 
-    user.password = await bcrypt.hash(newPassword, 10);
-    user.resetPasswordToken = null;
-    user.resetPasswordExpires = null;
-    await user.save();
+    console.log(password);
+
+    user.password = await bcrypt.hash(password, 10);
+
+    await user.updateOne({
+      $unset: { resetPasswordToken: "", resetPasswordExpires: "" },
+    });
+
+    user.save();
 
     res.json({ message: "Password successfully reset" });
   } catch (error) {
+    console.log(error);
+
     res.status(500).json({ error: "Something went wrong" });
   }
 };
