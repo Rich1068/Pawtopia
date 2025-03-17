@@ -27,7 +27,7 @@ const AdminNavbar: FC<IAdminLayout> = ({ isExpanded, setIsExpanded }) => {
       className={`fixed top-0 h-[79px] z-125 bg-white shadow-md flex items-center justify-between text-amber-950 transition-all w-full`}
     >
       {/* Sidebar Toggle Button */}
-      <div className=" px-1 py-1 flex items-center sm:justify-between max-w-70 w-full">
+      <div className="sm:px-0.5 px-4.5 py-1 flex items-center sm:justify-between max-w-70 w-full">
         <div className="max-sm:hidden">
           <Logo />
         </div>
