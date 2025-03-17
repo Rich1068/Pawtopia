@@ -1,9 +1,9 @@
-import * as React from "react";
+import AdminSideBar from "../../components/AdminSideBar";
 
 const Admin = () => {
   return (
     <>
-      <h1>Admin Dashboard</h1>
+      <AdminSideBar />
     </>
   );
 };

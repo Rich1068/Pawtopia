@@ -5,7 +5,6 @@ import { Route, Routes } from "react-router";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import User from "./pages/Dashboard/User";
 import Admin from "./pages/Dashboard/Admin";
 import ProtectedRoute from "./middlewares/ProtectedRoutes";
 import LayoutWithNavbar from "./components/LayoutWithNavbar";
@@ -28,16 +27,15 @@ function App() {
       <Routes>
         <Route element={<LayoutWithNavbar />}>
           <Route path="/" element={<Landing />} />
-          <Route element={<ProtectedRoute allowedRoles={"user"} />}>
-            <Route path="/user-dashboard" element={<User />} />
+          <Route element={<ProtectedRoute />}>
             <Route path="/profile" element={<Profile />} />
+            <Route path="/favorites" element={<Favorite />} />
           </Route>
-          <Route element={<ProtectedRoute allowedRoles={"admin"} />}>
+          <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
             <Route path="/admin-dashboard" element={<Admin />} />
           </Route>
           <Route path="/adopt" element={<Adopt />} />
           <Route path="/adopt/pets/:id" element={<PetPage />} />
-          <Route path="/favorites" element={<Favorite />} />
           <Route path="/shop" element={<Shop />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/login" element={<Login />} />

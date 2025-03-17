@@ -1,4 +1,4 @@
-import { Link, NavLink } from "react-router";
+import { Link, NavLink, useLocation } from "react-router";
 import { useRef, useContext, useEffect, useState } from "react";
 import { PawPrint, LogOut, Menu, X, UserRound, Heart } from "lucide-react";
 import { AuthContext } from "../context/AuthContext";
@@ -12,6 +12,8 @@ const NavBar = () => {
   const [closing, setClosing] = useState(false);
   const favoriteDropdownRef = useRef<HTMLDivElement>(null);
   const profileDropdownRef = useRef<HTMLDivElement>(null);
+  const location = useLocation();
+  const isAdminPage = location.pathname.startsWith("/admin");
   const { favorites } = useFavorites();
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -50,7 +52,10 @@ const NavBar = () => {
   };
 
   return (
-    <header className="flex fixed shadow-md py-3 px-8 sm:m-auto bg-white font-sans min-h-[70px] tracking-wide z-200 mx-auto rounded-b-xl min-w-screen w-auto">
+    <header
+      className={`flex fixed shadow-md py-3 px-8 sm:m-auto bg-white min-h-[70px] tracking-wide z-200 mx-auto
+        ${isAdminPage ? null : "rounded-b-xl"} w-full`}
+    >
       <div className="flex flex-wrap flex-row items-center justify-between gap-5 w-full">
         {/* Logo */}
 
@@ -183,6 +188,15 @@ const NavBar = () => {
                     >
                       Profile
                     </NavLink>
+                    {user!.role === "admin" ? (
+                      <NavLink
+                        to="/admin/dashboard"
+                        className="block px-4 py-2 font-secondary font-semibold hover:bg-gray-100"
+                        onClick={() => setDropdownOpen(false)}
+                      >
+                        Dashboard
+                      </NavLink>
+                    ) : null}
                     <button
                       onClick={() => {
                         logout();
