@@ -22,7 +22,7 @@ export const authMiddleware = async (
       return;
     }
     if (decoded === "expired") {
-      res.status(403).json({ error: "Token Expired" });
+      res.status(401).json({ error: "Token Expired" });
       return;
     }
     //requests the ID of the user of the token
