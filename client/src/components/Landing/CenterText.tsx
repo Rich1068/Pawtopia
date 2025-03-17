@@ -4,11 +4,11 @@ const CenterText = () => {
   return (
     <>
       <section className="">
-        <div className=" px-4 mx-auto max-w-screen-xl text-center pt-16 lg:px-12">
+        <div className=" max-sm:px-8 sm:px-12 mx-auto max-w-screen-xl text-center pt-16 lg:px-12">
           <h1 className="mb-4 text-4xl font-semibold tracking-tight leading-none font-primary text-orange-600 md:text-5xl lg:text-6xl">
             Get Your Pet Here at Pawtopia
           </h1>
-          <p className="mb-8 text-lg font-normal font-secondary text-gray-500 lg:text-xl sm:px-16 xl:px-48">
+          <p className="mb-8 text-lg font-normal font-secondary text-gray-500 lg:text-xl xl:px-48">
             Find healthy, happy, and well-cared-for pets ready to join your
             family. Quality, love, and companionship—only at Pawtopia!
           </p>

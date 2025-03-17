@@ -53,7 +53,7 @@ const NavBar = () => {
 
   return (
     <header
-      className={`flex fixed shadow-md py-3 px-8 sm:m-auto bg-white min-h-[70px] tracking-wide z-200 mx-auto
+      className={`flex fixed shadow-md py-3 max-sm:px-6 sm:px-10 sm:m-auto bg-white min-h-[70px] tracking-wide z-200 mx-auto
         ${isAdminPage ? null : "rounded-b-xl"} w-full`}
     >
       <div className="flex flex-wrap flex-row items-center justify-between gap-5 w-full">
@@ -64,9 +64,9 @@ const NavBar = () => {
             <img
               src="/assets/img/Logo1.png"
               alt="logo"
-              className="w-12 m-2 mr-3 block"
+              className="w-12 m-2 mr-3 max-sm:w-10 block"
             />
-            <h1 className="text-3xl font-semibold text-orange-600 content-center font-primary">
+            <h1 className="text-3xl max-sm:text-2xl font-semibold text-orange-600 content-center font-primary">
               Pawtopia
             </h1>
           </div>
