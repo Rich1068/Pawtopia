@@ -76,6 +76,7 @@ const ResetPasswordSection = () => {
             placeholder="New Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            data-testid="password-input"
           />
         </label>
 
@@ -86,6 +87,7 @@ const ResetPasswordSection = () => {
             placeholder="Confirm Password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
+            data-testid="confirm-password"
           />
         </label>
 
