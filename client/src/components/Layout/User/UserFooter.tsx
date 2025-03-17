@@ -1,6 +1,7 @@
 import { NavLink } from "react-router";
+import Logo from "../../Logo";
 
-export const Footer = () => {
+export const UserFooter = () => {
   const footerItems = [
     { name: "Home", path: "/", testId: "home" },
     { name: "Shop", path: "/shop", testId: "shop" },
@@ -33,18 +34,7 @@ export const Footer = () => {
           </ul>
         </div>
         <div className="relative">
-          <NavLink to="/" data-testid="logo-footer">
-            <div className="flex justify-center mx-auto">
-              <img
-                src="/assets/img/Logo1.png"
-                alt="logo"
-                className=" m-2 h-8 w-auto"
-              />
-              <h1 className="text-3xl font-semibold text-orange-600 content-center font-primary">
-                Pawtopia
-              </h1>
-            </div>
-          </NavLink>
+          <Logo style="justify-center" />
         </div>
         <p className="text-center text-sm leading-6 text-slate-500">
           © 2025 Pawtopia All rights reserved.
@@ -54,4 +44,4 @@ export const Footer = () => {
   );
 };
 
-export default Footer;
+export default UserFooter;
