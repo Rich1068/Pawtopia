@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { X } from "lucide-react";
 
-const ProfileImageUpload = ({
+const ProductImageUpload = ({
   onImagesSelect,
 }: {
   onImagesSelect: React.Dispatch<React.SetStateAction<File[]>>;
@@ -72,6 +72,7 @@ const ProfileImageUpload = ({
           multiple
           className="hidden"
           onChange={handleFileChange}
+          data-testid="image-upload"
         />
         <p className="text-gray-500 font-primary">
           {isDragging
@@ -109,4 +110,4 @@ const ProfileImageUpload = ({
   );
 };
 
-export default ProfileImageUpload;
+export default ProductImageUpload;
