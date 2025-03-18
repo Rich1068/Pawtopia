@@ -24,6 +24,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const { data } = await serverAPI.get<{ user: User }>("/user/get-user", {
         withCredentials: true,
       });
+      console.log(data.user);
       if (data.user.profileImage) {
         data.user.profileImage = SERVER_URL + data.user.profileImage;
       }

@@ -18,6 +18,7 @@ import ResetPassword from "./pages/ForgotPassword/ResetPassword";
 import UserLayout from "./components/Layout/UserLayout";
 import AdminLayout from "./components/Layout/AdminLayout";
 import AddProduct from "./pages/Admin/AddProducts";
+import ProductList from "./pages/Admin/ProductList";
 
 axios.defaults.withCredentials = true;
 
@@ -45,6 +46,7 @@ function App() {
           <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route path="/admin/add-product" element={<AddProduct />} />
+            <Route path="/admin/product-list" element={<ProductList />} />
           </Route>
         </Route>
       </Routes>

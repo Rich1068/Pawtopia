@@ -30,6 +30,9 @@ export const addProduct = async (
       return;
     }
 
+    const sanitizedImages = images.map((img: string) =>
+      img.replace(/^src/, "")
+    );
     const trimmedName = name.trim();
     const sanitizedCategories = categories.map((cat: string) => cat.trim());
     const sanitizedDescription = description.trim();
@@ -51,7 +54,7 @@ export const addProduct = async (
       category: sanitizedCategories,
       description: sanitizedDescription,
       price: sanitizedPrice,
-      images,
+      images: sanitizedImages,
     });
 
     res
@@ -64,4 +67,51 @@ export const addProduct = async (
     return;
   }
 };
-export default { getCategory, uploadImage };
+
+export const getList = async (req: Request, res: Response) => {
+  try {
+    const {
+      page = 1,
+      limit = 10,
+      search = "",
+      sortBy = "createdAt",
+      order = "desc",
+    } = req.query;
+
+    const pageNumber = Number(page);
+    const limitNumber = Number(limit);
+    const sortOrder = order === "asc" ? 1 : -1;
+
+    const query: any = {};
+
+    // Filtering by search (checks product name & description)
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: "i" } }, // Case-insensitive search
+        { description: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    // Get total count for pagination
+    const total = await Product.countDocuments(query);
+
+    // Fetch paginated and sorted products
+    const productList = await Product.find(query)
+      .sort({ [sortBy as string]: sortOrder })
+      .skip((pageNumber - 1) * limitNumber)
+      .limit(limitNumber);
+
+    res.json({
+      data: productList,
+      total,
+      page: pageNumber,
+      limit: limitNumber,
+      totalPages: Math.ceil(total / limitNumber),
+    });
+  } catch (error) {
+    console.error("Error fetching product list:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+export default { getCategory, uploadImage, getList };
