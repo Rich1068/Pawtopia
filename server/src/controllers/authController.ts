@@ -10,7 +10,7 @@ import { sendEmail } from "../helpers/mailer";
 export const verifyUserToken = async (req: AuthRequest, res: Response) => {
   const token = req.cookies.token;
   if (!token) {
-    res.status(400).json({ message: "No token provided" });
+    res.status(401).json({ message: "No token provided" });
     return;
   }
   const verify = await verifyToken(token);
