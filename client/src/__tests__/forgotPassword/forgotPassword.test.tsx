@@ -28,11 +28,11 @@ describe("ForgotPasswordSection Component", () => {
   };
 
   it("renders the component correctly", async () => {
-    expect(await screen.findByText(/forgot password/i)).toBeInTheDocument();
-    expect(await screen.findByTestId("email-input")).toBeInTheDocument();
+    expect(await screen.findByText(/forgot password/i)).toBeVisible();
+    expect(await screen.findByTestId("email-input")).toBeVisible();
     expect(
       await screen.findByRole("button", { name: /send reset link/i })
-    ).toBeInTheDocument();
+    ).toBeVisible();
   });
 
   it("shows an error when email is empty", async () => {
