@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Search, Eye, Edit, Trash } from "lucide-react";
 import {
   useReactTable,
   getCoreRowModel,
@@ -10,9 +11,10 @@ import {
 } from "@tanstack/react-table";
 import serverAPI from "../../helper/axios";
 import { getFullImageUrl } from "../../helper/imageHelper";
+import { Link } from "react-router";
 
 interface IProduct {
-  images: string[]; // Array of image paths
+  images: string[];
   name: string;
   price: number;
   category: string[];
@@ -29,7 +31,7 @@ const ProductList = () => {
         const response = await serverAPI.get("/product/list", {
           withCredentials: true,
         });
-        setProducts(response.data.data); // Adjust according to your API response
+        setProducts(response.data.data);
       } catch (error) {
         console.error("Error fetching products:", error);
       } finally {
@@ -48,7 +50,7 @@ const ProductList = () => {
         <img
           src={getFullImageUrl(row.original.images?.[0])}
           alt="Product"
-          className="w-16 h-16 object-cover rounded"
+          className="w-12 h-12 object-cover rounded-md sm:w-16 sm:h-16"
         />
       ),
     },
@@ -56,7 +58,7 @@ const ProductList = () => {
     {
       accessorKey: "price",
       header: "Price",
-      cell: ({ row }) => `$${row.original.price}`, // ✅ FIXED
+      cell: ({ row }) => `$${row.original.price}`,
     },
     {
       accessorKey: "categories",
@@ -66,7 +68,47 @@ const ProductList = () => {
           ? row.original.category.join(", ")
           : "No Category",
     },
+    {
+      accessorKey: "actions",
+      header: "Actions",
+      cell: ({ row }) => (
+        <div className="flex gap-2 justify-center">
+          <button
+            onClick={() => handleView(row.original)}
+            className="p-2 bg-blue-500 text-white rounded-full hover:bg-blue-700 transition"
+          >
+            <Eye size={16} />
+          </button>
+          <button
+            onClick={() => handleEdit(row.original)}
+            className="p-2 bg-green-500 text-white rounded-full hover:bg-green-700 transition"
+          >
+            <Edit size={16} />
+          </button>
+          <button
+            onClick={() => handleDelete(row.original)}
+            className="p-2 bg-red-500 text-white rounded-full hover:bg-red-700 transition"
+          >
+            <Trash size={16} />
+          </button>
+        </div>
+      ),
+    },
   ];
+
+  const handleView = (product: IProduct) => {
+    console.log("Viewing product:", product);
+  };
+
+  const handleEdit = (product: IProduct) => {
+    console.log("Editing product:", product);
+  };
+
+  const handleDelete = (product: IProduct) => {
+    if (window.confirm("Are you sure you want to delete this product?")) {
+      console.log("Deleting product:", product);
+    }
+  };
 
   const table = useReactTable({
     data: products,
@@ -79,92 +121,127 @@ const ProductList = () => {
     onGlobalFilterChange: setGlobalFilter,
   });
 
-  if (loading) return <p>Loading products...</p>;
+  if (loading)
+    return <p className="text-center text-orange-600">Loading products...</p>;
 
   return (
-    <>
-      <h2 className="text-4xl font-semibold mb-4 font-primary text-orange-600">
+    <div className="sm:px-6">
+      <h2 className="text-3xl sm:text-4xl font-semibold mb-4 text-orange-600">
         Product List
       </h2>
       <div className="p-4 sm:p-6 bg-white rounded-xl shadow-xl">
-        {/* Search Input */}
-        <input
-          type="text"
-          value={globalFilter ?? ""}
-          onChange={(e) => setGlobalFilter(e.target.value)}
-          placeholder="Search..."
-          className="p-2 border border-gray-300 rounded mb-4 w-full max-w-md"
-        />
+        {/* Search & Filter */}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+          <div className="flex w-full sm:w-auto gap-3">
+            <select
+              className="p-2 border border-orange-400 rounded font-primary text-amber-950 w-full sm:w-auto"
+              value={table.getState().pagination.pageSize}
+              onChange={(e) => table.setPageSize(Number(e.target.value))}
+            >
+              {[10, 20, 30, 40, 50].map((pageSize) => (
+                <option key={pageSize} value={pageSize}>
+                  {pageSize}
+                </option>
+              ))}
+            </select>
+            <div className="relative w-7/1 max-w-md flex-grow">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-orange-500" />
+              <input
+                type="text"
+                value={globalFilter ?? ""}
+                onChange={(e) => setGlobalFilter(e.target.value)}
+                placeholder="Search..."
+                className="pl-10 p-2 border border-orange-400 rounded w-full focus:ring-2 focus:ring-orange-500"
+              />
+            </div>
+          </div>
+          <Link to="/admin/add-product" className="w-full sm:w-auto sm:ml-auto">
+            <button className="w-full sm:w-auto px-4 py-2 border border-orange-500 rounded-lg text-orange-500 hover:bg-orange-500 hover:text-white transition">
+              + Add New Product
+            </button>
+          </Link>
+        </div>
 
         {/* Table */}
-        <table className="min-w-full rounded-lg overflow-hidden">
-          <thead className="bg-orange-400/30 text-amber-950">
-            {table.getHeaderGroups().map((headerGroup) => (
-              <tr key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <th
-                    key={header.id}
-                    className="p-2 text-left cursor-pointer"
-                    onClick={header.column.getToggleSortingHandler()}
-                  >
-                    {flexRender(
-                      header.column.columnDef.header,
-                      header.getContext()
-                    )}
-                    {header.column.getIsSorted() === "asc" ? " 🔼" : ""}
-                    {header.column.getIsSorted() === "desc" ? " 🔽" : ""}
-                  </th>
-                ))}
-              </tr>
-            ))}
-          </thead>
-          <tbody>
-            {table.getRowModel().rows.length ? (
-              table.getRowModel().rows.map((row) => (
-                <tr key={row.id} className="border-t">
-                  {row.getVisibleCells().map((cell) => (
-                    <td key={cell.id} className="p-2">
+        <div className="overflow-x-auto mt-4">
+          <table className="w-full border border-orange-300 rounded-lg">
+            <thead className="bg-orange-500 text-white text-sm sm:text-base">
+              {table.getHeaderGroups().map((headerGroup) => (
+                <tr key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <th
+                      key={header.id}
+                      className="p-3 text-left cursor-pointer font-semibold"
+                      onClick={header.column.getToggleSortingHandler()}
+                    >
                       {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
+                        header.column.columnDef.header,
+                        header.getContext()
                       )}
-                    </td>
+                      {header.column.getIsSorted() === "asc" ? " 🔼" : ""}
+                      {header.column.getIsSorted() === "desc" ? " 🔽" : ""}
+                    </th>
                   ))}
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={columns.length} className="text-center p-4">
-                  No products found.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+              ))}
+            </thead>
+            <tbody>
+              {table.getRowModel().rows.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <tr
+                    key={row.id}
+                    className="even:bg-orange-50 odd:bg-white hover:bg-orange-100 text-sm sm:text-base"
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <td
+                        key={cell.id}
+                        className="p-3 border-b border-orange-300"
+                      >
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </td>
+                    ))}
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td
+                    colSpan={columns.length}
+                    className="text-center p-4 text-orange-600"
+                  >
+                    No products found.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
 
         {/* Pagination */}
-        <div className="flex justify-between items-center mt-4">
+        <div className="flex flex-row justify-between sm:justify-end items-center mt-4 gap-3">
           <button
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
-            className="px-3 py-1 border rounded disabled:opacity-50"
+            className="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600 disabled:opacity-50 sm:w-auto"
           >
             Prev
           </button>
-          <span>
+          <span className="text-amber-950">
             Page {table.getState().pagination.pageIndex + 1} of{" "}
             {table.getPageCount()}
           </span>
           <button
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
-            className="px-3 py-1 border rounded disabled:opacity-50"
+            className="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600 disabled:opacity-50 sm:w-auto"
           >
             Next
           </button>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
