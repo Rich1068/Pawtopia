@@ -14,8 +14,8 @@ serverAPI.interceptors.response.use(
 
       try {
         // Call refresh token API (token is automatically sent via cookies)
-        await serverAPI.post(
-          `/api/refresh-token`,
+        await axios.post(
+          `${SERVER_URL}/api/refresh-token`,
           {},
           { withCredentials: true }
         );
