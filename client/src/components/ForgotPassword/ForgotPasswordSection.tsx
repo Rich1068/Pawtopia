@@ -43,11 +43,12 @@ const ForgotPasswordSection = () => {
       <form onSubmit={handleSubmit}>
         <label className="block mb-4">
           <input
-            type="email"
+            type="text"
             className="w-full mt-1 p-2 border border-gray-300 rounded"
             placeholder="Enter your email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            data-testid="email-input"
           />
         </label>
         <button
