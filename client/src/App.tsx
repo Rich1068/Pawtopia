@@ -5,7 +5,7 @@ import { Route, Routes } from "react-router";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import Admin from "./pages/Dashboard/Admin";
+import AdminDashboard from "./pages/Admin/AdminDashboard";
 import ProtectedRoute from "./middlewares/ProtectedRoutes";
 import Adopt from "./pages/Adopt";
 import Shop from "./pages/Shop";
@@ -17,6 +17,7 @@ import ForgotPassword from "./pages/ForgotPassword/ForgotPassword";
 import ResetPassword from "./pages/ForgotPassword/ResetPassword";
 import UserLayout from "./components/Layout/UserLayout";
 import AdminLayout from "./components/Layout/AdminLayout";
+import AddProduct from "./pages/Admin/AddProducts";
 
 axios.defaults.withCredentials = true;
 
@@ -42,7 +43,8 @@ function App() {
         </Route>
         <Route element={<AdminLayout />}>
           <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
-            <Route path="/admin/dashboard" element={<Admin />} />
+            <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            <Route path="/admin/add-product" element={<AddProduct />} />
           </Route>
         </Route>
       </Routes>

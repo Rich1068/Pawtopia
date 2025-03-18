@@ -12,9 +12,11 @@ import {
 } from "lucide-react";
 import { IAdminLayout } from "../../../types/Types";
 
-const AdminSidebar: FC<IAdminLayout> = ({ isExpanded }) => {
+const AdminSidebar: FC<IAdminLayout> = ({ isExpanded, setIsExpanded }) => {
   const [isStoreOpen, setIsStoreOpen] = useState(false);
-
+  const isStoreActive =
+    location.pathname.startsWith("/admin/add-product") ||
+    location.pathname.startsWith("/admin/product-list");
   const navItems = [
     { name: "Dashboard", path: "/admin/dashboard", icon: <LayoutGrid /> },
     {
@@ -23,7 +25,7 @@ const AdminSidebar: FC<IAdminLayout> = ({ isExpanded }) => {
       path: "",
       isDropdown: true,
       subItems: [
-        { name: "Inventory", path: "/admin/inventory" },
+        { name: "Add Product", path: "/admin/add-product" },
         { name: "Error 404", path: "/admin/pages/404" },
       ],
     },
@@ -40,19 +42,29 @@ const AdminSidebar: FC<IAdminLayout> = ({ isExpanded }) => {
       ${
         isExpanded
           ? "w-60 translate-x-0 opacity-100"
-          : "w-20 -translate-x-full opacity-0 sm:opacity-100 sm:translate-x-0"
+          : "w-20 -translate-x-full opacity-0 sm:opacity-100 md:translate-x-0"
       }
     `}
     >
-      <nav className="mt-2 flex flex-col gap-2 p-2 px-4">
+      <nav className=" flex flex-col gap-2 p-2 px-4">
         {navItems.map(({ name, path, icon, isDropdown, subItems }) =>
           isDropdown ? (
             <div key={name} className="flex flex-col">
               <button
-                onClick={() => isExpanded && setIsStoreOpen(!isStoreOpen)}
+                onClick={() => {
+                  if (!isExpanded) {
+                    setIsExpanded!(true);
+                  } else {
+                    setIsStoreOpen(!isStoreOpen);
+                  }
+                }}
                 className={`rounded-xl flex items-center px-2 py-3 transition w-full ${
                   isExpanded ? "gap-4 justify-start" : "justify-center"
-                } hover:bg-orange-50`}
+                } hover:bg-orange-50 ${
+                  isStoreActive
+                    ? "bg-orange-300/25 text-orange-600" // Active style
+                    : "hover:bg-orange-50"
+                }`}
               >
                 {icon} {isExpanded && <span>{name}</span>}
                 {isExpanded && (
@@ -70,7 +82,13 @@ const AdminSidebar: FC<IAdminLayout> = ({ isExpanded }) => {
                     <NavLink
                       key={name}
                       to={path}
-                      className="rounded-lg px-2 py-2 transition hover:bg-orange-50"
+                      className={({ isActive }) =>
+                        `rounded-lg px-2 py-2 transition ${
+                          isActive
+                            ? "hover:bg-orange-50 text-orange-600"
+                            : "hover:bg-orange-50"
+                        }`
+                      }
                     >
                       {name}
                     </NavLink>
