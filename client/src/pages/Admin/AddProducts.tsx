@@ -103,7 +103,7 @@ const AddProduct = () => {
   };
   return (
     <div>
-      <h2 className="text-3xl font-semibold mb-4 text-center font-primary text-orange-600">
+      <h2 className="text-3xl font-semibold mb-4 font-primary text-orange-600">
         Add Product
       </h2>
 
