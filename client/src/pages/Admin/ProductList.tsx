@@ -86,19 +86,19 @@ const ProductList = () => {
       <h2 className="text-4xl font-semibold mb-4 font-primary text-orange-600">
         Product List
       </h2>
-      <div className="p-6 bg-white rounded-xl shadow-xl">
+      <div className="p-4 sm:p-6 bg-white rounded-xl shadow-xl">
         {/* Search Input */}
         <input
           type="text"
           value={globalFilter ?? ""}
           onChange={(e) => setGlobalFilter(e.target.value)}
           placeholder="Search..."
-          className="p-2 border rounded mb-4 w-full max-w-md"
+          className="p-2 border border-gray-300 rounded mb-4 w-full max-w-md"
         />
 
         {/* Table */}
-        <table className="min-w-full border rounded-lg overflow-hidden">
-          <thead className="bg-gray-200">
+        <table className="min-w-full rounded-lg overflow-hidden">
+          <thead className="bg-orange-400/30 text-amber-950">
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
