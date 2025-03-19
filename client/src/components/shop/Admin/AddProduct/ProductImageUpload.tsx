@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import { getFullImageUrl } from "../../../../helper/imageHelper";
 import { IProductImage } from "../../../../types/Types";
@@ -94,7 +94,6 @@ const ProductImageUpload = ({
           multiple
           className="hidden"
           onChange={handleFileChange}
-          data-testid="image-upload"
         />
         <p className="text-gray-500 font-primary">
           {isDragging
