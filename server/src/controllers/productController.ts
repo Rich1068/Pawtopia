@@ -118,4 +118,31 @@ export const getList = async (req: Request, res: Response) => {
   }
 };
 
+export const deleteProduct = async (req: Request, res: Response) => {
+  try {
+    const productId = req.params.id;
+
+    // Check if product exists
+    const product = await Product.findById(productId).exec();
+    if (!product) {
+      res.status(404).json({ error: "Product does not exist" });
+      return;
+    }
+
+    // Delete product
+    const deletedProduct = await Product.findByIdAndDelete(productId).exec();
+    if (!deletedProduct) {
+      res.status(500).json({ error: "Failed to delete product" });
+      return;
+    }
+    res.status(200).json({ message: "Product successfully deleted" });
+    return;
+  } catch (error) {
+    console.error("Error deleting product:", error);
+    res.status(500).json({
+      error: "Something went wrong, please contact the developer",
+    });
+    return;
+  }
+};
 export default { getCategory, uploadImage, getList };
