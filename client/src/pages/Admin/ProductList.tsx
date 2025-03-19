@@ -48,14 +48,14 @@ const ProductList = () => {
       accessorKey: "images",
       header: "Image",
       cell: ({ row }) => (
-        <img
-          src={
-            getFullImageUrl(row.original.images?.[0]) || "/assets/img/Logo1.png"
-          }
-          alt="Product"
-          className="w-12 h-12 object-cover rounded-md sm:w-16 sm:h-16"
-          onError={(e) => (e.currentTarget.src = "/assets/img/Logo1.png")}
-        />
+        <div className="flex justify-center items-center">
+          <img
+            src={getFullImageUrl(row.original.images?.[0])}
+            alt="Product"
+            className="w-12 h-12 object-cover rounded-md sm:w-16 sm:h-16"
+            onError={(e) => (e.currentTarget.src = "/assets/img/Logo1.png")}
+          />
+        </div>
       ),
     },
     { accessorKey: "name", header: "Name" },
@@ -94,7 +94,7 @@ const ProductList = () => {
   if (loading) return <LoadingPage fadeOut={false} />;
 
   return (
-    <div className="relative sm:px-6 font-primary text-amber-950">
+    <div className="relative font-primary text-amber-950">
       <h2 className="text-3xl sm:text-4xl font-semibold mb-4 text-orange-600">
         Product List
       </h2>
