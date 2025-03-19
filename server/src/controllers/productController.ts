@@ -71,7 +71,6 @@ export const getList = async (req: Request, res: Response) => {
 
     const query: any = {};
 
-    // Filtering by search (checks product name & description)
     if (search) {
       query.$or = [
         { name: { $regex: search, $options: "i" } }, // Case-insensitive search
@@ -82,10 +81,9 @@ export const getList = async (req: Request, res: Response) => {
       const categoryArray = (categories as string).split(",");
       query.category = { $in: categoryArray };
     }
-    // Get total count for pagination
+
     const total = await Product.countDocuments(query);
 
-    // Fetch paginated and sorted products
     const productList = await Product.find(query)
       .sort({ [sortBy as string]: sortOrder })
       .skip((pageNumber - 1) * limitNumber)
@@ -168,7 +166,6 @@ export const deleteProduct = async (req: Request, res: Response) => {
       return;
     }
 
-    // Delete images from local storage
     if (product.images && product.images.length > 0) {
       product.images.forEach((imagePath: string) => {
         const fullPath = path.join(__dirname, "../../src", imagePath);
@@ -180,7 +177,6 @@ export const deleteProduct = async (req: Request, res: Response) => {
       });
     }
 
-    // Delete product from DB
     await Product.findByIdAndDelete(productId).exec();
     res.status(200).json({ message: "Product successfully deleted" });
     return;
