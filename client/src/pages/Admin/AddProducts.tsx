@@ -84,7 +84,8 @@ const AddProduct = ({
             }
           );
           finalImagePaths.push(...uploadRes.data.images);
-        } catch (err) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
+        } catch (error: any) {
           toast.error("Error uploading images.");
           setLoading(false);
           return;

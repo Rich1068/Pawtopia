@@ -10,9 +10,7 @@ const EditProduct = () => {
 
   const fetchProduct = async () => {
     try {
-      const res = await serverAPI.get(`/product/${id}`, {
-        withCredentials: true,
-      });
+      const res = await serverAPI.get(`/product/${id}`);
       setProduct(res.data.data);
     } catch (error) {
       console.error("Failed to fetch product:", error);
