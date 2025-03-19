@@ -161,18 +161,27 @@ export const editProduct = async (req: Request, res: Response) => {
 export const deleteProduct = async (req: Request, res: Response) => {
   try {
     const productId = req.params.id;
-
     const product = await Product.findById(productId).exec();
+
     if (!product) {
       res.status(404).json({ error: "Product does not exist" });
       return;
     }
 
-    const deletedProduct = await Product.findByIdAndDelete(productId).exec();
-    if (!deletedProduct) {
-      res.status(500).json({ error: "Failed to delete product" });
-      return;
+    // Delete images from local storage
+    if (product.images && product.images.length > 0) {
+      product.images.forEach((imagePath: string) => {
+        const fullPath = path.join(__dirname, "../../src", imagePath);
+        fs.unlink(fullPath, (err) => {
+          if (err) {
+            console.warn("Failed to delete image:", fullPath, err.message);
+          }
+        });
+      });
     }
+
+    // Delete product from DB
+    await Product.findByIdAndDelete(productId).exec();
     res.status(200).json({ message: "Product successfully deleted" });
     return;
   } catch (error) {
