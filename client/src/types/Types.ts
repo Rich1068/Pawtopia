@@ -88,3 +88,10 @@ export interface IAdminLayout {
   isExpanded: boolean;
   setIsExpanded?: React.Dispatch<React.SetStateAction<boolean>>;
 }
+
+export interface IProduct {
+  images: string[];
+  name: string;
+  price: number;
+  category: string[];
+}

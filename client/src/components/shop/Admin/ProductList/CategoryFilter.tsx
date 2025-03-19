@@ -59,7 +59,6 @@ const CategoryFilter: React.FC<CategoryFilterProps> = ({
       className="relative w-full min-w-40 md:max-w-64 font-primary"
       ref={dropdownRef}
     >
-      {/* Select Box */}
       <div
         className="flex justify-between p-2 max-h-10.5 overflow-y-scroll border border-orange-400 rounded cursor-pointer"
         onClick={() => setDropdownOpen(!dropdownOpen)}
