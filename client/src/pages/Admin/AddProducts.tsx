@@ -46,7 +46,6 @@ const AddProduct = () => {
       { field: images.length, message: "At least one image is required." },
     ];
 
-    // ✅ Check for missing fields dynamically
     for (const { field, message } of requiredFields) {
       if (!field) {
         toast.error(message);
@@ -55,7 +54,6 @@ const AddProduct = () => {
       }
     }
 
-    // ✅ Validate price separately
     if (isNaN(Number(product.price)) || Number(product.price) <= 0) {
       toast.error("Please enter a valid price.");
       setLoading(false);
@@ -103,13 +101,12 @@ const AddProduct = () => {
   };
   return (
     <div>
-      <h2 className="text-3xl font-semibold mb-4 text-center font-primary text-orange-600">
+      <h2 className="text-3xl font-semibold mb-4 font-primary text-orange-600">
         Add Product
       </h2>
-
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="flex items-start max-lg:flex-col max-lg:gap-y-5 gap-x-10">
-          <div className="flex-1 max-lg:w-full max-lg:mx-auto max-w-3xl min-w-[300px] ml-auto p-6 bg-white rounded-xl shadow-lg">
+          <div className="flex-1 max-lg:w-full max-lg:mx-auto min-w-[300px] ml-auto p-6 bg-white rounded-xl shadow-lg">
             <InputField
               label="Product Name"
               name="name"
