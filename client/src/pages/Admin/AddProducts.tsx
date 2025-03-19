@@ -1,13 +1,19 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import serverAPI from "../../helper/axios";
 import InputField from "../../components/shop/Admin/AddProduct/InputField";
 import TextareaField from "../../components/shop/Admin/AddProduct/TextareaField";
 import CategorySelector from "../../components/shop/Admin/AddProduct/CategorySelector";
 import ProductImageUpload from "../../components/shop/Admin/AddProduct/ProductImageUpload";
 import toast from "react-hot-toast";
-import type { IAddProduct } from "../../types/Types";
+import type { IAddProduct, IProductImage } from "../../types/Types";
 
-const AddProduct = ({ productToEdit }: { productToEdit?: IAddProduct }) => {
+const AddProduct = ({
+  productToEdit,
+  onRefresh,
+}: {
+  productToEdit?: IAddProduct;
+  onRefresh?: () => void;
+}) => {
   const [product, setProduct] = useState<IAddProduct>({
     name: productToEdit?.name || "",
     category: productToEdit?.category || [],
@@ -15,10 +21,19 @@ const AddProduct = ({ productToEdit }: { productToEdit?: IAddProduct }) => {
     price: productToEdit?.price || "",
     images: productToEdit?.images || [],
   });
-  const [images, setImages] = useState<File[]>([]);
   const [loading, setLoading] = useState(false);
-  const [previews, setPreviews] = useState<string[]>([]);
+  const [productImages, setProductImages] = useState<IProductImage[]>([]);
 
+  useEffect(() => {
+    if (product.images && product.images.length > 0) {
+      const existing = product.images.map((img) => ({
+        preview: img,
+        isNew: false,
+      }));
+      setProductImages(existing);
+    }
+  }, [product.images]);
+  console.log(productImages);
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -28,7 +43,7 @@ const AddProduct = ({ productToEdit }: { productToEdit?: IAddProduct }) => {
       { field: product.description, message: "Description is required." },
       { field: product.price, message: "Price is required." },
       {
-        field: images.length > 0 || product.images.length > 0,
+        field: productImages.length > 0 || product.images.length > 0,
         message: "At least one image is required.",
       },
     ];
@@ -48,14 +63,19 @@ const AddProduct = ({ productToEdit }: { productToEdit?: IAddProduct }) => {
     }
 
     try {
-      let updatedImages = [...product.images];
+      const newImages = productImages
+        .filter((img) => img.isNew && img.file)
+        .map((img) => img.file as File);
+      const finalImagePaths = productImages
+        .filter((img) => !img.isNew)
+        .map((img) => img.preview); // for old images
 
-      if (images.length > 0) {
+      if (newImages.length > 0) {
         const formData = new FormData();
-        images.forEach((file) => formData.append("images", file));
+        newImages.forEach((file) => formData.append("images", file));
 
         try {
-          const imageResponse = await serverAPI.post(
+          const uploadRes = await serverAPI.post(
             "/product/upload-images",
             formData,
             {
@@ -63,11 +83,9 @@ const AddProduct = ({ productToEdit }: { productToEdit?: IAddProduct }) => {
               headers: { "Content-Type": "multipart/form-data" },
             }
           );
-
-          updatedImages = [...updatedImages, ...imageResponse.data.images];
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        } catch (error) {
-          toast.error("Error uploading images. Please try again.");
+          finalImagePaths.push(...uploadRes.data.images);
+        } catch (err) {
+          toast.error("Error uploading images.");
           setLoading(false);
           return;
         }
@@ -78,16 +96,17 @@ const AddProduct = ({ productToEdit }: { productToEdit?: IAddProduct }) => {
           `/product/${productToEdit._id}`,
           {
             ...product,
-            images: updatedImages,
+            images: finalImagePaths,
             oldImages: productToEdit.images,
           },
           { withCredentials: true }
         );
         toast.success("Product updated successfully!");
+        onRefresh?.();
       } else {
         await serverAPI.post(
           "/product/add-product",
-          { ...product, images: updatedImages },
+          { ...product, images: finalImagePaths },
           { withCredentials: true }
         );
         toast.success("Product added successfully!");
@@ -98,8 +117,7 @@ const AddProduct = ({ productToEdit }: { productToEdit?: IAddProduct }) => {
           price: "",
           images: [],
         });
-        setPreviews([]);
-        setImages([]);
+        setProductImages([]);
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
@@ -173,11 +191,8 @@ const AddProduct = ({ productToEdit }: { productToEdit?: IAddProduct }) => {
                 Product Image
               </label>
               <ProductImageUpload
-                setImages={setImages}
-                existingImages={product.images}
-                previews={previews}
-                setPreviews={setPreviews}
-                setProduct={setProduct}
+                productImages={productImages}
+                setProductImages={setProductImages}
               />
             </div>
           </div>
