@@ -3,6 +3,7 @@ import toast from "react-hot-toast";
 import { sendEmail } from "../../helper/email";
 import { useAuth } from "../../context/AuthContext";
 import WarningModal from "../WarningModal";
+import { useNavigate } from "react-router";
 
 interface IContactData {
   fullname: string;
@@ -11,6 +12,7 @@ interface IContactData {
 }
 
 const ContactSection = () => {
+  const navigate = useNavigate();
   const [contactData, setContactData] = useState<IContactData>({
     fullname: "",
     email: "",
@@ -157,6 +159,8 @@ const ContactSection = () => {
         text="Please Login to Submit"
         isModalOpen={isModalOpen}
         setIsModalOpen={setIsModalOpen}
+        confirmText="Log In"
+        onConfirm={() => navigate("/login")}
       />
     </div>
   );
