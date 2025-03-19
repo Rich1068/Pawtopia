@@ -1,26 +1,36 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X } from "lucide-react";
+import { getFullImageUrl } from "../../../../helper/imageHelper";
+import { IAddProduct } from "../../../../types/Types";
 
 const ProductImageUpload = ({
-  onImagesSelect,
+  setImages,
+  existingImages = [],
+  previews,
+  setPreviews,
+  setProduct,
 }: {
-  onImagesSelect: React.Dispatch<React.SetStateAction<File[]>>;
+  setImages: React.Dispatch<React.SetStateAction<File[]>>;
+  existingImages?: string[];
+  previews: string[];
+  setPreviews: React.Dispatch<React.SetStateAction<string[]>>;
+  setProduct: React.Dispatch<React.SetStateAction<IAddProduct>>;
 }) => {
-  const [previews, setPreviews] = useState<string[]>([]);
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [isDragging, setIsDragging] = useState(false);
+
+  useEffect(() => {
+    if (existingImages.length > 0) {
+      setPreviews(existingImages);
+    }
+  }, [existingImages]);
 
   const handleFiles = (files: FileList) => {
     const fileArray = Array.from(files);
 
     if (fileArray.length > 0) {
-      // Update parent component
-      onImagesSelect([...selectedFiles, ...fileArray]);
-
-      // Generate previews
+      setImages((prev) => [...prev, ...fileArray]);
       const newPreviews = fileArray.map((file) => URL.createObjectURL(file));
       setPreviews((prev) => [...prev, ...newPreviews]);
-      setSelectedFiles((prev) => [...prev, ...fileArray]);
     }
   };
 
@@ -48,9 +58,12 @@ const ProductImageUpload = ({
   };
 
   const handleRemoveImage = (index: number) => {
-    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
     setPreviews((prev) => prev.filter((_, i) => i !== index));
-    onImagesSelect((prev) => prev.filter((_, i) => i !== index));
+    setImages((prev) => prev.filter((_, i) => i !== index));
+    setProduct((prev) => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== index),
+    }));
   };
 
   return (
@@ -72,7 +85,6 @@ const ProductImageUpload = ({
           multiple
           className="hidden"
           onChange={handleFileChange}
-          data-testid="image-upload"
         />
         <p className="text-gray-500 font-primary">
           {isDragging
@@ -90,11 +102,10 @@ const ProductImageUpload = ({
           >
             <div className="relative">
               <img
-                src={src}
+                src={src.startsWith("blob:") ? src : getFullImageUrl(src)}
                 alt="Preview"
                 className="w-full h-auto max-w-50 max-h-50 lg:max-w-75 lg:max-h-75 object-contain rounded border-gray-200 border"
               />
-              {/* Close button positioned relative to the img */}
               <button
                 type="button"
                 className="absolute -top-2 -right-2 p-1 text-xs bg-red-500 rounded-full shadow-md"
