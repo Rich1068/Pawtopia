@@ -64,7 +64,7 @@ describe("ResetPasswordSection Component", () => {
     renderWithRouter(`/reset-password/${mockToken}`);
 
     await waitFor(() => {
-      expect(screen.getByText("Forgot Password Page")).toBeInTheDocument();
+      expect(screen.getByText("Forgot Password Page")).toBeVisible();
       expect(toast.error).toHaveBeenCalledWith("Invalid or expired token");
     });
   });
@@ -79,7 +79,7 @@ describe("ResetPasswordSection Component", () => {
       screen.findByRole("button", { name: /reset password/i }),
     ]);
 
-    elements.forEach((el) => expect(el).toBeInTheDocument());
+    elements.forEach((el) => expect(el).toBeVisible());
   });
 
   it("validates mismatched passwords", async () => {
@@ -125,7 +125,7 @@ describe("ResetPasswordSection Component", () => {
       expect(toast.success).toHaveBeenCalledWith(
         "Password reset successful! Please log in."
       );
-      expect(screen.getByText("Login Page")).toBeInTheDocument();
+      expect(screen.getByText("Login Page")).toBeVisible();
     });
   });
 
