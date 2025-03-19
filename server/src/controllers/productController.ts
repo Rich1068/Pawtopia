@@ -76,6 +76,7 @@ export const getList = async (req: Request, res: Response) => {
       search = "",
       sortBy = "createdAt",
       order = "desc",
+      categories = "",
     } = req.query;
 
     const pageNumber = Number(page);
@@ -91,7 +92,10 @@ export const getList = async (req: Request, res: Response) => {
         { description: { $regex: search, $options: "i" } },
       ];
     }
-
+    if (categories) {
+      const categoryArray = (categories as string).split(",");
+      query.category = { $in: categoryArray };
+    }
     // Get total count for pagination
     const total = await Product.countDocuments(query);
 
@@ -110,7 +114,7 @@ export const getList = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error("Error fetching product list:", error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ error: "Server error" });
   }
 };
 
