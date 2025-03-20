@@ -88,7 +88,7 @@ export const PetCarousel: FC<IProductCarousel> = ({
             </SwiperSlide>
           )}
         </Swiper>
-        <div className="flex max-w-160 justify-center py-4">
+        <div className="flex max-w-140 py-4 mx-auto">
           <button
             onClick={() => swiperRef.current?.slidePrev()}
             data-testid="prev-button"
@@ -101,7 +101,7 @@ export const PetCarousel: FC<IProductCarousel> = ({
             freeMode={true}
             watchSlidesProgress={true}
             modules={[FreeMode, Navigation, Thumbs]}
-            className="mySwiper max-h-160 w-auto flex cursor-pointer"
+            className="mySwiper w-auto flex cursor-pointer"
             breakpoints={{
               0: { slidesPerView: 3 }, // For mobile screens
               768: { slidesPerView: 4 }, // For larger screens (tablet and above)
