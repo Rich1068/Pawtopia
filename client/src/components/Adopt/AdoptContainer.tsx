@@ -35,10 +35,12 @@ const AdoptContainer: FC<IAdoptContainer> = ({ allPets }) => {
     selected,
     searchQuery
   );
-  const { currentPets, currentPage, setCurrentPage, pageCount } = usePagination(
-    filteredPets,
-    25
-  );
+  const {
+    currentItems: currentPets,
+    currentPage,
+    setCurrentPage,
+    pageCount,
+  } = usePagination(filteredPets, 25);
 
   const handlePageClick = (e: { selected: number }) => {
     setCurrentPage(e.selected + 1); // React-Paginate uses 0-based index

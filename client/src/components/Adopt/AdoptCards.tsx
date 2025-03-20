@@ -1,8 +1,9 @@
 import { FC } from "react";
 import { Link } from "react-router";
 import { petType } from "../../types/pet";
-import CardImages from "./CardImages";
+import CardImages from "../CardImages";
 import WarningContainer from "../WarningContainer";
+import { cleanImageUrl } from "../../helper/imageHelper";
 
 interface ICards {
   pets: petType[];
@@ -23,7 +24,17 @@ const AdoptCards: FC<ICards> = ({ pets, header, text }) => {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <CardImages pet={pet} />
+                  <CardImages
+                    item={pet}
+                    getImageUrls={(pet) =>
+                      pet.relationships?.pictures?.data.map(
+                        (pic) =>
+                          `${cleanImageUrl(
+                            pet.attributes.pictureThumbnailUrl
+                          )}/${pic.id}.jpg`
+                      ) || []
+                    }
+                  />
 
                   <div className="p-4">
                     <h2 className="mb-2 text-lg font-bold font-secondary text-center text-orange-600">
