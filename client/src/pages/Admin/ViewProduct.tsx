@@ -49,8 +49,8 @@ const ViewProduct = () => {
     <>
       <TitleComponent text="View Product" />
       <div className="sm:p-4 rounded-xl h-full">
-        <div className="relative mx-auto rounded-t-xl p-4 w-full flex max-lg:flex-col gap-x-4 items-stretch justify-center">
-          <div className="flex-1 min-w-[50%] flex flex-col justify-center">
+        <div className="relative mx-auto rounded-t-xl p-4 w-full flex max-lg:flex-col gap-x-4 items-stretch">
+          <div className="flex-1 min-w-[50%] flex flex-col">
             <ProductCarousel
               thumbsSwiper={thumbsSwiper}
               setThumbsSwiper={setThumbsSwiper}
@@ -58,7 +58,7 @@ const ViewProduct = () => {
             />
           </div>
 
-          <div className="flex-1 min-w-[50%] flex flex-col justify-center">
+          <div className="flex-1 min-w-[50%] flex flex-col">
             <ProductText productData={product} />
           </div>
         </div>
