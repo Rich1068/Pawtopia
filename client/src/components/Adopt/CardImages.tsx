@@ -1,13 +1,13 @@
 import { useState, FC } from "react";
 import { petType } from "../../types/pet";
 import FavoriteButton from "./FavoriteButton";
+import { cleanImageUrl } from "../../helper/imageHelper";
 
 interface ICardImages {
   pet: petType;
-  cleanImageUrl: (url: string | undefined) => string | undefined;
 }
 
-const CardImages: FC<ICardImages> = ({ pet, cleanImageUrl }) => {
+const CardImages: FC<ICardImages> = ({ pet }) => {
   const pictures = pet.relationships?.pictures?.data || [];
   const [imgIndex, setImgIndex] = useState(0);
   const getImageUrl = (index: number) =>

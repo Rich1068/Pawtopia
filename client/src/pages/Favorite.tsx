@@ -1,12 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
-import Cards from "../components/Adopt/Cards";
+import AdoptCards from "../components/Adopt/AdoptCards";
 import PageHeader from "../components/PageHeader";
 import { useFavorites } from "../context/FavoritesContext";
 import serverAPI from "../helper/axios";
 import { petType } from "../types/pet";
 import LoadingPage from "../components/LoadingPage/LoadingPage";
-import { cleanImageUrl } from "../helper/imageHelper";
 
 const Favorite = () => {
   const { favorites } = useFavorites();
@@ -46,9 +45,8 @@ const Favorite = () => {
     <>
       <PageHeader text={"My Favorites"} />
       <div className="min-h-screen px-[10%]">
-        <Cards
+        <AdoptCards
           pets={favPets}
-          cleanImageUrl={cleanImageUrl}
           header={"No Favorites Yet"}
           text={"Start adding pets to your favorites!"}
         />
