@@ -12,7 +12,7 @@ const LoadingPage: FC<LoadingPageProps> = ({ fadeOut }) => {
       initial={{ opacity: 1 }}
       animate={{ opacity: fadeOut ? 0 : 1 }}
       transition={{ duration: 1 }}
-      className="main flex-col-reverse items-center justify-center align-middle h-screen bg-white z-50"
+      className="fixed inset-0 flex flex-col-reverse items-center justify-center w-full h-full bg-white z-[9999]"
     >
       <div className="font-primary pt-5 text-amber-950 text-2xl">
         Loading...

@@ -22,7 +22,7 @@ product.post(
 );
 product.post("/add-product", tokenAuth, addProduct);
 product.get("/list", tokenAuth, getList);
-product.get("/:id", tokenAuth, getProduct);
+product.get("/:id", getProduct);
 product.put("/:id", tokenAuth, editProduct);
 product.delete("/:id", tokenAuth, deleteProduct);
 export default product;
