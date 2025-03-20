@@ -7,7 +7,11 @@ const TitleComponent: FC<{ text: string }> = ({ text }) => {
   return (
     <h2 className="text-3xl sm:text-4xl font-semibold mb-4 font-primary text-orange-600">
       <div className="flex items-center gap-x-2">
-        <ArrowLeft size={30} onClick={() => navigate(-1)} />
+        <ArrowLeft
+          size={30}
+          onClick={() => navigate(-1)}
+          className="cursor-pointer"
+        />
         <span>{text}</span>
       </div>
     </h2>
