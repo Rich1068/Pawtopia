@@ -1,22 +1,33 @@
 import { render, screen, fireEvent } from "@testing-library/react";
-import ProfileImageUpload from "../../../components/shop/Admin/AddProduct/ProductImageUpload";
+import ProductImageUpload from "../../../components/shop/Admin/AddProduct/ProductImageUpload";
 import "@testing-library/jest-dom";
+import { IProductImage } from "../../../types/Types";
 
 // Mock File object creation
 const createMockFile = (name: string, type: string): File => {
   return new File(["sample"], name, { type });
 };
 
-describe("ProfileImageUpload Component", () => {
-  let mockOnImagesSelect: jest.Mock;
+describe("ProductImageUpload Component", () => {
+  let mockSetProductImages: jest.Mock;
+  let mockProductImages: IProductImage[];
 
   beforeEach(() => {
-    mockOnImagesSelect = jest.fn();
+    mockSetProductImages = jest.fn();
+    mockProductImages = [
+      { preview: "image1.jpg", isNew: true },
+      { preview: "image2.jpg", isNew: false },
+    ];
     URL.createObjectURL = jest.fn(() => "mock-url");
   });
 
   const renderComponent = () =>
-    render(<ProfileImageUpload onImagesSelect={mockOnImagesSelect} />);
+    render(
+      <ProductImageUpload
+        productImages={mockProductImages}
+        setProductImages={mockSetProductImages}
+      />
+    );
 
   it("should render the drop zone correctly", () => {
     renderComponent();
@@ -29,46 +40,44 @@ describe("ProfileImageUpload Component", () => {
     renderComponent();
     const fileInput = screen.getByTestId("image-upload");
     const mockFile = createMockFile("test-image.jpg", "image/jpeg");
-
     fireEvent.change(fileInput, { target: { files: [mockFile] } });
-
-    expect(mockOnImagesSelect).toHaveBeenCalledWith([mockFile]);
+    expect(mockSetProductImages).toHaveBeenCalledWith(expect.any(Function));
   });
 
   it("should display image preview when files are uploaded", async () => {
     renderComponent();
     const fileInput = screen.getByTestId("image-upload");
     const mockFile = createMockFile("test-image.jpg", "image/jpeg");
-
     fireEvent.change(fileInput, { target: { files: [mockFile] } });
 
-    const previewImage = await screen.findByAltText("Preview");
-    expect(previewImage).toBeInTheDocument();
+    const previewImages = await screen.findAllByAltText("Preview");
+    expect(previewImages.length).toBeGreaterThan(0);
+    previewImages.forEach((img) => expect(img).toBeVisible());
   });
 
-  it("should remove image when delete button is clicked", async () => {
+  it("should remove an image when delete button is clicked", async () => {
     renderComponent();
-    const fileInput = screen.getByTestId("image-upload");
-    const mockFile = createMockFile("test-image.jpg", "image/jpeg");
 
-    fireEvent.change(fileInput, { target: { files: [mockFile] } });
+    const deleteButtons = screen.getAllByRole("button");
+    fireEvent.click(deleteButtons[0]);
 
-    const removeButton = await screen.findByRole("button");
-    fireEvent.click(removeButton);
-
-    expect(mockOnImagesSelect).toHaveBeenCalledWith([mockFile]);
+    expect(mockSetProductImages).toHaveBeenCalledWith(expect.any(Function));
   });
 
   it("should handle drag and drop event", () => {
     renderComponent();
-    const dropZone = screen.getByText(
-      "Drag & drop images here or click to upload"
-    );
+    const dropZone = screen.getByTestId("image-upload");
     const mockFile = createMockFile("test-image.jpg", "image/jpeg");
 
-    fireEvent.dragOver(dropZone);
-    fireEvent.drop(dropZone, { dataTransfer: { files: [mockFile] } });
+    // Manually mock DataTransfer
+    const dataTransfer = {
+      files: [mockFile],
+      items: [{ kind: "file", type: mockFile.type, getAsFile: () => mockFile }],
+    };
 
-    expect(mockOnImagesSelect).toHaveBeenCalledWith([mockFile]);
+    fireEvent.dragOver(dropZone);
+    fireEvent.drop(dropZone, { dataTransfer });
+
+    expect(mockSetProductImages).toHaveBeenCalledWith(expect.any(Function));
   });
 });
