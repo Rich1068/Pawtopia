@@ -43,6 +43,7 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
+          <Route path="/shop/product/:id" element={<ViewProduct />} />
         </Route>
         <Route element={<AdminLayout />}>
           <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>

@@ -19,11 +19,7 @@ const AdoptCards: FC<ICards> = ({ pets, header, text }) => {
           {pets.map((pet) => (
             <div className="mx-auto" key={pet.id}>
               <div className=" mt-11 w-60 max-[415px]:w-70 transform overflow-hidden rounded-lg bg-white shadow-md duration-300 hover:scale-105 hover:shadow-lg">
-                <Link
-                  to={`/adopt/pets/${pet.id}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
+                <Link to={`/adopt/pets/${pet.id}`} rel="noopener noreferrer">
                   <CardImages
                     item={pet}
                     getImageUrls={(pet) =>

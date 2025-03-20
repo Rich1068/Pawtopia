@@ -13,6 +13,7 @@ const Breadcrumbs = () => {
           </Link>
         </li>
         {pathnames.length > 0 && <span>/</span>}
+
         {pathnames[0] === "adopt" && pathnames[1] === "pets" ? (
           <>
             <li>
@@ -23,8 +24,18 @@ const Breadcrumbs = () => {
             <span>/</span>
             <li className="underline">Pet Details</li>
           </>
+        ) : pathnames[0] === "shop" && pathnames[1] === "product" ? (
+          <>
+            <li>
+              <Link to="/shop" className="hover:underline">
+                Shop
+              </Link>
+            </li>
+            <span>/</span>
+            <li className="underline">Product Details</li>
+          </>
         ) : (
-          pathnames.map((name, index) => {
+          pathnames.map((name: string, index: number) => {
             const routeTo = `/${pathnames.slice(0, index + 1).join("/")}`;
             const isLast = index === pathnames.length - 1;
 

@@ -49,7 +49,7 @@ export const PetCarousel: FC<IProductCarousel> = ({
   const swiperRef = useRef<SwiperClass | undefined>(undefined);
   return (
     <>
-      <div className="max-w-160 w-[100%] max:lg:w-[90%] mx-auto">
+      <div className="max-w-160 w-[100%] max:lg:w-[90%] mx-auto lg:ml-auto">
         <Swiper
           onSwiper={setMainSwiper}
           spaceBetween={10}
