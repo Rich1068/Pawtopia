@@ -12,13 +12,18 @@ import ShopFilter from "./ShopFilter";
 const ShopContainer: FC<{ allProducts: IProduct[] }> = ({ allProducts }) => {
   //SELECTED FILTERS
   const [selected, setSelected] = useState<Record<string, string[]>>(() => {
-    const storedFilters = localStorage.getItem("selectedFilters");
-    return storedFilters ? JSON.parse(storedFilters) : {};
+    const storedFilters = localStorage.getItem("selectedProductFilters");
+    const parsedFilters = storedFilters ? JSON.parse(storedFilters) : {};
+
+    return {
+      category: parsedFilters.category ?? [],
+      ...parsedFilters,
+    };
   });
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   useEffect(() => {
-    localStorage.setItem("selectedFilters", JSON.stringify(selected));
+    localStorage.setItem("selectedProductFilters", JSON.stringify(selected));
   }, [selected]);
 
   //custom hooks for filterpets, petcount, and pagination logic
