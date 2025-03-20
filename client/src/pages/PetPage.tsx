@@ -9,19 +9,13 @@ import LoadingPage from "../components/LoadingPage/LoadingPage";
 import PageHeader from "../components/PageHeader";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPaw } from "@fortawesome/free-solid-svg-icons";
+import { cleanImageUrl } from "../helper/imageHelper";
 
 const PetPage = () => {
   const [thumbsSwiper, setThumbsSwiper] = useState<SwiperClass | null>(null);
   const [petData, setPetData] = useState<petType | null>(null);
   const { id } = useParams();
   const [isLoading, setIsLoading] = useState<boolean>(true);
-
-  const cleanImageUrl = (url: string | undefined): string | undefined => {
-    let cleanedUrl = url?.split("?")[0];
-    cleanedUrl = cleanedUrl?.replace(/\/\d+(?=\.\w+$)/, "");
-    cleanedUrl = cleanedUrl?.replace(/\.\w+$/, "");
-    return cleanedUrl;
-  };
 
   useEffect(() => {
     if (!id) return;

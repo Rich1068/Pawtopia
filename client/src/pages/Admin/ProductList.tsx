@@ -13,6 +13,7 @@ import ProductTable from "../../components/shop/Admin/ProductList/ProductTable";
 import ProductActionButtons from "../../components/shop/Admin/ProductList/ProductActionButtons";
 import { IProduct } from "../../types/Types";
 import { getFullImageUrl } from "../../helper/imageHelper";
+import TitleComponent from "../../components/shop/Admin/TitleComponent";
 
 const ProductList = () => {
   const [products, setProducts] = useState<IProduct[]>([]);
@@ -105,9 +106,7 @@ const ProductList = () => {
   };
   return (
     <div className="relative font-primary text-amber-950">
-      <h2 className="text-3xl sm:text-4xl font-semibold mb-4 text-orange-600">
-        Product List
-      </h2>
+      <TitleComponent text="Product List" />
       <div className="p-4 sm:p-6 bg-white shadow-xl rounded-xl">
         <ProductFilters
           globalFilter={globalFilter}
