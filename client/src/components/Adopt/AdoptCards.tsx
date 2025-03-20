@@ -1,6 +1,4 @@
 import { FC } from "react";
-import { faPaw } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link } from "react-router";
 import { petType } from "../../types/pet";
 import CardImages from "./CardImages";

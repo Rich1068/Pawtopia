@@ -1,19 +1,21 @@
 import { render, screen, waitFor } from "@testing-library/react";
-import Cards from "../../components/Adopt/Cards";
+import AdoptCards from "../../components/Adopt/AdoptCards";
 import "@testing-library/jest-dom";
 import { MemoryRouter } from "react-router";
 import { mockPets } from "../../__mocks__/mockPets";
 import { FavoritesProvider } from "../../context/FavoritesContext";
 import { AuthProvider } from "../../context/AuthContext";
 
-const mockCleanImageUrl = jest.fn();
-
 const renderCard = (pets = mockPets) => {
   return render(
     <AuthProvider>
       <FavoritesProvider>
         <MemoryRouter>
-          <Cards pets={pets} cleanImageUrl={mockCleanImageUrl} />
+          <AdoptCards
+            pets={pets}
+            header={"No Pets Available"}
+            text={"Check back later or try selecting different filters."}
+          />
         </MemoryRouter>
       </FavoritesProvider>
     </AuthProvider>
