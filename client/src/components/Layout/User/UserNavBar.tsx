@@ -1,6 +1,14 @@
 import { Link, NavLink } from "react-router";
 import { useRef, useEffect, useState } from "react";
-import { PawPrint, LogOut, Menu, X, UserRound, Heart } from "lucide-react";
+import {
+  PawPrint,
+  LogOut,
+  Menu,
+  X,
+  UserRound,
+  Heart,
+  ShoppingCart,
+} from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
 import { useFavorites } from "../../../context/FavoritesContext";
 import Logo from "../../Logo";
@@ -81,6 +89,19 @@ const UserNavBar = () => {
         <div className="flex max-lg:ml-auto space-x-4 w-auto">
           {user ? (
             <>
+              <div className="relative max-sm:hidden" ref={favoriteDropdownRef}>
+                <button
+                  className="relative p-2 text-orange-500 items-center mt-1"
+                  onClick={() => setIsFavoriteOpen(!isFavoriteOpen)}
+                >
+                  <ShoppingCart size={28} />
+                  {favorites.length > 0 && (
+                    <span className="absolute -top-0 -right-0 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+                      {favorites.length}
+                    </span>
+                  )}
+                </button>
+              </div>
               <div className="relative max-sm:hidden" ref={favoriteDropdownRef}>
                 <button
                   className="relative p-2 text-orange-500 items-center mt-1"
