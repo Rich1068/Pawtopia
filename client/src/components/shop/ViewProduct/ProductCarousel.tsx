@@ -63,10 +63,7 @@ export const PetCarousel: FC<IProductCarousel> = ({
         >
           {hasPictures ? (
             pictures.map((img, i) => (
-              <SwiperSlide
-                key={i}
-                className="!block mt-0 mb-0 max-h-auto mx-auto "
-              >
+              <SwiperSlide key={i} className="max-h-auto m-auto">
                 <img
                   src={getFullImageUrl(img)}
                   onClick={() => handleImageClick(getFullImageUrl(img))}
@@ -74,7 +71,7 @@ export const PetCarousel: FC<IProductCarousel> = ({
                     e.currentTarget.src = placeholderImage;
                   }}
                   alt="Pet"
-                  className="border rounded-xl border-orange-500 object-contain mx-auto !h-auto !w-auto !max-h-100"
+                  className="border m-auto rounded-xl border-orange-500 object-contain !h-auto !w-auto !max-h-100"
                 />
               </SwiperSlide>
             ))
