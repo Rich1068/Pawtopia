@@ -75,7 +75,7 @@ const ShopContainer: FC<{ allProducts: IProduct[] }> = ({ allProducts }) => {
           />
         </div>
       )}
-      <div className="flex flex-row min-h-svh shrink">
+      <div className="flex flex-row shrink">
         <div className="relative max-md:hidden min-w-50 max-w-64 w-full">
           <ShopFilter
             selected={selected}
