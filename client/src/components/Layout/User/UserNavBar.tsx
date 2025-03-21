@@ -22,7 +22,7 @@ const UserNavBar = () => {
   const [isCartOpen, setIsCartOpen] = useState<boolean>(false);
   const { user, logout, loading } = useAuth();
   const { favorites } = useFavorites();
-  const { cart } = useCart();
+  const { cart, addToCart, decreaseFromCart, removeFromCart } = useCart();
   const [closing, setClosing] = useState(false);
   const favoriteDropdownRef = useRef<HTMLDivElement>(null);
   const profileDropdownRef = useRef<HTMLDivElement>(null);
@@ -115,54 +115,136 @@ const UserNavBar = () => {
                   )}
                 </button>
                 {isCartOpen && (
-                  <div className="absolute right-0 mt-2 w-60 bg-white border border-orange-500 shadow-lg rounded-lg z-50">
-                    <ul className="max-h-60 overflow-y-auto divide-y divide-gray-300 mx-3 font-primary text-amber-950">
-                      {cartProductCount > 0 ? (
-                        cart?.products.map((prod) => (
-                          <Link
-                            to={`/shop/product/${prod.productId._id}`}
-                            className="flex items-center p-2"
-                            onClick={(e) => {
-                              e.stopPropagation(); // Prevents dropdown from closing
-                              setIsFavoriteOpen(false); // Closes after navigation
-                            }}
-                            key={prod.productId._id}
-                          >
+                  <div className="absolute right-0 mt-2 w-110 bg-white border border-orange-500 shadow-lg rounded-lg z-50">
+                    {/* Shopping Cart Title */}
+                    <div className="p-3 border-b border-orange-500 text-center font-semibold text-orange-600">
+                      Shopping Cart
+                    </div>
+
+                    {/* Cart Items List */}
+                    <ul className="max-h-150 overflow-y-auto divide-y divide-gray-300 px-3 font-primary text-amber-950">
+                      {cart && cartProductCount > 0 ? (
+                        cart?.products.map((prod) => {
+                          const productImage =
+                            getFullImageUrl(prod.productId.images?.[0]) ||
+                            "/assets/img/Logo1.jpg";
+                          const productName = prod.productId.name;
+                          const productPrice =
+                            parseFloat(prod.productId.price) || 0;
+                          const totalPrice = (
+                            productPrice * prod.quantity
+                          ).toFixed(2);
+
+                          return (
                             <li
-                              key={prod.productId._id}
-                              className="flex items-center p-2"
+                              key={prod._id || prod.productId._id}
+                              className="flex items-center justify-between py-3"
                             >
-                              <img
-                                src={
-                                  getFullImageUrl(prod.productId.images[0]) ||
-                                  "/assets/img/Logo1.jpg"
-                                }
-                                alt={prod.productId.name}
-                                className="w-10 h-10 rounded-full mr-2"
-                              />
-                              <span className="text-sm">
-                                {prod.productId.name}
-                              </span>
+                              {/* Product Image & Details */}
+                              <Link
+                                to={`/shop/product/${prod.productId._id}`}
+                                className="flex items-center"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setIsFavoriteOpen(false);
+                                }}
+                              >
+                                <img
+                                  src={productImage}
+                                  alt={productName}
+                                  className="w-20 h-20 rounded-lg border border-gray-300 object-cover"
+                                />
+                                <div className="ml-3">
+                                  <span className="block text-sm font-medium">
+                                    {productName}
+                                  </span>
+                                  <span className="block text-xs text-gray-500">
+                                    ${productPrice.toFixed(2)}
+                                  </span>
+                                </div>
+                              </Link>
+
+                              {/* Quantity Controls */}
+                              <div className="flex items-center space-x-2">
+                                <button
+                                  className="w-8 h-8 flex items-center justify-center bg-gray-200 hover:bg-gray-300 rounded-md transition"
+                                  onClick={() =>
+                                    decreaseFromCart(prod.productId._id, 1)
+                                  }
+                                  disabled={prod.quantity <= 1}
+                                >
+                                  -
+                                </button>
+                                <span className="w-6 text-center">
+                                  {prod.quantity}
+                                </span>
+                                <button
+                                  className="w-8 h-8 flex items-center justify-center bg-gray-200 hover:bg-gray-300 rounded-md transition"
+                                  onClick={() =>
+                                    addToCart(prod.productId._id, 1)
+                                  }
+                                  disabled={prod.quantity >= 99}
+                                >
+                                  +
+                                </button>
+                              </div>
+
+                              {/* Total Price & Remove Button */}
+                              <div className="text-right">
+                                <span className="block text-sm font-semibold">
+                                  ${totalPrice}
+                                </span>
+                                <button
+                                  className="text-xs text-red-500 hover:text-red-700 transition"
+                                  onClick={() =>
+                                    removeFromCart(prod.productId._id)
+                                  }
+                                >
+                                  Remove
+                                </button>
+                              </div>
                             </li>
-                          </Link>
-                        ))
+                          );
+                        })
                       ) : (
                         <li className="p-4 text-center text-gray-500">
-                          No Products yet
+                          Your cart is empty
                         </li>
                       )}
                     </ul>
 
-                    <div className="p-2 border-t border-orange-500 text-center font-primary">
+                    {/* Cart Subtotal */}
+                    {cartProductCount > 0 && (
+                      <div className="p-3 border-t border-orange-500">
+                        <div className="flex justify-between text-sm font-semibold text-gray-700">
+                          <span>Subtotal:</span>
+                          <span>
+                            $
+                            {cart?.products
+                              .reduce(
+                                (sum, prod) =>
+                                  sum +
+                                  parseFloat(prod.productId.price) *
+                                    prod.quantity,
+                                0
+                              )
+                              .toFixed(2)}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Checkout Button */}
+                    <div className="p-3 border-t border-orange-500 text-center">
                       <Link
                         to="/shop/checkout"
-                        className="text-orange-600 hover:underline"
+                        className="block w-full py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition"
                         onClick={(e) => {
-                          e.stopPropagation(); // Prevents dropdown from closing
-                          setIsCartOpen(false); // Closes after navigation
+                          e.stopPropagation();
+                          setIsCartOpen(false);
                         }}
                       >
-                        Checkout
+                        Proceed to Checkout
                       </Link>
                     </div>
                   </div>

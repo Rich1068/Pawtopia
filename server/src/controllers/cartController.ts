@@ -1,7 +1,7 @@
 import { Response, Request } from "express";
 import Cart from "../models/Cart";
 import Product from "../models/Product";
-import { AuthRequest } from "../Types/Types";
+import { AuthRequest, IProduct } from "../Types/Types";
 import mongoose from "mongoose";
 
 export const addToCart = async (req: AuthRequest, res: Response) => {
@@ -35,8 +35,7 @@ export const addToCart = async (req: AuthRequest, res: Response) => {
     }
 
     await cart.save();
-    res.status(200).json({ message: "Cart updated", cart });
-    return;
+    res.status(200).json({ message: "Item Added", cart });
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: "Server error" });
@@ -47,44 +46,49 @@ export const addToCart = async (req: AuthRequest, res: Response) => {
 export const getCart = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.userId;
-    const cart = await Cart.findOne({ userId }).populate("products.productId");
+    const cart = await Cart.findOne({ userId })
+      .populate("products.productId")
+      .lean();
 
     if (!cart) {
-      res.status(404).json({ message: "Cart not found" });
+      res.status(200).json({ cart: null }); // Return null if no cart exists
       return;
     }
+
     res.status(200).json({ cart });
-    return;
   } catch (error) {
-    res.status(500).json({ message: "Server error", error });
+    res.status(500).json({ error: "Server error" });
     return;
   }
 };
 
-export const removeCartItem = async (req: Request, res: Response) => {
+export const removeCartItem = async (req: AuthRequest, res: Response) => {
   try {
-    const { userId, productId } = req.params;
-
-    const cart = await Cart.findOne({ userId });
+    const userId = req.userId;
+    const { cartItemId } = req.params;
+    const productObjectId = new mongoose.Types.ObjectId(cartItemId);
+    console.log("product id " + cartItemId);
+    const cart = await Cart.findOneAndUpdate(
+      { userId },
+      { $pull: { products: { productId: productObjectId } } }, // Match by ObjectId
+      { new: true }
+    ).populate("products.productId");
+    console.log("cart", cart);
     if (!cart) {
-      res.status(404).json({ message: "Cart not found" });
+      res.status(404).json({ error: "Cart not found" });
       return;
     }
-    const productObjectId = new mongoose.Types.ObjectId(productId);
-    cart.products.pull({ productId: productObjectId });
 
+    // If cart is empty after removal, delete it
     if (cart.products.length === 0) {
       await Cart.deleteOne({ userId });
       res.status(200).json({ message: "Cart is now empty" });
       return;
     }
 
-    await cart.save();
-    res.status(200).json({ message: "Item removed", cart });
-    return;
+    res.status(200).json({ message: "Item removed", cart: cart });
   } catch (error) {
-    res.status(500).json({ message: "Server error", error });
-    return;
+    res.status(500).json({ error: "Server error" });
   }
 };
 
@@ -114,15 +118,8 @@ export const decreaseFromCart = async (req: AuthRequest, res: Response) => {
       return;
     }
 
-    if (cart.products.length === 0) {
-      await Cart.deleteOne({ userId });
-      res.status(200).json({ message: "Cart is now empty" });
-      return;
-    }
-
     await cart.save();
     res.status(200).json({ message: "Cart updated", cart });
-    return;
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: "Server error" });

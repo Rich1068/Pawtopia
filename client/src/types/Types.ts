@@ -116,6 +116,7 @@ export type ProductCounts = {
 };
 
 export interface ICartProduct {
+  _id: Key | null | undefined;
   productId: IProduct;
   quantity: number;
 }
