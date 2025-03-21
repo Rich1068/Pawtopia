@@ -2,14 +2,14 @@ import "swiper/css";
 import "swiper/css/free-mode";
 import "swiper/css/navigation";
 import "swiper/css/thumbs";
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Swiper, SwiperClass, SwiperSlide } from "swiper/react";
 import { FreeMode, Navigation, Thumbs } from "swiper/modules";
 import "./productCarousel.css";
 import { FC, useState, useRef } from "react";
 import { IProduct } from "../../../types/Types";
-import ReactModal from "react-modal";
 import { getFullImageUrl } from "../../../helper/imageHelper";
+import ImageModal from "../../ImageModal";
 
 interface IProductCarousel {
   thumbsSwiper: SwiperClass | null;
@@ -137,31 +137,11 @@ export const PetCarousel: FC<IProductCarousel> = ({
         </div>
       </div>
 
-      <ReactModal
+      <ImageModal
+        imageUrl={selectedImage}
         isOpen={!!selectedImage}
-        ariaHideApp={false}
-        onRequestClose={handleCloseModal}
-        className="p-6 focus:outline-none rounded-lg shadow-lg w-[100%] max-w-2xl mx-auto z-999"
-        overlayClassName="fixed inset-0 bg-black/75 flex justify-center items-center z-999"
-      >
-        <div className="relative flex justify-center items-center">
-          {/* Close Button */}
-          <button
-            onClick={handleCloseModal}
-            className="absolute top-2 right-2 text-white text-2xl"
-            data-testid="close-modal-button"
-          >
-            <X size={30} />
-          </button>
-
-          {/* Centered Image */}
-          <img
-            src={selectedImage!}
-            alt="Large preview"
-            className="max-w-full max-h-[90vh] rounded-lg object-contain"
-          />
-        </div>
-      </ReactModal>
+        onClose={handleCloseModal}
+      />
     </>
   );
 };
