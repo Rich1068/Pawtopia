@@ -23,7 +23,7 @@ const ShopCards: FC<ICards> = ({ products, header, text }) => {
 
             return (
               <div className="mx-auto" key={prod._id}>
-                <div className="group relative mt-11 max-[420px]:w-80 max-[955px]:w-60 w-70 max-[955px]:h-80 h-90 transform overflow-hidden rounded-lg bg-white shadow-md duration-300 hover:scale-102 hover:shadow-xl border border-gray-200 font-primary">
+                <div className="group relative mt-11 max-[955px]:w-60 w-70 max-[955px]:h-80 h-90 transform overflow-hidden rounded-lg bg-white shadow-md duration-300 hover:scale-102 hover:shadow-xl border border-gray-200 font-primary">
                   {/* Image Wrapper with Dark Overlay on Hover */}
                   <div className="relative">
                     <Link to={`/shop/product/${prod._id}`}>
@@ -40,9 +40,11 @@ const ShopCards: FC<ICards> = ({ products, header, text }) => {
                     <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300">
                       <Link
                         to={`/shop/product/${prod._id}`}
-                        className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 text-white text-lg font-semibold opacity-0 md:hover:opacity-100 transition-opacity duration-300"
+                        className="absolute inset-0 flex items-center justify-center bg-black/20 text-white text-lg font-semibold opacity-0 md:hover:opacity-100 transition-opacity duration-300"
                       >
-                        View Details
+                        <button className=" p-2 rounded-md bg-orange-600 cursor-pointer">
+                          View Details
+                        </button>
                       </Link>
                     </div>
                   </div>
