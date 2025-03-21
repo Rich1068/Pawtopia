@@ -37,7 +37,7 @@ const FavoriteButton: React.FC<FavoriteButtonProps> = ({ pet }) => {
       <button
         onClick={handleToggleFavorite}
         data-testid={"favorite-button"}
-        className="absolute top-2 right-2 p-2 bg-white rounded-full shadow-md hover:bg-gray-200"
+        className="absolute cursor-pointer top-2 right-2 p-2 bg-white rounded-full shadow-md hover:bg-gray-200"
       >
         <Heart
           className={`w-6 h-6 ${

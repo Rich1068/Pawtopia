@@ -58,7 +58,7 @@ export const PetCarousel: FC<IProductCarousel> = ({
             swiperRef.current = swiper;
           }}
           modules={[FreeMode, Navigation, Thumbs]}
-          className="max-h-100 h-auto w-auto mx-auto"
+          className="max-h-100 mx-auto"
         >
           {hasPictures ? (
             pictures.map((img, i) => (
@@ -70,7 +70,7 @@ export const PetCarousel: FC<IProductCarousel> = ({
                     e.currentTarget.src = placeholderImage;
                   }}
                   alt="Pet"
-                  className="border m-auto rounded-xl border-orange-500 object-contain !h-auto !w-auto !max-h-100"
+                  className="border m-auto rounded-xl border-orange-500 object-contain !h-auto !w-100 !min-w-auto !max-h-100"
                 />
               </SwiperSlide>
             ))
@@ -79,7 +79,7 @@ export const PetCarousel: FC<IProductCarousel> = ({
               <img
                 src="/assets/img/Logo1.png"
                 alt="Placeholder Logo"
-                className="border rounded-xl border-orange-500 object-contain !h-auto !w-auto"
+                className="border m-auto rounded-xl border-orange-500 object-contain !h-auto w-full !max-h-100"
               />
             </SwiperSlide>
           )}

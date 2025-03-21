@@ -59,23 +59,24 @@ const ViewProduct = () => {
       ) : (
         <PageHeader text="Product Details" />
       )}
+      <div className={`${!isAdminView ? "bg-orange-600" : null}`}>
+        <div className="sm:p-4 h-full w-full bg-fixed bg-center bg-cover bg-no-repeat bg-[url(/assets/img/wallpaper.jpg)] rounded-t-xl">
+          <div className="relative mx-auto rounded-t-xl p-4 w-full flex max-lg:flex-col gap-x-4 items-stretch">
+            <div className="flex-1 min-w-[50%] flex flex-col">
+              <ProductCarousel
+                thumbsSwiper={thumbsSwiper}
+                setThumbsSwiper={setThumbsSwiper}
+                productData={product}
+              />
+            </div>
 
-      <div className="sm:p-4 rounded-xl h-full">
-        <div className="relative mx-auto rounded-t-xl p-4 w-full flex max-lg:flex-col gap-x-4 items-stretch">
-          <div className="flex-1 min-w-[50%] flex flex-col">
-            <ProductCarousel
-              thumbsSwiper={thumbsSwiper}
-              setThumbsSwiper={setThumbsSwiper}
-              productData={product}
-            />
-          </div>
-
-          <div className="flex-1 min-w-[50%] flex flex-col lg:pr-8">
-            <ProductText
-              productData={product}
-              isAdmin={isAdmin}
-              isAdminView={isAdminView}
-            />
+            <div className="flex-1 min-w-[50%] flex flex-col lg:pr-8">
+              <ProductText
+                productData={product}
+                isAdmin={isAdmin}
+                isAdminView={isAdminView}
+              />
+            </div>
           </div>
         </div>
       </div>

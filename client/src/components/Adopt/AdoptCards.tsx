@@ -33,7 +33,7 @@ const AdoptCards: FC<ICards> = ({ pets, header, text }) => {
                   />
 
                   <div className="p-4">
-                    <h2 className="mb-2 text-lg font-bold font-secondary text-center text-orange-600">
+                    <h2 className="text-lg font-bold font-secondary text-center text-orange-600">
                       {pet.attributes.name}
                     </h2>
                   </div>

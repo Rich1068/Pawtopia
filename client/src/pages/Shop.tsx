@@ -28,7 +28,7 @@ const Shop = () => {
     <>
       <div className="min-h-screen flex flex-col bg-orange-600">
         <PageHeader text="Shop" />
-        <div className="flex flex-row rounded-t-xl bg-white">
+        <div className="flex flex-row rounded-t-xl">
           <ShopContainer allProducts={allProducts} />
         </div>
       </div>
