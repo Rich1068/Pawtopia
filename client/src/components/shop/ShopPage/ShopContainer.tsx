@@ -23,7 +23,7 @@ const ShopContainer: FC<{ allProducts: IProduct[] }> = ({ allProducts }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   useEffect(() => {
-    localStorage.setItem("selectedFilters", JSON.stringify(selected));
+    localStorage.setItem("selectedProductFilters", JSON.stringify(selected));
   }, [selected]);
 
   //custom hooks for filterpets, petcount, and pagination logic
