@@ -1,19 +1,33 @@
 import { Link, NavLink } from "react-router";
 import { useRef, useEffect, useState } from "react";
-import { PawPrint, LogOut, Menu, X, UserRound, Heart } from "lucide-react";
+import {
+  PawPrint,
+  LogOut,
+  Menu,
+  X,
+  UserRound,
+  Heart,
+  ShoppingCart,
+} from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
 import { useFavorites } from "../../../context/FavoritesContext";
+import { useCart } from "../../../context/CartContext";
 import Logo from "../../Logo";
+import { getFullImageUrl } from "../../../helper/imageHelper";
 
 const UserNavBar = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [isFavoriteOpen, setIsFavoriteOpen] = useState<boolean>(false);
-  const { user, logout, loading } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [isFavoriteOpen, setIsFavoriteOpen] = useState<boolean>(false);
+  const [isCartOpen, setIsCartOpen] = useState<boolean>(false);
+  const { user, logout, loading } = useAuth();
+  const { favorites } = useFavorites();
+  const { cart } = useCart();
   const [closing, setClosing] = useState(false);
   const favoriteDropdownRef = useRef<HTMLDivElement>(null);
   const profileDropdownRef = useRef<HTMLDivElement>(null);
-  const { favorites } = useFavorites();
+  const cartDropdownRef = useRef<HTMLDivElement>(null);
+  const cartProductCount = cart?.products?.length ?? 0;
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -27,6 +41,12 @@ const UserNavBar = () => {
         !profileDropdownRef.current.contains(event.target as Node)
       ) {
         setDropdownOpen(false);
+      }
+      if (
+        cartDropdownRef.current &&
+        !cartDropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsCartOpen(false);
       }
     };
 
@@ -81,6 +101,73 @@ const UserNavBar = () => {
         <div className="flex max-lg:ml-auto space-x-4 w-auto">
           {user ? (
             <>
+              <div className="relative max-sm:hidden" ref={cartDropdownRef}>
+                <button
+                  className="relative p-2 text-orange-500 items-center mt-1"
+                  onClick={() => setIsCartOpen(!isCartOpen)}
+                >
+                  <ShoppingCart size={28} />
+
+                  {cartProductCount > 0 && (
+                    <span className="absolute -top-0 -right-0 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+                      {cartProductCount}
+                    </span>
+                  )}
+                </button>
+                {isCartOpen && (
+                  <div className="absolute right-0 mt-2 w-60 bg-white border border-orange-500 shadow-lg rounded-lg z-50">
+                    <ul className="max-h-60 overflow-y-auto divide-y divide-gray-300 mx-3 font-primary text-amber-950">
+                      {cartProductCount > 0 ? (
+                        cart?.products.map((prod) => (
+                          <Link
+                            to={`/shop/product/${prod.productId._id}`}
+                            className="flex items-center p-2"
+                            onClick={(e) => {
+                              e.stopPropagation(); // Prevents dropdown from closing
+                              setIsFavoriteOpen(false); // Closes after navigation
+                            }}
+                            key={prod.productId._id}
+                          >
+                            <li
+                              key={prod.productId._id}
+                              className="flex items-center p-2"
+                            >
+                              <img
+                                src={
+                                  getFullImageUrl(prod.productId.images[0]) ||
+                                  "/assets/img/Logo1.jpg"
+                                }
+                                alt={prod.productId.name}
+                                className="w-10 h-10 rounded-full mr-2"
+                              />
+                              <span className="text-sm">
+                                {prod.productId.name}
+                              </span>
+                            </li>
+                          </Link>
+                        ))
+                      ) : (
+                        <li className="p-4 text-center text-gray-500">
+                          No Products yet
+                        </li>
+                      )}
+                    </ul>
+
+                    <div className="p-2 border-t border-orange-500 text-center font-primary">
+                      <Link
+                        to="/shop/checkout"
+                        className="text-orange-600 hover:underline"
+                        onClick={(e) => {
+                          e.stopPropagation(); // Prevents dropdown from closing
+                          setIsCartOpen(false); // Closes after navigation
+                        }}
+                      >
+                        Checkout
+                      </Link>
+                    </div>
+                  </div>
+                )}
+              </div>
               <div className="relative max-sm:hidden" ref={favoriteDropdownRef}>
                 <button
                   className="relative p-2 text-orange-500 items-center mt-1"
