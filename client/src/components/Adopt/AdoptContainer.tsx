@@ -78,7 +78,7 @@ const AdoptContainer: FC<IAdoptContainer> = ({ allPets }) => {
         </div>
       )}
       <div className="flex flex-row min-h-svh shrink">
-        <div className="relative max-md:hidden min-w-50 max-w-64 w-full">
+        <div className="relative max-md:hidden min-w-40 max-w-64 w-auto">
           <AdoptFilter
             selected={selected}
             setSelected={setSelected}
