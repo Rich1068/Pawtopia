@@ -7,6 +7,10 @@ import mongoose from "mongoose";
 export const addToCart = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.userId;
+    if (!userId) {
+      res.status(401).json({ error: "Unauthorized" });
+      return;
+    }
     const { productId, quantity } = req.body;
 
     const product = await Product.findById(productId);
@@ -46,6 +50,10 @@ export const addToCart = async (req: AuthRequest, res: Response) => {
 export const getCart = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.userId;
+    if (!userId) {
+      res.status(200).json({ cart: null }); // Just return null cart without an error
+      return;
+    }
     const cart = await Cart.findOne({ userId })
       .populate("products.productId")
       .lean();
@@ -65,6 +73,10 @@ export const getCart = async (req: AuthRequest, res: Response) => {
 export const removeCartItem = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.userId;
+    if (!userId) {
+      res.status(401).json({ error: "Unauthorized" });
+      return;
+    }
     const { cartItemId } = req.params;
     const productObjectId = new mongoose.Types.ObjectId(cartItemId);
     console.log("product id " + cartItemId);
@@ -95,6 +107,10 @@ export const removeCartItem = async (req: AuthRequest, res: Response) => {
 export const decreaseFromCart = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.userId;
+    if (!userId) {
+      res.status(401).json({ error: "Unauthorized" });
+      return;
+    }
     const { productId } = req.body;
 
     let cart = await Cart.findOne({ userId });

@@ -10,7 +10,6 @@ import {
 import serverAPI from "../helper/axios";
 import type { ICart } from "../types/Types";
 import toast from "react-hot-toast";
-import { data } from "react-router";
 
 interface CartContextType {
   cart: ICart | null;

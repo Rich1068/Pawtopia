@@ -2,6 +2,8 @@ import { FC, useState } from "react";
 import type { IProduct } from "../../../types/Types";
 import { useCart } from "../../../context/CartContext";
 import { useNavigate } from "react-router";
+import { useAuth } from "../../../context/AuthContext";
+import WarningModal from "../../WarningModal";
 
 interface IUserButtons {
   product: IProduct;
@@ -9,8 +11,10 @@ interface IUserButtons {
 
 const UserButtons: FC<IUserButtons> = ({ product }) => {
   const { addToCart } = useCart();
-  const [quantity, setQuantity] = useState(1);
+  const { user } = useAuth();
+  const [isModalOpen, setIsModalOpen] = useState(false); // Warning modal state
   const navigate = useNavigate();
+  const [quantity, setQuantity] = useState(1);
 
   const handleDecrease = () => {
     if (quantity > 1) setQuantity(quantity - 1);
@@ -37,8 +41,20 @@ const UserButtons: FC<IUserButtons> = ({ product }) => {
   };
 
   const handleBuyNow = () => {
+    if (!user) {
+      setShowModal(true);
+      return;
+    }
     addToCart(product._id, quantity);
     navigate("/checkout");
+  };
+
+  const handleAddToCart = () => {
+    if (!user) {
+      setShowModal(true);
+      return;
+    }
+    addToCart(product._id, quantity);
   };
 
   return (
@@ -79,11 +95,19 @@ const UserButtons: FC<IUserButtons> = ({ product }) => {
         </button>
         <button
           className="px-4 py-2 bg-orange-400 hover:bg-orange-500 text-white rounded-md cursor-pointer"
-          onClick={() => addToCart(product._id, quantity)}
+          onClick={handleAddToCart}
         >
           Add to Cart
         </button>
       </div>
+      <WarningModal
+        header="Login Required"
+        text="Please Login to Favorite Pets"
+        isModalOpen={isModalOpen}
+        setIsModalOpen={setIsModalOpen}
+        confirmText="Log In"
+        onConfirm={() => navigate("/login")}
+      />
     </>
   );
 };
