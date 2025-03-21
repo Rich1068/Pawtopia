@@ -12,21 +12,14 @@ import { petType } from "../../types/pet";
 import ImageModal from "../ImageModal";
 
 interface IPetCarousel {
-  thumbsSwiper: SwiperClass | null;
-  setThumbsSwiper: React.Dispatch<React.SetStateAction<SwiperClass | null>>;
   petData: petType | null;
   cleanImageUrl: (url: string | undefined) => string | undefined;
 }
 
-export const PetCarousel: FC<IPetCarousel> = ({
-  thumbsSwiper,
-  setThumbsSwiper,
-  petData,
-  cleanImageUrl,
-}) => {
+export const PetCarousel: FC<IPetCarousel> = ({ petData, cleanImageUrl }) => {
   const [mainSwiper, setMainSwiper] = useState<SwiperClass | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-
+  const [thumbsSwiper, setThumbsSwiper] = useState<SwiperClass | null>(null);
   const pictures = petData?.relationships?.pictures?.data || [];
   const hasPictures = pictures.length > 0;
 
