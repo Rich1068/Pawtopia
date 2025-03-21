@@ -1,4 +1,3 @@
-// Import Swiper styles
 import "swiper/css";
 import "swiper/css/free-mode";
 import "swiper/css/navigation";
@@ -49,7 +48,7 @@ export const PetCarousel: FC<IProductCarousel> = ({
   const swiperRef = useRef<SwiperClass | undefined>(undefined);
   return (
     <>
-      <div className="max-w-160 w-[100%] max:lg:w-[90%] mx-auto">
+      <div className="max-w-160 w-[100%] max:lg:w-[90%] mx-auto lg:ml-auto">
         <Swiper
           onSwiper={setMainSwiper}
           spaceBetween={10}
@@ -100,8 +99,8 @@ export const PetCarousel: FC<IProductCarousel> = ({
             modules={[FreeMode, Navigation, Thumbs]}
             className="mySwiper w-auto flex cursor-pointer"
             breakpoints={{
-              0: { slidesPerView: 3 }, // For mobile screens
-              768: { slidesPerView: 4 }, // For larger screens (tablet and above)
+              0: { slidesPerView: 3 },
+              768: { slidesPerView: 4 },
             }}
           >
             {hasPictures ? (
