@@ -42,7 +42,7 @@ const UserButtons: FC<IUserButtons> = ({ product }) => {
 
   const handleBuyNow = () => {
     if (!user) {
-      setShowModal(true);
+      setIsModalOpen(true);
       return;
     }
     addToCart(product._id, quantity);
@@ -51,7 +51,7 @@ const UserButtons: FC<IUserButtons> = ({ product }) => {
 
   const handleAddToCart = () => {
     if (!user) {
-      setShowModal(true);
+      setIsModalOpen(true);
       return;
     }
     addToCart(product._id, quantity);
