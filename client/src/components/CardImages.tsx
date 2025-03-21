@@ -13,7 +13,7 @@ const CardImages = <T extends object>({
 }: ICardImages<T>) => {
   const images = getImageUrls(item);
   const [imgIndex, setImgIndex] = useState(0);
-  console.log(images);
+
   return (
     <>
       <img
