@@ -15,7 +15,7 @@ const AdoptCards: FC<ICards> = ({ pets, header, text }) => {
   return (
     <>
       {pets.length > 0 ? (
-        <div className="grid grid-cols-[repeat(auto-fill,_minmax(240px,_1fr))] m-auto">
+        <div className="grid grid-cols-[repeat(auto-fill,_minmax(240px,_1fr))] gap-4 m-auto">
           {pets.map((pet) => (
             <div className="mx-auto" key={pet.id}>
               <div className=" mt-11 w-60 max-[415px]:w-70 transform overflow-hidden rounded-lg bg-white shadow-md duration-300 hover:scale-105 hover:shadow-lg">
