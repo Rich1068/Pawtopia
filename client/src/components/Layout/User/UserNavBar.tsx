@@ -1,60 +1,20 @@
-import { Link, NavLink } from "react-router";
-import { useRef, useEffect, useState } from "react";
-import {
-  PawPrint,
-  LogOut,
-  Menu,
-  X,
-  UserRound,
-  Heart,
-  ShoppingCart,
-  Plus,
-  Minus,
-} from "lucide-react";
+import { NavLink } from "react-router";
+import { useState } from "react";
+import { Menu, X } from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
 import { useFavorites } from "../../../context/FavoritesContext";
-import { useCart } from "../../../context/CartContext";
 import Logo from "../../Logo";
-import { getFullImageUrl } from "../../../helper/imageHelper";
+import MobileSidebar from "./NavBarComponents/MobileSideBar";
+import NavigationLinks from "./NavBarComponents/NavigationLinks";
+import CartDropdown from "./NavBarComponents/CartDropdown";
+import FavoriteDropdown from "./NavBarComponents/FavoritesDropdown";
+import ProfileDropdown from "./NavBarComponents/ProfileDropdown";
 
 const UserNavBar = () => {
-  const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [isFavoriteOpen, setIsFavoriteOpen] = useState<boolean>(false);
-  const [isCartOpen, setIsCartOpen] = useState<boolean>(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
   const { user, logout, loading } = useAuth();
   const { favorites } = useFavorites();
-  const { cart, addToCart, decreaseFromCart, removeFromCart } = useCart();
   const [closing, setClosing] = useState(false);
-  const favoriteDropdownRef = useRef<HTMLDivElement>(null);
-  const profileDropdownRef = useRef<HTMLDivElement>(null);
-  const cartDropdownRef = useRef<HTMLDivElement>(null);
-  const cartProductCount = cart?.products?.length ?? 0;
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        favoriteDropdownRef.current &&
-        !favoriteDropdownRef.current.contains(event.target as Node)
-      ) {
-        setIsFavoriteOpen(false);
-      }
-      if (
-        profileDropdownRef.current &&
-        !profileDropdownRef.current.contains(event.target as Node)
-      ) {
-        setDropdownOpen(false);
-      }
-      if (
-        cartDropdownRef.current &&
-        !cartDropdownRef.current.contains(event.target as Node)
-      ) {
-        setIsCartOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
   if (loading) return null;
 
@@ -64,10 +24,11 @@ const UserNavBar = () => {
     { name: "Adopt", path: "/adopt", testId: "adopt" },
     { name: "Contact", path: "/contact", testId: "contact" },
   ];
+
   const handleClose = () => {
     setClosing(true);
     setTimeout(() => {
-      setIsOpen(false);
+      setIsMobileMenuOpen(false);
       setClosing(false);
     }, 300); // Matches animation duration
   };
@@ -75,301 +36,14 @@ const UserNavBar = () => {
   return (
     <header className="flex fixed shadow-md py-3 max-sm:px-6 sm:px-10 sm:m-auto bg-white min-h-[70px] tracking-wide z-200 mx-auto rounded-b-xl w-full">
       <div className="flex flex-wrap flex-row items-center justify-between gap-5 w-full">
-        {/* Logo */}
-
         <Logo />
-
-        {/* Desktop Navigation */}
-        <nav className="max-lg:hidden lg:block absolute left-1/2 transform -translate-x-1/2">
-          <ul className="flex gap-x-6">
-            {navItems.map(({ name, path, testId }) => (
-              <li key={name}>
-                <NavLink
-                  to={path}
-                  className={({ isActive }) =>
-                    `hover:text-orange-600 text-amber-950 font-secondary  text-lg font-extrabold px-3 py-2 ${
-                      isActive ? "text-orange-500" : ""
-                    }`
-                  }
-                  data-testid={`${testId}-nav`}
-                >
-                  {name}
-                </NavLink>
-              </li>
-            ))}
-          </ul>
-        </nav>
-
+        <NavigationLinks navItems={navItems} />
         <div className="flex max-lg:ml-auto space-x-4 w-auto">
           {user ? (
             <>
-              <div className="relative max-sm:hidden" ref={cartDropdownRef}>
-                <button
-                  className="relative p-2 text-orange-500 items-center mt-1"
-                  onClick={() => setIsCartOpen(!isCartOpen)}
-                >
-                  <ShoppingCart size={28} />
-
-                  {cartProductCount > 0 && (
-                    <span className="absolute -top-0 -right-0 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
-                      {cartProductCount}
-                    </span>
-                  )}
-                </button>
-                {isCartOpen && (
-                  <div className="absolute right-0 mt-2 w-120 bg-white border border-orange-500 shadow-lg rounded-lg z-50">
-                    {/* Shopping Cart Title */}
-                    <div className="p-3 border-b border-orange-500 text-center font-semibold text-orange-600">
-                      Shopping Cart
-                    </div>
-
-                    {/* Cart Items List */}
-                    <ul className="max-h-80 overflow-y-auto divide-y divide-gray-300 px-3 text-amber-950">
-                      {cart && cartProductCount > 0 ? (
-                        cart.products.map((prod) => {
-                          const productImage =
-                            getFullImageUrl(prod.productId.images?.[0]) ||
-                            "/assets/img/Logo1.jpg";
-                          const productName = prod.productId.name;
-                          const productPrice =
-                            parseFloat(prod.productId.price) || 0;
-                          const totalPrice = (
-                            productPrice * prod.quantity
-                          ).toFixed(2);
-
-                          return (
-                            <li
-                              key={prod._id || prod.productId._id}
-                              className="grid grid-cols-[auto_1fr_auto_auto] items-center gap-4 py-3"
-                            >
-                              {/* Product Image */}
-                              <Link
-                                to={`/shop/product/${prod.productId._id}`}
-                                className="flex items-center"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setIsFavoriteOpen(false);
-                                }}
-                              >
-                                <img
-                                  src={productImage}
-                                  alt={productName}
-                                  className="w-16 h-16 rounded-lg border border-gray-300 object-cover"
-                                />
-                              </Link>
-
-                              {/* Product Info */}
-                              <div>
-                                <h3 className="text-sm font-semibold">
-                                  {productName}
-                                </h3>
-                                <p className="text-xs text-gray-500">
-                                  ${productPrice.toFixed(2)}
-                                </p>
-                              </div>
-
-                              {/* Quantity Controls */}
-                              <div className="flex items-center space-x-2">
-                                <button
-                                  className="w-7 h-7 flex items-center justify-center bg-gray-200 hover:bg-gray-300 rounded transition"
-                                  onClick={() =>
-                                    decreaseFromCart(prod.productId._id, 1)
-                                  }
-                                  disabled={prod.quantity <= 1}
-                                >
-                                  <Minus size={12} />
-                                </button>
-                                <input
-                                  type="text"
-                                  value={prod.quantity}
-                                  readOnly
-                                  className="w-8 text-center border border-gray-300 rounded"
-                                />
-                                <button
-                                  className="w-7 h-7 flex items-center justify-center bg-gray-200 hover:bg-gray-300 rounded transition"
-                                  onClick={() =>
-                                    addToCart(prod.productId._id, 1)
-                                  }
-                                  disabled={prod.quantity >= 99}
-                                >
-                                  <Plus size={12} />
-                                </button>
-                              </div>
-
-                              {/* Total Price & Remove Button */}
-                              <div className="w-20 text-right">
-                                <span className="block text-sm font-semibold">
-                                  ${totalPrice}
-                                </span>
-                                <button
-                                  className="text-xs text-red-500 hover:text-red-700 transition"
-                                  onClick={() =>
-                                    removeFromCart(prod.productId._id)
-                                  }
-                                >
-                                  Remove
-                                </button>
-                              </div>
-                            </li>
-                          );
-                        })
-                      ) : (
-                        <li className="p-4 text-center text-gray-500">
-                          Your cart is empty
-                        </li>
-                      )}
-                    </ul>
-
-                    {/* Cart Subtotal */}
-                    {cartProductCount > 0 && (
-                      <div className="p-3 border-t border-orange-500">
-                        <div className="flex justify-between text-sm font-semibold text-gray-700">
-                          <span>Subtotal:</span>
-                          <span>
-                            $
-                            {cart?.products
-                              .reduce(
-                                (sum, prod) =>
-                                  sum +
-                                  parseFloat(prod.productId.price) *
-                                    prod.quantity,
-                                0
-                              )
-                              .toFixed(2)}
-                          </span>
-                        </div>
-                      </div>
-                    )}
-                    {/* Checkout Button */}
-                    <div className="p-3 border-t border-orange-500 text-center">
-                      <Link
-                        to="/shop/checkout"
-                        className="block w-full py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setIsCartOpen(false);
-                        }}
-                      >
-                        Proceed to Checkout
-                      </Link>
-                    </div>
-                  </div>
-                )}
-              </div>
-              <div className="relative max-sm:hidden" ref={favoriteDropdownRef}>
-                <button
-                  className="relative p-2 text-orange-500 items-center mt-1"
-                  onClick={() => setIsFavoriteOpen(!isFavoriteOpen)}
-                >
-                  <Heart size={28} />
-                  {favorites.length > 0 && (
-                    <span className="absolute -top-0 -right-0 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
-                      {favorites.length}
-                    </span>
-                  )}
-                </button>
-
-                {isFavoriteOpen && (
-                  <div className="absolute right-0 mt-2 w-60 bg-white border border-orange-500 shadow-lg rounded-lg z-50">
-                    <ul className="max-h-60 overflow-y-auto divide-y divide-gray-300 mx-3 font-primary text-amber-950">
-                      {favorites.length > 0 ? (
-                        favorites.map((pet) => (
-                          <Link
-                            to={`/adopt/pets/${pet.petId}`}
-                            className="flex items-center p-2"
-                            onClick={(e) => {
-                              e.stopPropagation(); // Prevents dropdown from closing
-                              setIsFavoriteOpen(false); // Closes after navigation
-                            }}
-                            key={pet.petId}
-                          >
-                            <li
-                              key={pet.petId}
-                              className="flex items-center p-2"
-                            >
-                              <img
-                                src={pet.petImage || "/assets/img/Logo1.jpg"}
-                                alt={pet.petName}
-                                className="w-10 h-10 rounded-full mr-2"
-                              />
-                              <span className="text-sm">{pet.petName}</span>
-                            </li>
-                          </Link>
-                        ))
-                      ) : (
-                        <li className="p-4 text-center text-gray-500">
-                          No favorites yet
-                        </li>
-                      )}
-                    </ul>
-
-                    <div className="p-2 border-t border-orange-500 text-center font-primary">
-                      <Link
-                        to="/favorites"
-                        className="text-orange-600 hover:underline"
-                        onClick={(e) => {
-                          e.stopPropagation(); // Prevents dropdown from closing
-                          setIsFavoriteOpen(false); // Closes after navigation
-                        }}
-                      >
-                        Show All
-                      </Link>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <div className="relative" ref={profileDropdownRef}>
-                <button
-                  onClick={() => setDropdownOpen(!dropdownOpen)}
-                  className="flex items-center p-2 bg-white group rounded-full"
-                >
-                  {user.profileImage ? (
-                    <img
-                      src={user.profileImage}
-                      alt="Profile"
-                      className="w-10 h-10 rounded-full object-cover group-hover:text-white cursor-pointer"
-                    />
-                  ) : (
-                    <UserRound className="w-8 h-8 text-orange-500 border rounded-full group-hover:text-white group-hover:bg-orange-500 group-hover:border-orange-500 cursor-pointer" />
-                  )}
-                </button>
-
-                {dropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-45 bg-white shadow-lg rounded-md p-2 border border-orange-500 divide-gray-300 divide-y">
-                    <div className="px-2 py-1 text-lg text-gray-900 font-secondary font-bold ">
-                      <div>{user?.name}</div>
-                      <div className="font-medium">{user?.email}</div>
-                    </div>
-                    <NavLink
-                      to="/profile"
-                      className="block px-4 py-2 font-secondary font-semibold hover:bg-gray-100"
-                      onClick={() => setDropdownOpen(false)}
-                    >
-                      Profile
-                    </NavLink>
-                    {user!.role === "admin" ? (
-                      <NavLink
-                        to="/admin/dashboard"
-                        className="block px-4 py-2 font-secondary font-semibold hover:bg-gray-100"
-                        onClick={() => setDropdownOpen(false)}
-                      >
-                        Dashboard
-                      </NavLink>
-                    ) : null}
-                    <button
-                      onClick={() => {
-                        logout();
-                        setDropdownOpen(false);
-                      }}
-                      className="flex items-center w-full px-4 py-2 text-left font-secondary font-semibold text-red-500 hover:bg-gray-100"
-                    >
-                      <LogOut className="w-5 h-5 mr-2" />
-                      Logout
-                    </button>
-                  </div>
-                )}
-              </div>
+              <CartDropdown />
+              <FavoriteDropdown />
+              <ProfileDropdown />
             </>
           ) : (
             <>
@@ -389,139 +63,31 @@ const UserNavBar = () => {
               </NavLink>
             </>
           )}
-
-          {/* Mobile Menu Button */}
           <button
             className="lg:hidden"
-            onClick={() => (isOpen ? handleClose() : setIsOpen(true))}
+            onClick={() =>
+              isMobileMenuOpen ? handleClose() : setIsMobileMenuOpen(true)
+            }
           >
-            {isOpen ? <X size={28} /> : <Menu size={28} />}
+            {isMobileMenuOpen ? (
+              <X size={28} className="text-amber-950" />
+            ) : (
+              <Menu size={28} className="text-amber-950" />
+            )}
           </button>
         </div>
       </div>
 
       {/* Mobile Menu */}
-      {isOpen && (
-        <div
-          className={`bg-white fixed top-0 left-0 w-3/4 sm:w-1/2 min-w-[300px] h-full shadow-md p-6 z-50 transform transition-transform duration-300 ease-in-out 
-            ${closing ? "animate-slide-out" : "animate-slide-in"}`}
-        >
-          <div className=" flex relative">
-            {user?.profileImage ? (
-              <img
-                src={user.profileImage}
-                alt="Profile"
-                className="w-10 h-10 rounded-full object-cover group-hover:text-white cursor-pointer"
-              />
-            ) : (
-              <UserRound className="w-8 h-8 text-orange-500 border rounded-full group-hover:text-white group-hover:bg-orange-500 group-hover:border-orange-500 cursor-pointer" />
-            )}
-            <div className="content-center ml-2 font-primary font-semibold text-xl text-orange-500">
-              {" "}
-              {user?.name}
-            </div>
-          </div>
-          <button onClick={handleClose} className="absolute top-2 right-4">
-            <X size={24} />
-          </button>
-          <div className="mt-5">
-            <ul className="space-y-4">
-              {navItems.map(({ name, path, testId }) => (
-                <li key={name}>
-                  <NavLink
-                    to={path}
-                    className={({ isActive }) =>
-                      `block text-lg font-extrabold px-4 py-2 font-secondary ${
-                        isActive ? "text-orange-600" : "text-amber-950"
-                      } hover:text-orange-500`
-                    }
-                    onClick={() => setIsOpen(false)}
-                    data-testid={`${testId}-nav`}
-                  >
-                    {({ isActive }) => (
-                      <div className="flex items-center">
-                        {name}{" "}
-                        {isActive && (
-                          <PawPrint className="ml-2 motion-safe:animate-bounce" />
-                        )}
-                      </div>
-                    )}
-                  </NavLink>
-                  <hr className="bg-amber-950" />
-                </li>
-              ))}
-              <NavLink
-                to={"/favorites"}
-                className={({ isActive }) =>
-                  `block text-lg font-extrabold px-4 py-2 font-secondary ${
-                    isActive ? "text-orange-600" : "text-amber-950"
-                  } hover:text-orange-500`
-                }
-                onClick={() => setIsOpen(false)}
-                data-testid={`fav-nav`}
-              >
-                {({ isActive }) => (
-                  <div className="flex items-center">
-                    Favorites
-                    {favorites.length === 0 ? "" : `(${favorites.length})`}
-                    {isActive && (
-                      <PawPrint className="ml-2 motion-safe:animate-bounce" />
-                    )}
-                  </div>
-                )}
-              </NavLink>
-              <hr className="bg-amber-950" />
-              {user ? (
-                <>
-                  <li>
-                    <button
-                      onClick={() => {
-                        logout();
-                        setIsOpen(false);
-                      }}
-                      className="flex items-center w-full px-4 py-2 text-left text-lg font-extrabold font-secondary text-red-500 hover:bg-gray-100"
-                    >
-                      Logout
-                      <LogOut className="w-5 h-5 ml-2" />
-                    </button>
-                  </li>
-                </>
-              ) : (
-                <>
-                  <li>
-                    <NavLink
-                      to="/login"
-                      className={({ isActive }) =>
-                        `block text-lg font-extrabold font-secondary px-4 py-2 ${
-                          isActive ? "text-orange-600" : "text-amber-950"
-                        } hover:text-orange-500`
-                      }
-                      onClick={() => setIsOpen(false)}
-                    >
-                      Login
-                    </NavLink>
-                    <hr className="bg-amber-950" />
-                  </li>
-                  <li>
-                    <NavLink
-                      to="/register"
-                      className={({ isActive }) =>
-                        `block text-lg font-extrabold font-secondary px-4 py-2 ${
-                          isActive ? "text-orange-600" : "text-amber-950"
-                        } hover:text-orange-500`
-                      }
-                      onClick={() => setIsOpen(false)}
-                    >
-                      Register
-                    </NavLink>
-                    <hr className="bg-amber-950" />
-                  </li>
-                </>
-              )}
-            </ul>
-          </div>
-        </div>
-      )}
+      <MobileSidebar
+        isOpen={isMobileMenuOpen}
+        closing={closing}
+        handleClose={() => setIsMobileMenuOpen(false)}
+        user={user}
+        logout={logout}
+        favorites={favorites}
+        navItems={navItems}
+      />
     </header>
   );
 };
