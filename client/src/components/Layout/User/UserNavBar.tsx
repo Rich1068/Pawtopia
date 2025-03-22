@@ -8,6 +8,8 @@ import {
   UserRound,
   Heart,
   ShoppingCart,
+  Plus,
+  Minus,
 } from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
 import { useFavorites } from "../../../context/FavoritesContext";
@@ -115,16 +117,16 @@ const UserNavBar = () => {
                   )}
                 </button>
                 {isCartOpen && (
-                  <div className="absolute right-0 mt-2 w-110 bg-white border border-orange-500 shadow-lg rounded-lg z-50">
+                  <div className="absolute right-0 mt-2 w-120 bg-white border border-orange-500 shadow-lg rounded-lg z-50">
                     {/* Shopping Cart Title */}
                     <div className="p-3 border-b border-orange-500 text-center font-semibold text-orange-600">
                       Shopping Cart
                     </div>
 
                     {/* Cart Items List */}
-                    <ul className="max-h-150 overflow-y-auto divide-y divide-gray-300 px-3 font-primary text-amber-950">
+                    <ul className="max-h-80 overflow-y-auto divide-y divide-gray-300 px-3 text-amber-950">
                       {cart && cartProductCount > 0 ? (
-                        cart?.products.map((prod) => {
+                        cart.products.map((prod) => {
                           const productImage =
                             getFullImageUrl(prod.productId.images?.[0]) ||
                             "/assets/img/Logo1.jpg";
@@ -138,9 +140,9 @@ const UserNavBar = () => {
                           return (
                             <li
                               key={prod._id || prod.productId._id}
-                              className="flex items-center justify-between py-3"
+                              className="grid grid-cols-[auto_1fr_auto_auto] items-center gap-4 py-3"
                             >
-                              {/* Product Image & Details */}
+                              {/* Product Image */}
                               <Link
                                 to={`/shop/product/${prod.productId._id}`}
                                 className="flex items-center"
@@ -152,45 +154,50 @@ const UserNavBar = () => {
                                 <img
                                   src={productImage}
                                   alt={productName}
-                                  className="w-20 h-20 rounded-lg border border-gray-300 object-cover"
+                                  className="w-16 h-16 rounded-lg border border-gray-300 object-cover"
                                 />
-                                <div className="ml-3">
-                                  <span className="block text-sm font-medium">
-                                    {productName}
-                                  </span>
-                                  <span className="block text-xs text-gray-500">
-                                    ${productPrice.toFixed(2)}
-                                  </span>
-                                </div>
                               </Link>
+
+                              {/* Product Info */}
+                              <div>
+                                <h3 className="text-sm font-semibold">
+                                  {productName}
+                                </h3>
+                                <p className="text-xs text-gray-500">
+                                  ${productPrice.toFixed(2)}
+                                </p>
+                              </div>
 
                               {/* Quantity Controls */}
                               <div className="flex items-center space-x-2">
                                 <button
-                                  className="w-8 h-8 flex items-center justify-center bg-gray-200 hover:bg-gray-300 rounded-md transition"
+                                  className="w-7 h-7 flex items-center justify-center bg-gray-200 hover:bg-gray-300 rounded transition"
                                   onClick={() =>
                                     decreaseFromCart(prod.productId._id, 1)
                                   }
                                   disabled={prod.quantity <= 1}
                                 >
-                                  -
+                                  <Minus size={12} />
                                 </button>
-                                <span className="w-6 text-center">
-                                  {prod.quantity}
-                                </span>
+                                <input
+                                  type="text"
+                                  value={prod.quantity}
+                                  readOnly
+                                  className="w-8 text-center border border-gray-300 rounded"
+                                />
                                 <button
-                                  className="w-8 h-8 flex items-center justify-center bg-gray-200 hover:bg-gray-300 rounded-md transition"
+                                  className="w-7 h-7 flex items-center justify-center bg-gray-200 hover:bg-gray-300 rounded transition"
                                   onClick={() =>
                                     addToCart(prod.productId._id, 1)
                                   }
                                   disabled={prod.quantity >= 99}
                                 >
-                                  +
+                                  <Plus size={12} />
                                 </button>
                               </div>
 
                               {/* Total Price & Remove Button */}
-                              <div className="text-right">
+                              <div className="w-20 text-right">
                                 <span className="block text-sm font-semibold">
                                   ${totalPrice}
                                 </span>
@@ -233,7 +240,6 @@ const UserNavBar = () => {
                         </div>
                       </div>
                     )}
-
                     {/* Checkout Button */}
                     <div className="p-3 border-t border-orange-500 text-center">
                       <Link

@@ -35,7 +35,7 @@ function App() {
           <Route element={<ProtectedRoute />}>
             <Route path="/profile" element={<Profile />} />
             <Route path="/favorites" element={<Favorite />} />
-            <Route path="/checkout" element={<Checkout />} />
+            <Route path="/shop/checkout" element={<Checkout />} />
           </Route>
           <Route path="/adopt" element={<Adopt />} />
           <Route path="/adopt/pets/:id" element={<PetPage />} />

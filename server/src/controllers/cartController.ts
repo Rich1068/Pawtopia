@@ -33,6 +33,9 @@ export const addToCart = async (req: AuthRequest, res: Response) => {
 
       if (productIndex > -1) {
         cart.products[productIndex].quantity += quantity;
+        res.status(200).json({ message: "Cart Updated", cart });
+        await cart.save();
+        return;
       } else {
         cart.products.push({ productId, quantity });
       }

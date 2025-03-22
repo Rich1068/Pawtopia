@@ -1,3 +1,5 @@
+import { Key } from "react";
+
 interface Category {
   id: number;
   name: string;
