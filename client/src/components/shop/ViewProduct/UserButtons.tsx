@@ -102,7 +102,7 @@ const UserButtons: FC<IUserButtons> = ({ product }) => {
       </div>
       <WarningModal
         header="Login Required"
-        text="Please Login to Favorite Pets"
+        text="Please Login to Buy Products"
         isModalOpen={isModalOpen}
         setIsModalOpen={setIsModalOpen}
         confirmText="Log In"
