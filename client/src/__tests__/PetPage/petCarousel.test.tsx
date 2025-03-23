@@ -31,14 +31,7 @@ jest.mock("react-modal", () => {
 const cleanImageUrl = (url: string | undefined) => url;
 
 const renderCarousel = (petData = mockPets[0]) =>
-  render(
-    <PetCarousel
-      thumbsSwiper={null}
-      setThumbsSwiper={jest.fn()}
-      petData={petData}
-      cleanImageUrl={cleanImageUrl}
-    />
-  );
+  render(<PetCarousel petData={petData} cleanImageUrl={cleanImageUrl} />);
 
 describe("PetCarousel", () => {
   it("renders pet images if available", () => {
