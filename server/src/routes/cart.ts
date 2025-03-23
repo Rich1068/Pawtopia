@@ -2,6 +2,7 @@ import express from "express";
 import tokenAuth from "../middlewares/tokenAuth";
 import {
   addToCart,
+  cartCheckout,
   decreaseFromCart,
   getCart,
   removeCartItem,
@@ -13,5 +14,5 @@ cart.get("/", tokenAuth, getCart);
 cart.post("/add", tokenAuth, addToCart);
 cart.post("/decrease", tokenAuth, decreaseFromCart);
 cart.delete("/:cartItemId", tokenAuth, removeCartItem);
-
+cart.post("/checkout", cartCheckout);
 export default cart;

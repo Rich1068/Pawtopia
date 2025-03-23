@@ -1,8 +1,14 @@
 import { Response, Request } from "express";
 import Cart from "../models/Cart";
 import Product from "../models/Product";
-import { AuthRequest, IProduct } from "../Types/Types";
+import { AuthRequest, ICartProduct } from "../Types/Types";
 import mongoose from "mongoose";
+import Stripe from "stripe";
+import dotenv from "dotenv";
+import { checkIfImageExists } from "../helpers/image";
+dotenv.config();
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 export const addToCart = async (req: AuthRequest, res: Response) => {
   try {
@@ -143,5 +149,55 @@ export const decreaseFromCart = async (req: AuthRequest, res: Response) => {
     console.log(error);
     res.status(500).json({ error: "Server error" });
     return;
+  }
+};
+
+export const cartCheckout = async (req: AuthRequest, res: Response) => {
+  try {
+    const { products } = req.body;
+
+    // Format line items for Stripe
+    const lineItems = await Promise.all(
+      products.map(async (item: ICartProduct) => {
+        if (
+          typeof item.productId === "object" &&
+          "name" in item.productId &&
+          "images" in item.productId &&
+          "price" in item.productId
+        ) {
+          const imagePath = process.env.SERVER_URL + item.productId.images?.[0];
+          const imageUrl = (await checkIfImageExists(imagePath))
+            ? imagePath
+            : process.env.CLIENT_URL + "/public/assets/img/Logo1.png";
+          return {
+            price_data: {
+              currency: "usd",
+              product_data: {
+                name: item.productId.name,
+                images: [imageUrl],
+              },
+              unit_amount: Math.round(parseFloat(item.productId.price) * 100),
+            },
+            quantity: item.quantity,
+          };
+        } else {
+          throw new Error("Product not properly populated");
+        }
+      })
+    );
+    console.log(lineItems[0].price_data.product_data.images[0]);
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      line_items: lineItems,
+      mode: "payment",
+      success_url: `${process.env.CLIENT_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.CLIENT_URL}/checkout/cancel`,
+    });
+
+    // Return the URL to redirect to
+    res.json({ url: session.url });
+  } catch (error) {
+    console.error("Error creating checkout session:", error);
+    res.status(500).json({ error: "Failed to create checkout session" });
   }
 };
