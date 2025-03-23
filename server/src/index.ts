@@ -11,6 +11,8 @@ import path from "path";
 import email from "./routes/email";
 import product from "./routes/product";
 import cart from "./routes/cart";
+import bodyParser from "body-parser";
+import { handleCheckoutSuccess } from "./controllers/cartController";
 
 db_connection();
 dotenv.config();
@@ -24,8 +26,14 @@ app.use(
     credentials: true,
   })
 );
+
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
+app.post(
+  "/stripe/webhook",
+  express.raw({ type: "application/json" }),
+  handleCheckoutSuccess
+);
 app.use(express.json());
 app.use("/assets", express.static(path.join(__dirname, "assets")));
 app.use("/", route);

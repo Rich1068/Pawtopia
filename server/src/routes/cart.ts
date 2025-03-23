@@ -5,6 +5,7 @@ import {
   cartCheckout,
   decreaseFromCart,
   getCart,
+  handleCheckoutSuccess,
   removeCartItem,
 } from "../controllers/cartController";
 
@@ -14,5 +15,5 @@ cart.get("/", tokenAuth, getCart);
 cart.post("/add", tokenAuth, addToCart);
 cart.post("/decrease", tokenAuth, decreaseFromCart);
 cart.delete("/:cartItemId", tokenAuth, removeCartItem);
-cart.post("/checkout", cartCheckout);
+cart.post("/checkout", tokenAuth, cartCheckout);
 export default cart;

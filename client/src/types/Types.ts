@@ -130,3 +130,21 @@ export interface ICart {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface IOrderProduct {
+  productId: string;
+  name: string;
+  price: number;
+  quantity: number;
+}
+
+export interface IOrder {
+  _id?: string;
+  userId: string;
+  products: IOrderProduct[];
+  orderId: string;
+  paymentId?: string;
+  totalAmount: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
