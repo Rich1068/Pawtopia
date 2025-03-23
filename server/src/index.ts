@@ -35,7 +35,7 @@ app.use("/user", user);
 app.use("/email", email);
 app.use("/product", product);
 app.use("/cart", cart);
-const port = process.env.PORT || "0.0.0.0";
+const port = process.env.PORT || 10000;
 app.listen(port, () => {
   console.log("Backend Server running at Port: " + port);
 });
