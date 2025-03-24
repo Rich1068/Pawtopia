@@ -9,6 +9,9 @@ serverAPI.interceptors.response.use(
   (response) => response, // If successful, return response
   async (error) => {
     const originalRequest = error.config;
+    if (originalRequest.url?.includes("/login")) {
+      return Promise.reject(error);
+    }
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true; // Prevent infinite loops
 
