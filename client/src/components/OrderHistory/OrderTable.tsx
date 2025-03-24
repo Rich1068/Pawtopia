@@ -1,10 +1,16 @@
 import { flexRender, Table } from "@tanstack/react-table";
 import type { IOrder } from "../../types/Types";
 
-const OrderTable = ({ table }: { table: Table<IOrder> }) => {
+const OrderTable = ({
+  table,
+  style,
+}: {
+  table: Table<IOrder>;
+  style?: string;
+}) => {
   return (
     <>
-      <div className="sm:px-[6%]">
+      <div className={`sm:px-[6%] ${style}`}>
         <div className="overflow-x-auto mt-4 rounded-md border border-orange-300 shadow-md">
           <table className="w-full rounded-md overflow-hidden">
             <thead className="bg-orange-500 text-white text-sm sm:text-xl">

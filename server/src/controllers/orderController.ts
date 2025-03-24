@@ -2,6 +2,7 @@ import { Response, Request } from "express";
 import dotenv from "dotenv";
 import Order from "../models/Order";
 import { AuthRequest } from "../Types/Types";
+import User from "../models/User";
 
 dotenv.config();
 
@@ -35,5 +36,29 @@ export const getOrderHistory = async (req: AuthRequest, res: Response) => {
   } catch (error) {
     console.error("Error creating checkout session:", error);
     res.status(500).json({ error: "Failed to retrieve Order History" });
+  }
+};
+
+export const getAllOrders = async (req: Request, res: Response) => {
+  try {
+    const { date } = req.query;
+    let query: any = {};
+
+    if (date && typeof date === "string") {
+      const startDate = new Date(date + "T00:00:00.000Z"); // Start of the day in UTC
+      const endDate = new Date(date + "T23:59:59.999Z"); // End of the day in UTC
+
+      query.createdAt = { $gte: startDate, $lte: endDate };
+    }
+
+    const orders = await Order.find(query)
+      .populate("userId", "name email")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json(orders);
+    return;
+  } catch (error) {
+    console.error("Error fetching orders:", error);
+    res.status(500).json({ error: "Server error" });
   }
 };
