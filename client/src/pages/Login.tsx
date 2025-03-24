@@ -28,15 +28,11 @@ const Login = () => {
       return;
     }
     try {
-      await serverAPI.post(
-        "/login",
-        {
-          email,
-          password,
-          rememberMe,
-        },
-        { withCredentials: true }
-      );
+      await serverAPI.post("/login", {
+        email,
+        password,
+        rememberMe,
+      });
       await login(rememberMe);
       setData({
         email: "",

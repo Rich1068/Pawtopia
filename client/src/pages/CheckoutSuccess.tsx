@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router";
 import serverAPI from "../helper/axios";
 import { IOrder } from "../types/Types";
+import PageHeader from "../components/PageHeader";
 
 const CheckoutSuccess = () => {
   const [order, setOrder] = useState<IOrder | null>(null);
@@ -21,7 +22,7 @@ const CheckoutSuccess = () => {
           return;
         }
 
-        const response = await serverAPI.get(`/orders/success/${sessionId}`);
+        const response = await serverAPI.get(`/order/success/${sessionId}`);
         setOrder(response.data);
       } catch (error) {
         console.log(error);
@@ -34,37 +35,69 @@ const CheckoutSuccess = () => {
     fetchOrderDetails();
   }, [sessionId]);
 
-  if (loading) return <div className="text-center mt-10">Loading...</div>;
+  if (loading)
+    return (
+      <div className="text-center mt-10 text-orange-500 font-semibold">
+        Loading...
+      </div>
+    );
   if (error)
     return <div className="text-center text-red-500 mt-10">{error}</div>;
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-6">
-      <div className="bg-white shadow-lg p-8 rounded-lg max-w-lg text-center">
-        <h2 className="text-2xl font-semibold text-green-600">
-          🎉 Payment Successful!
-        </h2>
-        <p className="mt-2 text-gray-700">Thank you for your purchase.</p>
+    <>
+      <PageHeader />
+      <div className="relative z-50 max-md:-mt-42 -mt-45 min-h-screen flex items-center justify-center p-7">
+        <div className="bg-white shadow-xl rounded-lg p-8 w-full max-w-3xl text-center border-t-4 border-orange-500 break-words text-amber-950 ">
+          <h2 className="text-3xl font-bold text-orange-600 font-primary">
+            🎉 Success!
+          </h2>
+          <p className="mt-2 text-gray-700 font-secondary">
+            Thank you for your purchase.
+          </p>
 
-        {order && (
-          <div className="mt-6 text-left">
-            <p>
-              <strong>Order ID:</strong> {order.orderId}
-            </p>
-            <p>
-              <strong>Total Amount:</strong> ${order.totalAmount.toFixed(2)}
-            </p>
-          </div>
-        )}
+          {order && (
+            <div className="mt-6 text-left font-secondary">
+              <div className="bg-orange-50 p-4 rounded-lg">
+                <p className="">
+                  <strong>Order ID:</strong> {order.orderId}
+                </p>
+                <p className="">
+                  <strong>Total:</strong> ${order.totalAmount.toFixed(2)}
+                </p>
+              </div>
 
-        <button
-          onClick={() => navigate("/")}
-          className="mt-6 bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded"
-        >
-          Continue Shopping
-        </button>
+              {/* Product List */}
+              <div className="mt-6">
+                <h3 className="text-lg font-semibold">Items Purchased:</h3>
+                <ul className="mt-2 space-y-4 max-h-110 overflow-y-auto">
+                  {order.products.map((product, index) => (
+                    <li
+                      key={index}
+                      className="flex items-center justify-between bg-white shadow p-3 rounded-lg hover:shadow-md transition"
+                    >
+                      <div>
+                        <p className=" font-medium">{product.name}</p>
+                        <p className="text-sm text-gray-600">
+                          ${product.price.toFixed(2)} x {product.quantity}
+                        </p>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          )}
+
+          <button
+            onClick={() => navigate("/shop")}
+            className="mt-6 bg-orange-500 hover:bg-orange-600 text-white font-medium px-6 py-2 rounded-full shadow-md transition"
+          >
+            Continue Shopping
+          </button>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

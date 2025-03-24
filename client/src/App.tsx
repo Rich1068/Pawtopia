@@ -22,6 +22,8 @@ import ProductList from "./pages/Admin/ProductList";
 import EditProduct from "./pages/Admin/EditProduct";
 import ViewProduct from "./pages/Admin/ViewProduct";
 import Checkout from "./pages/Checkout";
+import CheckoutSuccess from "./pages/CheckoutSuccess";
+import OrderHistory from "./pages/OrderHistory";
 
 axios.defaults.withCredentials = true;
 
@@ -46,6 +48,8 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route path="/shop/product/:id" element={<ViewProduct />} />
+          <Route path="/checkout/success" element={<CheckoutSuccess />} />
+          <Route path="/order-history" element={<OrderHistory />} />
         </Route>
         <Route element={<AdminLayout />}>
           <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>

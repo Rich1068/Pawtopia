@@ -3,12 +3,13 @@ import { useCart } from "../context/CartContext";
 import { Link } from "react-router";
 import serverAPI from "../helper/axios";
 import PageHeader from "../components/PageHeader";
-import { Minus, Plus } from "lucide-react";
+import { Loader2, Minus, Plus } from "lucide-react";
 import { getFullImageUrl } from "../helper/imageHelper";
 
 const Checkout = () => {
   const { cart, addToCart, decreaseFromCart, removeFromCart } = useCart();
   const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(false);
   const cartLength = cart?.products.length || 0;
 
   useEffect(() => {
@@ -21,6 +22,7 @@ const Checkout = () => {
   }, [cart]);
 
   const handleCheckout = async () => {
+    setLoading(true);
     try {
       const { data } = await serverAPI.post(
         "/cart/checkout",
@@ -32,6 +34,8 @@ const Checkout = () => {
       }
     } catch (error) {
       console.error("Checkout error", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -44,22 +48,19 @@ const Checkout = () => {
             Shopping Cart
           </h2>
 
-          {/* Cart Items */}
           {cartLength > 0 ? (
-            <div className="border-b pb-4 space-y-4">
+            <div className="border-b pb-4 space-y-4 font-secondary">
               {cart?.products.map((item) => (
                 <div
                   key={item.productId._id}
                   className="grid grid-cols-[1fr_auto_auto] sm:grid-cols-[auto_1fr_auto_auto] gap-4 items-center bg-gray-50 p-4 rounded-md shadow-sm"
                 >
-                  {/* Product Image */}
                   <img
                     src={getFullImageUrl(item.productId.images[0])}
                     alt={item.productId.name}
                     className="w-16 h-16 object-cover rounded-md max-sm:hidden"
                   />
 
-                  {/* Product Info */}
                   <div>
                     <Link to={`/shop/product/${item.productId._id}`}>
                       <h3 className="text-lg font-semibold text-gray-800">
@@ -71,7 +72,6 @@ const Checkout = () => {
                     </p>
                   </div>
 
-                  {/* Quantity Controls */}
                   <div className="flex items-center space-x-2">
                     <button
                       onClick={() => decreaseFromCart(item.productId._id, 1)}
@@ -100,7 +100,6 @@ const Checkout = () => {
                       {(
                         parseFloat(item.productId.price) * item.quantity
                       ).toFixed(2)}
-                      {/* Remove Button */}
                     </div>
                     <button
                       onClick={() => removeFromCart(item.productId._id)}
@@ -113,27 +112,31 @@ const Checkout = () => {
               ))}
             </div>
           ) : (
-            <p className="text-center text-gray-500">Your cart is empty.</p>
+            <p className="text-center text-gray-500 font-secondary">
+              Your cart is empty.
+            </p>
           )}
 
-          {/* Total Price */}
-          <div className="flex justify-between items-center mt-6 text-lg font-semibold">
+          <div className="flex justify-between items-center mt-6 text-lg font-semibold font-secondary">
             <span className="text-gray-800">Total:</span>
             <span className="text-orange-600">${total.toFixed(2)}</span>
           </div>
 
-          {/* Checkout Button */}
           <button
             onClick={handleCheckout}
-            className="w-full mt-6 bg-orange-600 text-white py-3 rounded-md font-semibold hover:bg-orange-700 transition"
+            className="w-full font-secondary mt-6 bg-orange-500 text-white py-3 rounded-md font-semibold hover:bg-orange-600 transition flex items-center justify-center gap-2"
+            disabled={loading}
           >
-            Proceed to Payment
+            {loading ? (
+              <Loader2 size={20} className="animate-spin" />
+            ) : (
+              "Proceed to Payment"
+            )}
           </button>
 
-          {/* Continue Shopping Link */}
           <Link
             to="/shop"
-            className="block text-center mt-4 text-orange-500 hover:underline"
+            className="block text-center font-secondary mt-4 text-orange-500 hover:underline"
           >
             Continue Shopping
           </Link>

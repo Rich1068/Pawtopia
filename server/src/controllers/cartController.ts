@@ -195,7 +195,7 @@ export const cartCheckout = async (req: AuthRequest, res: Response) => {
       line_items: lineItems,
       mode: "payment",
       success_url: `${process.env.CLIENT_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.CLIENT_URL}/checkout/cancel`,
+      cancel_url: `${process.env.CLIENT_URL}/shop/checkout`,
       metadata: {
         userId: userId,
       },
