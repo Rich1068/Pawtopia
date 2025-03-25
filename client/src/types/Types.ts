@@ -154,3 +154,14 @@ export interface IUser {
   name: string;
   email?: string;
 }
+
+export interface IAdoptRequest {
+  _id: string;
+  petName: string;
+  adopterName: string;
+  reason: string;
+  status: "pending" | "approved" | "rejected";
+  createdAt: string;
+  name: string;
+  livingSituation: string;
+}

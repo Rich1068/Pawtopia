@@ -48,3 +48,32 @@ export const createAdoptRequest = async (req: AuthRequest, res: Response) => {
     res.status(500).json({ message: "Server error, please try again later." });
   }
 };
+
+export const getAdoptRequests = async (req: AuthRequest, res: Response) => {
+  try {
+    const { status } = req.query;
+
+    let filter: Record<string, any> = {};
+    if (status) {
+      filter.status = status; // Apply status filter if provided
+    }
+
+    const requests = await AdoptRequest.aggregate([
+      { $match: filter }, // ✅ Apply status filtering here
+      {
+        $addFields: {
+          sortOrder: {
+            $cond: { if: { $eq: ["$status", "pending"] }, then: 0, else: 1 },
+          },
+        },
+      },
+      { $sort: { sortOrder: 1, createdAt: -1 } },
+      { $project: { sortOrder: 0 } },
+    ]);
+
+    res.json(requests);
+  } catch (error) {
+    console.error("Error fetching adoption requests:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};

@@ -1,12 +1,6 @@
 import { NavLink } from "react-router";
 import { FC, useState } from "react";
-import {
-  LayoutGrid,
-  Calendar,
-  ShoppingBag,
-  Store,
-  ChevronDown,
-} from "lucide-react";
+import { LayoutGrid, Store, ChevronDown, PawPrint } from "lucide-react";
 import { IAdminLayout } from "../../../types/Types";
 
 const AdminSidebar: FC<IAdminLayout> = ({ isExpanded, setIsExpanded }) => {
@@ -27,8 +21,7 @@ const AdminSidebar: FC<IAdminLayout> = ({ isExpanded, setIsExpanded }) => {
         { name: "Orders", path: "/admin/orders/all" },
       ],
     },
-    { name: "Calendar", path: "/admin/calendar", icon: <Calendar /> },
-    { name: "Orders", path: "/admin/orders/all", icon: <ShoppingBag /> },
+    { name: "Adopt", path: "/admin/adopt/requests", icon: <PawPrint /> },
   ];
 
   return (
