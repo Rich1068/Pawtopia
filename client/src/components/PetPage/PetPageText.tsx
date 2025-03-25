@@ -4,9 +4,10 @@ import FavoriteButton from "../Adopt/FavoriteButton";
 
 interface IPetPageText {
   petData: petType | null;
+  setIsFormOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export const PetPageText: FC<IPetPageText> = ({ petData }) => {
+export const PetPageText: FC<IPetPageText> = ({ petData, setIsFormOpen }) => {
   if (!petData) return null;
 
   const {
@@ -76,6 +77,12 @@ export const PetPageText: FC<IPetPageText> = ({ petData }) => {
           />
         </div>
       )}
+      <button
+        className="mt-4 px-6 py-3 bg-orange-500 text-white font-semibold rounded-lg shadow-md hover:bg-orange-600 transition"
+        onClick={() => setIsFormOpen(true)}
+      >
+        Adopt Me
+      </button>
     </div>
   );
 };

@@ -54,7 +54,7 @@ export const PetCarousel: FC<IPetCarousel> = ({ petData, cleanImageUrl }) => {
   const swiperRef = useRef<SwiperClass | undefined>(undefined);
   return (
     <>
-      <div className="max-w-140 w-[100%] max:lg:w-[90%] max-sm:w-[80%] mx-auto">
+      <div className="max-w-100 w-[100%] max:lg:w-[90%] max-sm:w-[80%] mx-auto">
         <Swiper
           onSwiper={setMainSwiper}
           spaceBetween={10}
@@ -74,12 +74,12 @@ export const PetCarousel: FC<IPetCarousel> = ({ petData, cleanImageUrl }) => {
                   onClick={() => handleImageClick(getImageUrl(i))}
                   onError={(e) => (e.currentTarget.src = placeholderImage)}
                   alt="Pet"
-                  className="border rounded-xl border-orange-500 object-contain !h-auto !w-auto !max-h-125"
+                  className="border rounded-xl border-orange-500 object-contain !h-auto !w-auto"
                 />
               </SwiperSlide>
             ))
           ) : (
-            <SwiperSlide className="!w-full m-auto">
+            <SwiperSlide className="m-auto">
               <img
                 src="/assets/img/Logo1.png"
                 alt="Placeholder Logo"

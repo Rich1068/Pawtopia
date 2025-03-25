@@ -14,6 +14,7 @@ import cart from "./routes/cart";
 import bodyParser from "body-parser";
 import { handleCheckoutSuccess } from "./controllers/cartController";
 import order from "./routes/order";
+import adopt from "./routes/adopt";
 
 db_connection();
 dotenv.config();
@@ -45,6 +46,7 @@ app.use("/email", email);
 app.use("/product", product);
 app.use("/cart", cart);
 app.use("/order", order);
+app.use("/adopt", adopt);
 const port = process.env.PORT || 10000;
 app.listen(port, () => {
   console.log("Backend Server running at Port: " + port);

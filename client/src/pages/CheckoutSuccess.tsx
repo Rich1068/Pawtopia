@@ -48,9 +48,9 @@ const CheckoutSuccess = () => {
     <>
       <PageHeader />
       <div className="min-h-screen">
-        <div className="relative z-50 max-md:-mt-42 -mt-45 flex justify-center p-7">
+        <div className="relative z-50 max-md:-mt-40 -mt-35 flex justify-center p-7">
           <div className="bg-white shadow-xl rounded-lg p-8 w-full max-w-3xl text-center break-words text-amber-950 ">
-            <h2 className="text-3xl font-bold text-orange-600 font-primary">
+            <h2 className="text-3xl font-semibold text-orange-600 font-primary">
               🎉 Success!
             </h2>
             <p className="mt-2 text-gray-700 font-secondary">

@@ -24,6 +24,7 @@ const AdminSidebar: FC<IAdminLayout> = ({ isExpanded, setIsExpanded }) => {
       subItems: [
         { name: "Add Product", path: "/admin/add-product" },
         { name: "Product List", path: "/admin/product-list" },
+        { name: "Orders", path: "/admin/orders/all" },
       ],
     },
     { name: "Calendar", path: "/admin/calendar", icon: <Calendar /> },

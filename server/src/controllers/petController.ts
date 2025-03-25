@@ -66,5 +66,3 @@ export const getFavPets = async (
     res.status(500).json({ error: "Failed to fetch pet data" });
   }
 };
-
-export default { getAvailablePets, getPetDetail, getFavPets };
