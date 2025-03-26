@@ -165,3 +165,12 @@ export interface IAdoptRequest {
   name: string;
   livingSituation: string;
 }
+
+export interface IRawMessageHistory {
+  _id: string;
+  adoptionId: string;
+  sender: string;
+  message: string;
+  timestamp: string;
+  __v?: number;
+}

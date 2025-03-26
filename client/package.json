@@ -27,6 +27,7 @@
     "react-hot-toast": "^2.5.1",
     "react-modal": "^3.16.3",
     "react-router": "^7.1.5",
+    "socket.io-client": "^4.8.1",
     "swiper": "^11.2.4"
   },
   "devDependencies": {

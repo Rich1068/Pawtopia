@@ -14,6 +14,8 @@ import LoadingPage from "../../components/LoadingPage/LoadingPage";
 import TitleComponent from "../../components/shop/Admin/TitleComponent";
 import { IAdoptRequest } from "../../types/Types";
 import AdoptRequestTable from "../../components/AdoptRequest/AdoptRequestTable";
+import WarningModal from "../../components/WarningModal";
+import { useNavigate } from "react-router";
 
 const AdminAllAdoptRequests = () => {
   const [requests, setRequests] = useState<IAdoptRequest[]>([]);
@@ -21,11 +23,16 @@ const AdminAllAdoptRequests = () => {
   const [selectedRequest, setSelectedRequest] = useState<IAdoptRequest | null>(
     null
   );
+  const [warningAction, setWarningAction] = useState<
+    "approve" | "reject" | null
+  >(null);
+  const [isWarningModalOpen, setIsWarningModalOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [globalFilter, setGlobalFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState<
     "pending" | "approved" | "rejected"
   >("pending");
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchAdoptRequests();
@@ -55,34 +62,43 @@ const AdminAllAdoptRequests = () => {
     setSelectedRequest(null);
     setIsModalOpen(false);
   };
+  const confirmAction = async () => {
+    if (!selectedRequest || !warningAction) return;
 
-  const approveRequest = async (id: string) => {
     try {
-      await serverAPI.put(`/adoptions/${id}/approve`);
+      if (warningAction === "approve") {
+        await serverAPI.put(
+          `/adopt/${selectedRequest._id}/approve`,
+          {},
+          { withCredentials: true }
+        );
+      } else if (warningAction === "reject") {
+        await serverAPI.put(
+          `/adopt/${selectedRequest._id}/reject`,
+          {},
+          { withCredentials: true }
+        );
+      }
       fetchAdoptRequests();
     } catch (error) {
-      console.error("Failed to approve request", error);
+      console.error(`Failed to ${warningAction} request`, error);
+    } finally {
+      setIsWarningModalOpen(false);
     }
   };
-
-  const rejectRequest = async (id: string) => {
+  const startChat = async (adoptionId: string, petName: string) => {
     try {
-      await serverAPI.put(`/adoptions/${id}/reject`);
-      fetchAdoptRequests();
-    } catch (error) {
-      console.error("Failed to reject request", error);
-    }
-  };
-
-  const startChat = async (adoptionId: string) => {
-    try {
-      const { data } = await serverAPI.post(`/chat/start`, { adoptionId });
-      window.location.href = `/chat/${data.chatId}`;
+      const { data } = await serverAPI.post("/chat/start", {
+        adoptionId,
+        petName,
+      });
+      navigate(
+        `/admin/chat/${data.chatId}?petName=${encodeURIComponent(petName)}`
+      );
     } catch (error) {
       console.error("Failed to start chat", error);
     }
   };
-
   const columns: ColumnDef<IAdoptRequest>[] = [
     {
       accessorKey: "petName",
@@ -131,16 +147,14 @@ const AdminAllAdoptRequests = () => {
               <Eye
                 size={24}
                 className="sm:hidden p-1 rounded-full text-white bg-blue-500 "
-              />{" "}
-              {/* Icon for mobile */}
+              />
               <span className="hidden sm:inline">View Details</span>{" "}
-              {/* Text for large screens */}
             </button>
 
             {/* Start Chat */}
             <button
               className="text-purple-500 hover:text-purple-700 flex items-center"
-              onClick={() => startChat(request._id)}
+              onClick={() => startChat(request._id, request.petName)}
             >
               <MessageSquare
                 size={24}
@@ -152,7 +166,11 @@ const AdminAllAdoptRequests = () => {
             {/* Approve Request */}
             <button
               className="text-green-500 hover:text-green-700 flex items-center"
-              onClick={() => approveRequest(request._id)}
+              onClick={() => {
+                setSelectedRequest(request);
+                setWarningAction("approve");
+                setIsWarningModalOpen(true);
+              }}
             >
               <Check
                 size={24}
@@ -164,7 +182,11 @@ const AdminAllAdoptRequests = () => {
             {/* Reject Request */}
             <button
               className="text-red-500 hover:text-red-700 flex items-center"
-              onClick={() => rejectRequest(request._id)}
+              onClick={() => {
+                setSelectedRequest(request);
+                setWarningAction("reject");
+                setIsWarningModalOpen(true);
+              }}
             >
               <X
                 size={24}
@@ -209,6 +231,18 @@ const AdminAllAdoptRequests = () => {
         isOpen={isModalOpen}
         onClose={closeModal}
         request={selectedRequest}
+      />
+      <WarningModal
+        header={
+          warningAction === "approve"
+            ? "Approve Adoption Request"
+            : "Reject Adoption Request"
+        }
+        text={`Are you sure you want to ${warningAction} this adoption request?`}
+        isModalOpen={isWarningModalOpen}
+        setIsModalOpen={setIsWarningModalOpen}
+        confirmText={warningAction === "approve" ? "Approve" : "Reject"}
+        onConfirm={confirmAction}
       />
     </div>
   );

@@ -26,6 +26,8 @@ import CheckoutSuccess from "./pages/CheckoutSuccess";
 import OrderHistory from "./pages/OrderHistory";
 import AdminOrderHistory from "./pages/Admin/AdminOrderHistory";
 import AdminAllAdoptRequests from "./pages/Admin/AdminAllAdoptRequest";
+import ChatPage from "./pages/Admin/ChatPage";
+import ChatBubble from "./components/ChatBubble";
 
 axios.defaults.withCredentials = true;
 
@@ -52,6 +54,7 @@ function App() {
           <Route path="/shop/product/:id" element={<ViewProduct />} />
           <Route path="/checkout/success" element={<CheckoutSuccess />} />
           <Route path="/order-history" element={<OrderHistory />} />
+          <Route path="/chat/:adoptionId" element={<ChatPage />} />
         </Route>
         <Route element={<AdminLayout />}>
           <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
@@ -65,9 +68,11 @@ function App() {
               path="/admin/adopt/requests"
               element={<AdminAllAdoptRequests />}
             />
+            <Route path="/admin/chat/:adoptionId" element={<ChatPage />} />
           </Route>
         </Route>
       </Routes>
+      <ChatBubble />
     </>
   );
 }
