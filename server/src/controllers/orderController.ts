@@ -37,17 +37,7 @@ export const getOrderHistory = async (req: AuthRequest, res: Response) => {
 
 export const getAllOrders = async (req: Request, res: Response) => {
   try {
-    const { date } = req.query;
-    let query: any = {};
-
-    if (date && typeof date === "string") {
-      const startDate = new Date(date + "T00:00:00.000Z");
-      const endDate = new Date(date + "T23:59:59.999Z");
-
-      query.createdAt = { $gte: startDate, $lte: endDate };
-    }
-
-    const orders = await Order.find(query)
+    const orders = await Order.find()
       .populate("userId", "name email")
       .sort({ createdAt: -1 });
 
