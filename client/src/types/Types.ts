@@ -83,3 +83,8 @@ export interface FavoritePets {
   petImage: string;
   petName: string;
 }
+
+export interface IAdminLayout {
+  isExpanded: boolean;
+  setIsExpanded?: React.Dispatch<React.SetStateAction<boolean>>;
+}

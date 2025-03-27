@@ -1,13 +1,14 @@
 import { Link, NavLink } from "react-router";
-import { useRef, useContext, useEffect, useState } from "react";
+import { useRef, useEffect, useState } from "react";
 import { PawPrint, LogOut, Menu, X, UserRound, Heart } from "lucide-react";
-import { AuthContext } from "../context/AuthContext";
-import { useFavorites } from "../context/FavoritesContext";
+import { useAuth } from "../../../context/AuthContext";
+import { useFavorites } from "../../../context/FavoritesContext";
+import Logo from "../../Logo";
 
-const NavBar = () => {
+const UserNavBar = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isFavoriteOpen, setIsFavoriteOpen] = useState<boolean>(false);
-  const { user, logout, loading } = useContext(AuthContext)!;
+  const { user, logout, loading } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [closing, setClosing] = useState(false);
   const favoriteDropdownRef = useRef<HTMLDivElement>(null);
@@ -50,22 +51,11 @@ const NavBar = () => {
   };
 
   return (
-    <header className="flex fixed shadow-md py-3 px-8 sm:m-auto bg-white font-sans min-h-[70px] tracking-wide z-200 mx-auto rounded-b-xl min-w-screen w-auto">
+    <header className="flex fixed shadow-md py-3 max-sm:px-6 sm:px-10 sm:m-auto bg-white min-h-[70px] tracking-wide z-200 mx-auto rounded-b-xl w-full">
       <div className="flex flex-wrap flex-row items-center justify-between gap-5 w-full">
         {/* Logo */}
 
-        <NavLink to="/" data-testid="logo-nav">
-          <div className="flex">
-            <img
-              src="/assets/img/Logo1.png"
-              alt="logo"
-              className="w-12 m-2 mr-3 block"
-            />
-            <h1 className="text-3xl font-semibold text-orange-600 content-center font-primary">
-              Pawtopia
-            </h1>
-          </div>
-        </NavLink>
+        <Logo />
 
         {/* Desktop Navigation */}
         <nav className="max-lg:hidden lg:block absolute left-1/2 transform -translate-x-1/2">
@@ -183,6 +173,15 @@ const NavBar = () => {
                     >
                       Profile
                     </NavLink>
+                    {user!.role === "admin" ? (
+                      <NavLink
+                        to="/admin/dashboard"
+                        className="block px-4 py-2 font-secondary font-semibold hover:bg-gray-100"
+                        onClick={() => setDropdownOpen(false)}
+                      >
+                        Dashboard
+                      </NavLink>
+                    ) : null}
                     <button
                       onClick={() => {
                         logout();
@@ -352,4 +351,4 @@ const NavBar = () => {
   );
 };
 
-export default NavBar;
+export default UserNavBar;
