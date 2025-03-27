@@ -68,3 +68,93 @@ export const createAdoptRequest = async (req: AuthRequest, res: Response) => {
     res.status(500).json({ message: "Server error, please try again later." });
   }
 };
+
+export const getAdoptRequests = async (req: AuthRequest, res: Response) => {
+  try {
+    const { status } = req.query;
+
+    let filter: Record<string, any> = {};
+    if (status) {
+      filter.status = status; // Apply status filter if provided
+    }
+
+    const requests = await AdoptRequest.aggregate([
+      { $match: filter },
+      {
+        $addFields: {
+          sortOrder: {
+            $cond: { if: { $eq: ["$status", "pending"] }, then: 0, else: 1 },
+          },
+        },
+      },
+      { $sort: { sortOrder: 1, createdAt: -1 } },
+      { $project: { sortOrder: 0 } },
+    ]);
+
+    res.json(requests);
+  } catch (error) {
+    console.error("Error fetching adoption requests:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const approveAdoptRequest = async (req: AuthRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      res.status(400).json({ error: "No Request ID detected" });
+      return;
+    }
+    const request = await AdoptRequest.findById(id);
+    if (!request) {
+      res.status(404).json({ error: "Adoption request not found" });
+      return;
+    }
+
+    if (request.status === "approved") {
+      res.status(400).json({ error: "Request is already approved" });
+      return;
+    }
+    request.status = "approved";
+
+    await request.save();
+    res.status(200).json({ message: "Adoption request approved", request });
+    return;
+  } catch (error) {
+    console.error("Error approving request:", error);
+    res.status(500).json({ message: "Server error" });
+    return;
+  }
+};
+
+export const rejectAdoptRequest = async (req: AuthRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      res.status(400).json({ error: "No Request ID detected" });
+      return;
+    }
+
+    const request = await AdoptRequest.findById(id);
+    if (!request) {
+      res.status(404).json({ error: "Adoption request not found" });
+      return;
+    }
+
+    if (request.status === "rejected") {
+      res.status(400).json({ error: "Request is already rejected" });
+      return;
+    }
+
+    request.status = "rejected";
+    await request.save();
+
+    res.status(200).json({ message: "Adoption request rejected", request });
+    return;
+  } catch (error) {
+    console.error("Error rejecting request:", error);
+    res.status(500).json({ error: "Server error" });
+    return;
+  }
+};

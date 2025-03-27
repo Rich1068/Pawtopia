@@ -1,4 +1,4 @@
-import { Bell, Menu } from "lucide-react";
+import { Menu } from "lucide-react";
 import { FC } from "react";
 import type { IAdminLayout } from "../../../types/Types";
 import Logo from "../../Logo";
@@ -32,10 +32,6 @@ const AdminNavbar: FC<IAdminLayout> = ({ isExpanded, setIsExpanded }) => {
 
       {/* Notification & Profile Icons */}
       <div className="flex items-center gap-6 max-sm:gap-2 pr-2 sm:pr-4">
-        <Bell
-          size={28}
-          className="cursor-pointer hover:text-orange-500 transition"
-        />
         <ProfileDropdown />
       </div>
     </nav>

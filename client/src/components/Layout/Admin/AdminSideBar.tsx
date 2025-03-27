@@ -1,6 +1,6 @@
 import { NavLink, useLocation } from "react-router";
 import { FC, useState } from "react";
-import { LayoutGrid, Store, ChevronDown } from "lucide-react";
+import { LayoutGrid, Store, ChevronDown, PawPrint } from "lucide-react";
 import { IAdminLayout } from "../../../types/Types";
 
 const AdminSidebar: FC<IAdminLayout> = ({ isExpanded, setIsExpanded }) => {
@@ -19,6 +19,7 @@ const AdminSidebar: FC<IAdminLayout> = ({ isExpanded, setIsExpanded }) => {
         { name: "Orders", path: "/admin/orders/all" },
       ],
     },
+    { name: "Adopt", path: "/admin/adopt/requests", icon: <PawPrint /> },
   ];
   const isStoreActive = navItems
     .find((item) => item.name === "Store")
