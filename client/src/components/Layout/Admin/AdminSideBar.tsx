@@ -1,5 +1,5 @@
 import { NavLink } from "react-router";
-import { FC } from "react";
+import { FC, useState } from "react";
 import {
   LayoutGrid,
   Calendar,
@@ -7,12 +7,26 @@ import {
   List,
   Table,
   FileText,
+  Store,
+  ChevronDown,
 } from "lucide-react";
 import { IAdminLayout } from "../../../types/Types";
 
 const AdminSidebar: FC<IAdminLayout> = ({ isExpanded }) => {
+  const [isStoreOpen, setIsStoreOpen] = useState(false);
+
   const navItems = [
     { name: "Dashboard", path: "/admin/dashboard", icon: <LayoutGrid /> },
+    {
+      name: "Store",
+      icon: <Store />,
+      path: "",
+      isDropdown: true,
+      subItems: [
+        { name: "Inventory", path: "/admin/inventory" },
+        { name: "Error 404", path: "/admin/pages/404" },
+      ],
+    },
     { name: "Calendar", path: "/admin/calendar", icon: <Calendar /> },
     { name: "User Profile", path: "/admin/profile", icon: <UserCircle /> },
     { name: "Forms", path: "/admin/forms", icon: <List /> },
@@ -22,7 +36,7 @@ const AdminSidebar: FC<IAdminLayout> = ({ isExpanded }) => {
 
   return (
     <aside
-      className={`fixed top-0 left-0 pt-20 z-50 h-screen bg-white text-amber-950 transition-all duration-400 ease-in-out font-primary text-md font-medium flex flex-col
+      className={`fixed top-0 left-0 pt-20 z-50 h-screen bg-white text-amber-950 transition-all duration-400 ease-in-out font-primary text-lg font-medium flex flex-col
       ${
         isExpanded
           ? "w-60 translate-x-0 opacity-100"
@@ -31,23 +45,57 @@ const AdminSidebar: FC<IAdminLayout> = ({ isExpanded }) => {
     `}
     >
       <nav className="mt-2 flex flex-col gap-2 p-2 px-4">
-        {navItems.map(({ name, path, icon }) => (
-          <NavLink
-            key={name}
-            to={path}
-            className={({ isActive }) =>
-              `rounded-xl flex items-center px-2 py-3 transition ${
-                isExpanded ? "gap-4 justify-start" : "justify-center"
-              } ${
-                isActive
-                  ? "bg-orange-300/25 text-orange-600"
-                  : "hover:bg-orange-50"
-              }`
-            }
-          >
-            {icon} {isExpanded && <span>{name}</span>}
-          </NavLink>
-        ))}
+        {navItems.map(({ name, path, icon, isDropdown, subItems }) =>
+          isDropdown ? (
+            <div key={name} className="flex flex-col">
+              <button
+                onClick={() => isExpanded && setIsStoreOpen(!isStoreOpen)}
+                className={`rounded-xl flex items-center px-2 py-3 transition w-full ${
+                  isExpanded ? "gap-4 justify-start" : "justify-center"
+                } hover:bg-orange-50`}
+              >
+                {icon} {isExpanded && <span>{name}</span>}
+                {isExpanded && (
+                  <ChevronDown
+                    size={18}
+                    className={`ml-auto transition-transform ${
+                      isStoreOpen ? "rotate-180" : ""
+                    }`}
+                  />
+                )}
+              </button>
+              {isExpanded && isStoreOpen && (
+                <div className="flex flex-col pl-10 text-base">
+                  {subItems?.map(({ name, path }) => (
+                    <NavLink
+                      key={name}
+                      to={path}
+                      className="rounded-lg px-2 py-2 transition hover:bg-orange-50"
+                    >
+                      {name}
+                    </NavLink>
+                  ))}
+                </div>
+              )}
+            </div>
+          ) : (
+            <NavLink
+              key={name}
+              to={path}
+              className={({ isActive }) =>
+                `rounded-xl flex items-center px-2 py-3 transition ${
+                  isExpanded ? "gap-4 justify-start" : "justify-center"
+                } ${
+                  isActive
+                    ? "bg-orange-300/25 text-orange-600"
+                    : "hover:bg-orange-50"
+                }`
+              }
+            >
+              {icon} {isExpanded && <span>{name}</span>}
+            </NavLink>
+          )
+        )}
       </nav>
     </aside>
   );
