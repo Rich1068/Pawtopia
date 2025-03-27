@@ -71,7 +71,6 @@ export const getList = async (req: Request, res: Response) => {
 
     const query: any = {};
 
-    // Filtering by search (checks product name & description)
     if (search) {
       query.$or = [
         { name: { $regex: search, $options: "i" } }, // Case-insensitive search
@@ -82,10 +81,9 @@ export const getList = async (req: Request, res: Response) => {
       const categoryArray = (categories as string).split(",");
       query.category = { $in: categoryArray };
     }
-    // Get total count for pagination
+
     const total = await Product.countDocuments(query);
 
-    // Fetch paginated and sorted products
     const productList = await Product.find(query)
       .sort({ [sortBy as string]: sortOrder })
       .skip((pageNumber - 1) * limitNumber)
@@ -161,18 +159,25 @@ export const editProduct = async (req: Request, res: Response) => {
 export const deleteProduct = async (req: Request, res: Response) => {
   try {
     const productId = req.params.id;
-
     const product = await Product.findById(productId).exec();
+
     if (!product) {
       res.status(404).json({ error: "Product does not exist" });
       return;
     }
 
-    const deletedProduct = await Product.findByIdAndDelete(productId).exec();
-    if (!deletedProduct) {
-      res.status(500).json({ error: "Failed to delete product" });
-      return;
+    if (product.images && product.images.length > 0) {
+      product.images.forEach((imagePath: string) => {
+        const fullPath = path.join(__dirname, "../../src", imagePath);
+        fs.unlink(fullPath, (err) => {
+          if (err) {
+            console.warn("Failed to delete image:", fullPath, err.message);
+          }
+        });
+      });
     }
+
+    await Product.findByIdAndDelete(productId).exec();
     res.status(200).json({ message: "Product successfully deleted" });
     return;
   } catch (error) {
