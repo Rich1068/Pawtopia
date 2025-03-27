@@ -21,16 +21,15 @@ export const contact = async (req: Request, res: Response) => {
       process.env.SMTP_GMAIL_ACC
         ? process.env.SMTP_GMAIL_ACC
         : "pawtopia21@gmail.com",
-      email,
       "Contact Form Submission",
       `<h1>New Message from ${fullname}</h1>
         <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Message:</strong> ${message}</p>`
+        <p><strong>Message:</strong> ${message}</p>`,
+      email
     );
     res.json({ success: "Message sent successfully!" });
   } catch (error) {
     res.status(500).json({ error: "Failed to send email." });
   }
 };
-
 export default contact;
