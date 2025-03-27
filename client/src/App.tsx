@@ -24,6 +24,7 @@ import ViewProduct from "./pages/Admin/ViewProduct";
 import Checkout from "./pages/Checkout";
 import CheckoutSuccess from "./pages/CheckoutSuccess";
 import OrderHistory from "./pages/OrderHistory";
+import AdminOrderHistory from "./pages/Admin/AdminOrderHistory";
 
 axios.defaults.withCredentials = true;
 
@@ -58,6 +59,7 @@ function App() {
             <Route path="/admin/product-list" element={<ProductList />} />
             <Route path="/admin/product/:id" element={<ViewProduct />} />
             <Route path="/admin/product/edit/:id" element={<EditProduct />} />
+            <Route path="/admin/orders/all" element={<AdminOrderHistory />} />
           </Route>
         </Route>
       </Routes>

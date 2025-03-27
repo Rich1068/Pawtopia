@@ -3,10 +3,7 @@ import { FC, useState } from "react";
 import {
   LayoutGrid,
   Calendar,
-  UserCircle,
-  List,
-  Table,
-  FileText,
+  ShoppingBag,
   Store,
   ChevronDown,
 } from "lucide-react";
@@ -30,10 +27,7 @@ const AdminSidebar: FC<IAdminLayout> = ({ isExpanded, setIsExpanded }) => {
       ],
     },
     { name: "Calendar", path: "/admin/calendar", icon: <Calendar /> },
-    { name: "User Profile", path: "/admin/profile", icon: <UserCircle /> },
-    { name: "Forms", path: "/admin/forms", icon: <List /> },
-    { name: "Tables", path: "/admin/tables", icon: <Table /> },
-    { name: "Pages", path: "/admin/pages", icon: <FileText /> },
+    { name: "Orders", path: "/admin/orders/all", icon: <ShoppingBag /> },
   ];
 
   return (

@@ -6,27 +6,29 @@ import {
   getPaginationRowModel,
   getFilteredRowModel,
 } from "@tanstack/react-table";
-import serverAPI from "../helper/axios";
-import OrderTable from "../components/OrderHistory/OrderTable";
-import LoadingPage from "../components/LoadingPage/LoadingPage";
-import type { IOrder } from "../types/Types";
-import PageHeader from "../components/PageHeader";
-import OrderDetailsModal from "../components/OrderHistory/OrderDetailModal";
-import OrderFilters from "../components/OrderHistory/OrderFilters";
+import serverAPI from "../../helper/axios";
+import OrderTable from "../../components/OrderHistory/OrderTable";
+import LoadingPage from "../../components/LoadingPage/LoadingPage";
+import OrderDetailsModal from "../../components/OrderHistory/OrderDetailModal";
+import type { IOrder } from "../../types/Types";
+import TitleComponent from "../../components/shop/Admin/TitleComponent";
+import OrderFilters from "../../components/OrderHistory/OrderFilters";
 
-const OrderHistory = () => {
+const AdminOrderHistory = () => {
   const [orders, setOrders] = useState<IOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<IOrder | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [globalFilter, setGlobalFilter] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
-
+  console.log(selectedDate);
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const response = await serverAPI.get("/order/history", {
+        const response = await serverAPI.get("/order/all", {
           withCredentials: true,
         });
+        console.log("Fetched Orders:", response.data);
         setOrders(response.data);
       } catch (error) {
         console.error("Error fetching orders:", error);
@@ -36,7 +38,7 @@ const OrderHistory = () => {
     };
 
     fetchOrders();
-  }, []);
+  }, [selectedDate]);
 
   const filteredOrders = useMemo(() => {
     if (!selectedDate) return orders;
@@ -49,29 +51,41 @@ const OrderHistory = () => {
     });
   }, [orders, selectedDate]);
 
+  const openModal = (order: IOrder) => {
+    setSelectedOrder(order);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setSelectedOrder(null);
+    setIsModalOpen(false);
+  };
+
   const columns: ColumnDef<IOrder>[] = [
     {
       accessorKey: "orderId",
       header: "Order ID",
       cell: ({ getValue }) => {
         const orderId: string = getValue<string>();
-
         return (
-          <span className="cursor-pointer" title={orderId}>
+          <span title={orderId}>
             {orderId.length > 10 ? orderId.slice(0, 10) + "..." : orderId}
           </span>
         );
       },
     },
     {
-      accessorKey: "createdAt",
-      header: "Date",
-      cell: ({ getValue }) => new Date(getValue<Date>()).toLocaleDateString(),
+      accessorKey: "userId",
+      header: "Customer",
+      cell: ({ row }) => {
+        const user = row.original.userId;
+        return typeof user === "string" ? "Unknown" : user.name;
+      },
     },
     {
-      accessorKey: "totalAmount",
-      header: "Total Amount",
-      cell: ({ getValue }) => `$${getValue<number>().toFixed(2)}`,
+      accessorKey: "createdAt",
+      header: "Date",
+      cell: ({ getValue }) => new Date(getValue<string>()).toLocaleDateString(),
     },
     {
       id: "actions",
@@ -79,7 +93,7 @@ const OrderHistory = () => {
       cell: ({ row }) => (
         <button
           className="text-orange-500 hover:underline"
-          onClick={() => setSelectedOrder(row.original)}
+          onClick={() => openModal(row.original)}
         >
           View Details
         </button>
@@ -103,26 +117,24 @@ const OrderHistory = () => {
 
   return (
     <div className="relative font-primary text-amber-950">
-      <PageHeader text="Order History" />
-      <div className="p-4 sm:p-6 rounded-xl min-h-screen">
-        <div className="sm:px-[6%]">
-          <OrderFilters
-            globalFilter={globalFilter}
-            selectedDate={selectedDate}
-            setSelectedDate={setSelectedDate}
-            setGlobalFilter={setGlobalFilter}
-            table={table}
-          />
-        </div>
-        <OrderTable table={table} />
+      <TitleComponent text={"Order History"} />
+      <div className="p-4 sm:p-6 bg-white rounded-xl min-h-screen">
+        <OrderFilters
+          globalFilter={globalFilter}
+          selectedDate={selectedDate}
+          setSelectedDate={setSelectedDate}
+          setGlobalFilter={setGlobalFilter}
+          table={table}
+        />
+        <OrderTable table={table} style="!p-0" />
       </div>
       <OrderDetailsModal
-        isOpen={!!selectedOrder}
-        onClose={() => setSelectedOrder(null)}
+        isOpen={isModalOpen}
+        onClose={closeModal}
         order={selectedOrder}
       />
     </div>
   );
 };
 
-export default OrderHistory;
+export default AdminOrderHistory;

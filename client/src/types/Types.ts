@@ -140,11 +140,17 @@ export interface IOrderProduct {
 
 export interface IOrder {
   _id?: string;
-  userId: string;
+  userId: string | IUser;
   products: IOrderProduct[];
   orderId: string;
   paymentId?: string;
   totalAmount: number;
   createdAt?: string;
   updatedAt?: string;
+}
+
+export interface IUser {
+  _id: string;
+  name: string;
+  email?: string;
 }

@@ -34,7 +34,7 @@ export const Register = () => {
         password: "",
         confirmPassword: "",
       });
-      toast.success("Login Successful. Welcome");
+      toast.success("Registered Successfully, Please Log In");
       navigate("/login");
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
