@@ -21,25 +21,29 @@ const AdminDashboard = () => {
     );
 
   return (
-    <div>
+    <div className="flex flex-col">
       {/* Dashboard Cards */}
-      <DashboardCards
-        stats={{
-          totalProducts: data.totalProducts,
-          totalRevenue: data.totalRevenue,
-          totalAdoptions: data.totalAdoptions,
-          totalPendingAdoptions: data.totalPendingAdoptions,
-        }}
-      />
-
+      <div className="flex-1 w-full">
+        <DashboardCards
+          stats={{
+            totalProducts: data.totalProducts,
+            totalRevenue: data.totalRevenue,
+            totalAdoptions: data.totalAdoptions,
+            totalPendingAdoptions: data.totalPendingAdoptions,
+          }}
+        />
+      </div>
       {/* Placeholder for Graphs and Tables */}
       <div className="mt-6">
         <h2 className="text-xl font-semibold">Charts & Reports</h2>
-        <div className="flex w-full px-4 gap-x-4">
-          <div className="flex-1 w-full">
+        <div className="flex flex-col lg:flex-row w-full px-4 gap-6">
+          {/* Chart Container */}
+          <div className="flex-1 w-full min-w-[300px]">
             <AdoptionChart />
           </div>
-          <div className="flex-1 w-full">
+
+          {/* Table Container */}
+          <div className="flex-1 w-full min-w-[300px]">
             <PendingRequestsTable />
           </div>
         </div>

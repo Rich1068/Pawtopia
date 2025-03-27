@@ -77,7 +77,7 @@ const AdoptionChart = () => {
     fetchData();
   }, []);
   const options = {
-    maintainAspectRatio: false, // Allows manual height control
+    maintainAspectRatio: false,
     responsive: true,
     plugins: {
       legend: {
@@ -87,19 +87,34 @@ const AdoptionChart = () => {
     scales: {
       y: {
         ticks: {
-          stepSize: 1, // Ensures integer steps
+          autoSkip: true,
+          stepSize: 1,
+        },
+      },
+      x: {
+        ticks: {
+          autoSkip: false,
+          maxRotation: 30,
+          minRotation: 0,
+          font: {
+            size: 12,
+          },
         },
       },
     },
   };
 
   return (
-    <div className="bg-white p-4 shadow-md rounded-lg">
+    <div className="bg-white p-4 shadow-md rounded-lg w-full">
       <h2 className="text-lg font-semibold mb-3 text-gray-700">
         Total Adoptions Per Month
       </h2>
-      <div className="">
-        <Bar data={chartData} options={options} />
+      <div className="w-full overflow-x-auto">
+        {/* Enables horizontal scroll */}
+        <div className="min-w-[300px]">
+          {/* Ensures enough space */}
+          <Bar data={chartData} options={options} />
+        </div>
       </div>
     </div>
   );

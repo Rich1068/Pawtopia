@@ -1,14 +1,20 @@
 import { useEffect, useState } from "react";
 import { ColumnDef, getCoreRowModel } from "@tanstack/react-table";
 import { useReactTable } from "@tanstack/react-table";
-import AdoptRequestTable from "../AdoptRequest/AdoptRequestTable";
 import { IAdoptRequest } from "../../types/Types";
 import serverAPI from "../../helper/axios";
+import RequestTable from "./RequestTable";
+import AdoptRequestModal from "../AdoptRequest/AdoptRequestModal";
+import { Eye } from "lucide-react";
+import { Link } from "react-router";
 
 const PendingRequestsTable = () => {
   const [data, setData] = useState<IAdoptRequest[]>([]);
   const [loading, setLoading] = useState(true);
-
+  const [selectedRequest, setSelectedRequest] = useState<IAdoptRequest | null>(
+    null
+  );
+  const [isModalOpen, setIsModalOpen] = useState(false);
   useEffect(() => {
     const fetchRequests = async () => {
       try {
@@ -25,6 +31,16 @@ const PendingRequestsTable = () => {
 
     fetchRequests();
   }, []);
+
+  const openModal = (request: IAdoptRequest) => {
+    setSelectedRequest(request);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setSelectedRequest(null);
+    setIsModalOpen(false);
+  };
 
   const columns: ColumnDef<IAdoptRequest>[] = [
     {
@@ -56,15 +72,29 @@ const PendingRequestsTable = () => {
       cell: (info) => new Date(info.getValue<string>()).toLocaleDateString(),
     },
     {
+      id: "actions",
       header: "Actions",
-      cell: (info) => (
-        <button
-          className="text-blue-600 hover:underline"
-          onClick={() => console.log("View details of", info.row.original._id)}
-        >
-          View Details
-        </button>
-      ),
+      cell: ({ row }) => {
+        const request = row.original;
+
+        return (
+          <div className="flex gap-3 sm:gap-2 justify-center">
+            {/* View Details */}
+            <button
+              className="text-blue-500 hover:text-blue-700 flex items-center"
+              onClick={() => openModal(request)}
+            >
+              <Eye
+                size={26}
+                className="sm:hidden p-1 rounded-full text-white bg-blue-500 "
+              />{" "}
+              {/* Icon for mobile */}
+              <span className="hidden sm:inline">View Details</span>{" "}
+              {/* Text for large screens */}
+            </button>
+          </div>
+        );
+      },
     },
   ];
 
@@ -78,10 +108,22 @@ const PendingRequestsTable = () => {
 
   return (
     <div className="bg-white shadow-md rounded-lg p-4">
-      <h2 className="text-xl font-semibold text-gray-700 mb-3">
-        Latest Pending Adoption Requests
-      </h2>
-      <AdoptRequestTable table={table} style="!p-0" />
+      <div className="flex justify-between px-1">
+        <h2 className="text-xl font-semibold text-gray-700">
+          Latest Pending Adoption Requests
+        </h2>
+        <Link to="/admin/adopt/requests">
+          <button className="px-4 py-2 text-sm font-medium text-orange-600 border border-orange-600 rounded-md hover:bg-orange-50 transition">
+            View All Requests
+          </button>
+        </Link>
+      </div>
+      <RequestTable table={table} style="!p-0" />
+      <AdoptRequestModal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        request={selectedRequest}
+      />
     </div>
   );
 };
