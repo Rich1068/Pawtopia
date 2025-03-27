@@ -63,12 +63,12 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({
 
   return (
     <div
-      className="relative inline-block text-left w-full mb-2"
+      className="relative inline-block text-left w-full mb-2 font-primary text-amber-950"
       ref={dropdownRef}
     >
       <label className="font-primary text-lg text-amber-950">Category</label>
       <div
-        className="border border-gray-300 overflow-y-scroll max-h-30 p-2 rounded-lg bg-white flex flex-wrap gap-2 min-h-[42px] cursor-pointer"
+        className="border my-2 border-gray-300 overflow-y-scroll max-h-30 p-2 rounded-lg bg-white flex flex-wrap gap-2 min-h-[42px] cursor-pointer"
         onClick={() => setDropdownOpen(!dropdownOpen)}
       >
         {selectedCategories.length > 0 ? (
@@ -91,7 +91,7 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({
             </span>
           ))
         ) : (
-          <span className="text-gray-400">Select or add categories</span>
+          <span className="text-gray-400/70">Select or add categories</span>
         )}
         <button type="button" className="ml-auto text-gray-600">
           {dropdownOpen ? "▲" : "▼"}

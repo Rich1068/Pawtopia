@@ -2,6 +2,7 @@ import express from "express";
 import {
   addProduct,
   getCategory,
+  getList,
   uploadImage,
 } from "../controllers/productController";
 import tokenAuth from "../middlewares/tokenAuth";
@@ -17,4 +18,5 @@ product.post(
   uploadImage
 );
 product.post("/add-product", tokenAuth, addProduct);
+product.get("/list", getList);
 export default product;

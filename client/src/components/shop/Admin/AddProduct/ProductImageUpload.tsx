@@ -58,8 +58,8 @@ const ProductImageUpload = ({
       {/* Dropzone Area */}
       <div
         className={`border-2 ${
-          isDragging ? "border-blue-500" : "border-gray-300"
-        } border-dashed p-6 mb-4 rounded-lg flex flex-col items-center justify-center cursor-pointer transition-all duration-200`}
+          isDragging ? "border-orange-500" : "border-gray-300"
+        } border-dashed p-6 mb-4 rounded-lg my-2 flex flex-col items-center justify-center cursor-pointer transition-all duration-200`}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
@@ -74,7 +74,7 @@ const ProductImageUpload = ({
           onChange={handleFileChange}
           data-testid="image-upload"
         />
-        <p className="text-gray-500">
+        <p className="text-gray-500 font-primary">
           {isDragging
             ? "Drop your images here..."
             : "Drag & drop images here or click to upload"}
