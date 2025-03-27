@@ -15,8 +15,8 @@ export const WarningContainer: FC<IWarningContainer> = ({
   onConfirm,
 }) => {
   return (
-    <div className="absolute left-0 right-0 py-10 flex items-center justify-center z-[999]">
-      <div className="bg-white w-96 flex flex-col p-6 rounded-lg shadow-lg max-w-sm font-primary">
+    <div className="absolute left-0 right-0 py-10 flex items-center justify-center z-150 pointer-events-none">
+      <div className="bg-white w-96 flex flex-col p-6 rounded-lg shadow-lg max-w-sm font-primary pointer-events-auto">
         <div className="text-orange-600 flex flex-col items-center text-center">
           <FontAwesomeIcon icon={faPaw} size="3x" />
           <h2 className="text-2xl font-semibold text-gray-700">{header}</h2>

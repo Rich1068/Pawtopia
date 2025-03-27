@@ -95,32 +95,34 @@ const AdoptContainer: FC<IAdoptContainer> = ({ allPets }) => {
           />
         </div>
       </div>
-      <div className="pb-7">
-        <ReactPaginate
-          forcePage={currentPage - 1}
-          previousLabel={"← Previous"}
-          nextLabel={"Next →"}
-          breakLabel={"..."}
-          pageCount={pageCount}
-          marginPagesDisplayed={2}
-          pageRangeDisplayed={3}
-          onPageChange={handlePageClick}
-          containerClassName={"flex justify-center space-x-2 mt-8"}
-          activeLinkClassName={"bg-orange-600 text-white"}
-          pageLinkClassName={
-            "border border-gray-300 px-3 py-1 rounded-md cursor-pointer"
-          }
-          previousLinkClassName={
-            "border border-gray-300 px-3 py-1 rounded-md cursor-pointer"
-          }
-          nextLinkClassName={
-            "border border-gray-300 px-3 py-1 rounded-md cursor-pointer"
-          }
-          breakLinkClassName={
-            "border border-gray-300 px-3 py-1 rounded-md cursor-pointer"
-          }
-        />
-      </div>
+      {filteredPets.length !== 0 ? (
+        <div className="pb-7">
+          <ReactPaginate
+            forcePage={currentPage - 1}
+            previousLabel={"← Previous"}
+            nextLabel={"Next →"}
+            breakLabel={"..."}
+            pageCount={pageCount}
+            marginPagesDisplayed={2}
+            pageRangeDisplayed={3}
+            onPageChange={handlePageClick}
+            containerClassName={"flex justify-center space-x-2 mt-8"}
+            activeLinkClassName={"bg-orange-600 text-white"}
+            pageLinkClassName={
+              "border border-gray-300 px-3 py-1 rounded-md cursor-pointer"
+            }
+            previousLinkClassName={
+              "border border-gray-300 px-3 py-1 rounded-md cursor-pointer"
+            }
+            nextLinkClassName={
+              "border border-gray-300 px-3 py-1 rounded-md cursor-pointer"
+            }
+            breakLinkClassName={
+              "border border-gray-300 px-3 py-1 rounded-md cursor-pointer"
+            }
+          />
+        </div>
+      ) : null}
     </div>
   );
 };

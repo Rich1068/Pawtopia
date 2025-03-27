@@ -47,7 +47,7 @@ const ShopContainer: FC<{ allProducts: IProduct[] }> = ({ allProducts }) => {
     setIsOpen(!isOpen);
   };
   return (
-    <div className="h-full w-full bottom-0 px-[6%] bg-fixed bg-center bg-cover bg-no-repeat bg-[url(/assets/img/wallpaper.jpg)] rounded-t-xl">
+    <div className="min-h-screen w-full bottom-0 px-[6%] bg-fixed bg-center bg-cover bg-no-repeat bg-[url(/assets/img/wallpaper.jpg)] rounded-t-xl">
       {/* Mobile Filter Button */}
       <button
         className="relative md:hidden ml-auto bg-orange-600 text-white px-4 my-4 py-2 rounded-lg shadow-md flex items-center space-x-2 z-50"
@@ -94,32 +94,34 @@ const ShopContainer: FC<{ allProducts: IProduct[] }> = ({ allProducts }) => {
           />
         </div>
       </div>
-      <div className="pb-7">
-        <ReactPaginate
-          forcePage={currentPage - 1}
-          previousLabel={"← Previous"}
-          nextLabel={"Next →"}
-          breakLabel={"..."}
-          pageCount={pageCount}
-          marginPagesDisplayed={2}
-          pageRangeDisplayed={3}
-          onPageChange={handlePageClick}
-          containerClassName={"flex justify-center space-x-2 mt-8"}
-          activeLinkClassName={"bg-orange-600 text-white"}
-          pageLinkClassName={
-            "border border-gray-300 px-3 py-1 rounded-md cursor-pointer"
-          }
-          previousLinkClassName={
-            "border border-gray-300 px-3 py-1 rounded-md cursor-pointer"
-          }
-          nextLinkClassName={
-            "border border-gray-300 px-3 py-1 rounded-md cursor-pointer"
-          }
-          breakLinkClassName={
-            "border border-gray-300 px-3 py-1 rounded-md cursor-pointer"
-          }
-        />
-      </div>
+      {filteredProducts.length !== 0 ? (
+        <div className="pb-7">
+          <ReactPaginate
+            forcePage={currentPage - 1}
+            previousLabel={"← Previous"}
+            nextLabel={"Next →"}
+            breakLabel={"..."}
+            pageCount={pageCount}
+            marginPagesDisplayed={2}
+            pageRangeDisplayed={3}
+            onPageChange={handlePageClick}
+            containerClassName={"flex justify-center space-x-2 mt-8"}
+            activeLinkClassName={"bg-orange-600 text-white"}
+            pageLinkClassName={
+              "border border-gray-300 px-3 py-1 rounded-md cursor-pointer"
+            }
+            previousLinkClassName={
+              "border border-gray-300 px-3 py-1 rounded-md cursor-pointer"
+            }
+            nextLinkClassName={
+              "border border-gray-300 px-3 py-1 rounded-md cursor-pointer"
+            }
+            breakLinkClassName={
+              "border border-gray-300 px-3 py-1 rounded-md cursor-pointer"
+            }
+          />
+        </div>
+      ) : null}
     </div>
   );
 };

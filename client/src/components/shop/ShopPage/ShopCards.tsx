@@ -35,8 +35,6 @@ const ShopCards: FC<ICards> = ({ products, header, text }) => {
                         style=" max-[955px]:!h-60 !h-70 !object-contain"
                       />
                     </Link>
-
-                    <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition duration-300"></div>
                     <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300">
                       <Link
                         to={`/shop/product/${prod._id}`}
