@@ -1,19 +1,11 @@
-import { NavLink } from "react-router";
+import { NavLink, useLocation } from "react-router";
 import { FC, useState } from "react";
-import {
-  LayoutGrid,
-  Calendar,
-  ShoppingBag,
-  Store,
-  ChevronDown,
-} from "lucide-react";
+import { LayoutGrid, Store, ChevronDown } from "lucide-react";
 import { IAdminLayout } from "../../../types/Types";
 
 const AdminSidebar: FC<IAdminLayout> = ({ isExpanded, setIsExpanded }) => {
   const [isStoreOpen, setIsStoreOpen] = useState(false);
-  const isStoreActive =
-    location.pathname.startsWith("/admin/add-product") ||
-    location.pathname.startsWith("/admin/product-list");
+  const location = useLocation();
   const navItems = [
     { name: "Dashboard", path: "/admin/dashboard", icon: <LayoutGrid /> },
     {
@@ -24,12 +16,13 @@ const AdminSidebar: FC<IAdminLayout> = ({ isExpanded, setIsExpanded }) => {
       subItems: [
         { name: "Add Product", path: "/admin/add-product" },
         { name: "Product List", path: "/admin/product-list" },
+        { name: "Orders", path: "/admin/orders/all" },
       ],
     },
-    { name: "Calendar", path: "/admin/calendar", icon: <Calendar /> },
-    { name: "Orders", path: "/admin/orders/all", icon: <ShoppingBag /> },
   ];
-
+  const isStoreActive = navItems
+    .find((item) => item.name === "Store")
+    ?.subItems?.some((subItem) => location.pathname.startsWith(subItem.path));
   return (
     <aside
       className={`fixed top-0 left-0 pt-20 z-50 h-screen bg-white text-amber-950 transition-all duration-400 ease-in-out font-primary text-lg font-medium flex flex-col
