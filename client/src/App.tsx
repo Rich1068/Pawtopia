@@ -21,6 +21,7 @@ import AddProduct from "./pages/Admin/AddProducts";
 import ProductList from "./pages/Admin/ProductList";
 import EditProduct from "./pages/Admin/EditProduct";
 import ViewProduct from "./pages/Admin/ViewProduct";
+import Checkout from "./pages/Checkout";
 
 axios.defaults.withCredentials = true;
 
@@ -34,6 +35,7 @@ function App() {
           <Route element={<ProtectedRoute />}>
             <Route path="/profile" element={<Profile />} />
             <Route path="/favorites" element={<Favorite />} />
+            <Route path="/shop/checkout" element={<Checkout />} />
           </Route>
           <Route path="/adopt" element={<Adopt />} />
           <Route path="/adopt/pets/:id" element={<PetPage />} />
