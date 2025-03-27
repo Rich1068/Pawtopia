@@ -1,20 +1,21 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import toast from "react-hot-toast";
 import { useNavigate, Link } from "react-router";
-import { AuthContext } from "../context/AuthContext";
+import { useAuth } from "../context/AuthContext";
 import serverAPI from "../helper/axios";
 
 const Login = () => {
   const navigate = useNavigate();
-  const { login } = useContext(AuthContext)!;
+  const { login } = useAuth();
   const [data, setData] = useState({
     email: "",
     password: "",
+    rememberMe: false,
   });
 
   const loginUser = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const { email, password } = data;
+    const { email, password, rememberMe } = data;
     const emailCheck = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!data.email || !data.password) {
@@ -32,13 +33,15 @@ const Login = () => {
         {
           email,
           password,
+          rememberMe,
         },
         { withCredentials: true }
       );
-      await login();
+      await login(rememberMe);
       setData({
         email: "",
         password: "",
+        rememberMe: false,
       });
       navigate("/");
 
@@ -105,6 +108,10 @@ const Login = () => {
                   id="remember-me"
                   type="checkbox"
                   className="h-4 w-4 shrink-0 rounded"
+                  checked={data.rememberMe}
+                  onChange={() =>
+                    setData({ ...data, rememberMe: !data.rememberMe })
+                  }
                 />
                 <label htmlFor="remember-me" className="ml-3 text-sm">
                   Remember me

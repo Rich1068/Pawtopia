@@ -20,9 +20,13 @@ const Favorite = () => {
       }
       try {
         const petIds = favorites.map((fav) => fav.petId);
-        const response = await serverAPI.post("/pet/get-favPets", {
-          petIds,
-        });
+        const response = await serverAPI.post(
+          "/pet/get-favPets",
+          {
+            petIds,
+          },
+          { withCredentials: true }
+        );
         setFavPets(response.data.pets);
       } catch (error) {
         console.error("Failed to fetch favorite pets", error);
