@@ -108,3 +108,9 @@ export interface IProductImage {
   file?: File;
   isNew: boolean;
 }
+export type ProductFilter = {
+  category: string[];
+};
+export type ProductCounts = {
+  category: Record<string, number>;
+};

@@ -1,44 +1,39 @@
 import { FC } from "react";
 import { Link } from "react-router";
-import { petType } from "../../types/pet";
-import CardImages from "../CardImages";
-import WarningContainer from "../WarningContainer";
-import { cleanImageUrl } from "../../helper/imageHelper";
+import { IProduct } from "../../../types/Types";
+import CardImages from "../../CardImages";
+import WarningContainer from "../../WarningContainer";
+import { getFullImageUrl } from "../../../helper/imageHelper";
 
 interface ICards {
-  pets: petType[];
+  products: IProduct[];
   header: string;
   text: string;
 }
 
-const AdoptCards: FC<ICards> = ({ pets, header, text }) => {
+const ShopCards: FC<ICards> = ({ products, header, text }) => {
   return (
     <>
-      {pets.length > 0 ? (
+      {products.length > 0 ? (
         <div className="grid grid-cols-[repeat(auto-fill,_minmax(240px,_1fr))] m-auto">
-          {pets.map((pet) => (
-            <div className="mx-auto" key={pet.id}>
+          {products.map((prod) => (
+            <div className="mx-auto" key={prod._id}>
               <div className=" mt-11 w-60 max-[415px]:w-70 transform overflow-hidden rounded-lg bg-white shadow-md duration-300 hover:scale-105 hover:shadow-lg">
                 <Link
-                  to={`/adopt/pets/${pet.id}`}
+                  to={`/product/${prod._id}`}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
                   <CardImages
-                    item={pet}
-                    getImageUrls={(pet) =>
-                      pet.relationships?.pictures?.data.map(
-                        (pic) =>
-                          `${cleanImageUrl(
-                            pet.attributes.pictureThumbnailUrl
-                          )}/${pic.id}.jpg`
-                      ) || []
+                    item={prod}
+                    getImageUrls={(prod) =>
+                      prod.images.map((pic) => getFullImageUrl(pic)) || []
                     }
                   />
 
                   <div className="p-4">
                     <h2 className="mb-2 text-lg font-bold font-secondary text-center text-orange-600">
-                      {pet.attributes.name}
+                      {prod.name}
                     </h2>
                   </div>
                 </Link>
@@ -53,4 +48,4 @@ const AdoptCards: FC<ICards> = ({ pets, header, text }) => {
   );
 };
 
-export default AdoptCards;
+export default ShopCards;

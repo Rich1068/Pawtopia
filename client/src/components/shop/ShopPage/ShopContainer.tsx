@@ -2,45 +2,42 @@
 import { useEffect, useState, FC } from "react";
 import { faFilter } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { petType } from "../../types/pet";
-import AdoptFilter from "./AdoptFilter";
-import { PetFilter } from "../../types/Types";
 import ReactPaginate from "react-paginate";
-import { useFilteredPets } from "../../hooks/useFilteredPets";
-import { usePagination } from "../../hooks/usePagination";
-import AdoptCards from "./AdoptCards";
+import { useFilteredProducts } from "../../../hooks/useFilteredProducts";
+import { usePagination } from "../../../hooks/usePagination";
+import ShopCards from "./ShopCards";
+import { IProduct } from "../../../types/Types";
+import ShopFilter from "./ShopFilter";
 
-interface IAdoptContainer {
-  allPets: petType[];
-}
-
-const AdoptContainer: FC<IAdoptContainer> = ({ allPets }) => {
+const ShopContainer: FC<{ allProducts: IProduct[] }> = ({ allProducts }) => {
   //SELECTED FILTERS
-  const [selected, setSelected] = useState<PetFilter>(() => {
-    const storedFilters = localStorage.getItem("selectedFilters");
-    return storedFilters
-      ? JSON.parse(storedFilters)
-      : { species: ["dog", "cat"], age: [], size: [], gender: [] };
+  const [selected, setSelected] = useState<Record<string, string[]>>(() => {
+    const storedFilters = localStorage.getItem("selectedProductFilters");
+    const parsedFilters = storedFilters ? JSON.parse(storedFilters) : {};
+
+    return {
+      category: parsedFilters.category ?? [],
+      ...parsedFilters,
+    };
   });
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-
   useEffect(() => {
-    localStorage.setItem("selectedFilters", JSON.stringify(selected));
+    localStorage.setItem("selectedProductFilters", JSON.stringify(selected));
   }, [selected]);
 
   //custom hooks for filterpets, petcount, and pagination logic
-  const { filteredPets, petCounts } = useFilteredPets(
-    allPets,
+  const { filteredProducts, productCounts } = useFilteredProducts(
+    allProducts,
     selected,
     searchQuery
   );
   const {
-    currentItems: currentPets,
+    currentItems: currentProducts,
     currentPage,
     setCurrentPage,
     pageCount,
-  } = usePagination(filteredPets, 25);
+  } = usePagination(filteredProducts, 25);
 
   const handlePageClick = (e: { selected: number }) => {
     setCurrentPage(e.selected + 1); // React-Paginate uses 0-based index
@@ -68,30 +65,32 @@ const AdoptContainer: FC<IAdoptContainer> = ({ allPets }) => {
           >
             ✖
           </button>
-          <AdoptFilter
+          <ShopFilter
             selected={selected}
             setSelected={setSelected}
-            petCounts={petCounts}
+            productCounts={productCounts}
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
+            filteredProducts={filteredProducts}
           />
         </div>
       )}
       <div className="flex flex-row min-h-svh shrink">
         <div className="relative max-md:hidden min-w-50 max-w-64 w-full">
-          <AdoptFilter
+          <ShopFilter
             selected={selected}
             setSelected={setSelected}
-            petCounts={petCounts}
+            productCounts={productCounts}
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
+            filteredProducts={filteredProducts}
           />
         </div>
         <div className=" max-md:-mt-10 w-full">
-          <AdoptCards
-            pets={currentPets}
-            header={"No Pets Available"}
-            text={"Check back later or try selecting different filters."}
+          <ShopCards
+            products={currentProducts}
+            header={"No Products Available"}
+            text={"Check back later or try selecting different Category."}
           />
         </div>
       </div>
@@ -125,4 +124,4 @@ const AdoptContainer: FC<IAdoptContainer> = ({ allPets }) => {
   );
 };
 
-export default AdoptContainer;
+export default ShopContainer;

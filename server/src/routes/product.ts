@@ -3,6 +3,7 @@ import {
   addProduct,
   deleteProduct,
   editProduct,
+  getAllProduct,
   getCategory,
   getList,
   getProduct,
@@ -13,7 +14,7 @@ import uploadFile from "../helpers/image";
 
 const product = express.Router();
 
-product.get("/get-categories", tokenAuth, getCategory);
+product.get("/get-categories", getCategory);
 product.post(
   "/upload-images",
   tokenAuth,
@@ -22,6 +23,7 @@ product.post(
 );
 product.post("/add-product", tokenAuth, addProduct);
 product.get("/list", tokenAuth, getList);
+product.get("/get-products", getAllProduct);
 product.get("/:id", getProduct);
 product.put("/:id", tokenAuth, editProduct);
 product.delete("/:id", tokenAuth, deleteProduct);

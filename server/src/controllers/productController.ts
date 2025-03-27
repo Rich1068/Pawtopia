@@ -101,7 +101,17 @@ export const getList = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Server error" });
   }
 };
-
+export const getAllProduct = async (req: Request, res: Response) => {
+  try {
+    const products = await Product.find().exec();
+    res.status(200).json({ data: products });
+  } catch (error) {
+    console.error("Error retrieving product", error);
+    res.status(500).json({
+      error: "Something went wrong, please contact the developer",
+    });
+  }
+};
 export const getProduct = async (req: Request, res: Response) => {
   try {
     const productId = req.params.id;

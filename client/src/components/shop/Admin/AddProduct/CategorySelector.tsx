@@ -1,5 +1,5 @@
-import { useRef, useState, useEffect } from "react";
-import serverAPI from "../../../../helper/axios";
+import { useRef, useState } from "react";
+import { useCategories } from "../../../../hooks/useCategories";
 
 interface CategorySelectorProps {
   selectedCategories: string[];
@@ -10,38 +10,10 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({
   selectedCategories,
   setSelectedCategories,
 }) => {
-  const [categories, setCategories] = useState<string[]>([]);
+  const { categories, setCategories, loading, error } = useCategories();
   const [newCategory, setNewCategory] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await serverAPI.get("/product/get-categories", {
-          withCredentials: true,
-        });
-        setCategories(response.data);
-      } catch (error) {
-        console.error("Failed to fetch categories:", error);
-      }
-    };
-
-    fetchCategories();
-  }, []);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
-        setDropdownOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
   const handleCategorySelect = (category: string) => {
     if (!selectedCategories.includes(category)) {
@@ -55,7 +27,7 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({
 
   const handleAddCategory = () => {
     if (newCategory && !categories.includes(newCategory)) {
-      setCategories([...categories, newCategory]);
+      setCategories([...categories, newCategory]); // Add new category to existing list
       handleCategorySelect(newCategory);
       setNewCategory("");
     }
@@ -100,25 +72,33 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({
 
       {dropdownOpen && (
         <div className="absolute mt-2 w-full border border-gray-300 bg-white rounded-lg shadow-xl z-10">
-          <div className="p-2 ">
-            <div className="overflow-y-scroll max-h-60">
-              {categories.length > 0 ? (
-                categories.map((category) => (
-                  <button
-                    key={category}
-                    type="button"
-                    className="block w-full hover:bg-orange-100 text-left px-4 py-2 text-gray-700 font-secondary font-semibold rounded cursor-pointer"
-                    onClick={() => handleCategorySelect(category)}
-                  >
-                    {category}
-                  </button>
-                ))
-              ) : (
-                <span className="block text-gray-400 text-center">
-                  No Categories
-                </span>
-              )}
-            </div>
+          <div className="p-2">
+            {loading ? (
+              <p className="text-gray-500 text-center">Loading...</p>
+            ) : error ? (
+              <p className="text-red-500 text-center">{error}</p>
+            ) : (
+              <div className="overflow-y-scroll max-h-60">
+                {categories.length > 0 ? (
+                  categories.map((category) => (
+                    <button
+                      key={category}
+                      type="button"
+                      className="block w-full hover:bg-orange-100 text-left px-4 py-2 text-gray-700 font-secondary font-semibold rounded cursor-pointer"
+                      onClick={() => handleCategorySelect(category)}
+                    >
+                      {category}
+                    </button>
+                  ))
+                ) : (
+                  <span className="block text-gray-400 text-center">
+                    No Categories
+                  </span>
+                )}
+              </div>
+            )}
+
+            {/* Add New Category */}
             <div className="mt-2 p-2">
               <input
                 type="text"
