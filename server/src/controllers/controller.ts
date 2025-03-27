@@ -70,13 +70,17 @@ export const loginUser = async (req: Request, res: Response) => {
         res.cookie("refreshToken", refreshToken, {
           httpOnly: true,
           secure: true,
-          sameSite: "strict",
+          sameSite: "none",
           path: "/",
           maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         });
       }
       res
-        .cookie("token", accessToken, { httpOnly: true, secure: true })
+        .cookie("token", accessToken, {
+          httpOnly: true,
+          secure: true,
+          sameSite: "none",
+        })
         .status(200)
         .json({ userData });
     } else {

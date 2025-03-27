@@ -21,6 +21,10 @@ export const authMiddleware = async (
       res.status(403).json({ error: "Invalid token" });
       return;
     }
+    if (decoded === "expired") {
+      res.status(403).json({ error: "Token Expired" });
+      return;
+    }
     //requests the ID of the user of the token
     req.userId = decoded.id;
     next();
