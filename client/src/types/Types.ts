@@ -90,6 +90,7 @@ export interface IAdminLayout {
 }
 
 export interface IProduct {
+  _id: string;
   images: string[];
   name: string;
   price: number;

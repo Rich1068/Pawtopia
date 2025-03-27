@@ -4,12 +4,14 @@ import { petType } from "../../types/pet";
 import { Heart } from "lucide-react";
 import { useState } from "react";
 import WarningModal from "../WarningModal";
+import { useNavigate } from "react-router";
 
 interface FavoriteButtonProps {
   pet: petType;
 }
 
 const FavoriteButton: React.FC<FavoriteButtonProps> = ({ pet }) => {
+  const navigate = useNavigate();
   const { favorites, toggleFavorite } = useFavorites();
   const { user } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -49,6 +51,8 @@ const FavoriteButton: React.FC<FavoriteButtonProps> = ({ pet }) => {
         text="Please Login to Favorite Pets"
         isModalOpen={isModalOpen}
         setIsModalOpen={setIsModalOpen}
+        confirmText="Log In"
+        onConfirm={() => navigate("/login")}
       />
     </>
   );

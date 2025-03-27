@@ -1,6 +1,7 @@
 import express from "express";
 import {
   addProduct,
+  deleteProduct,
   getCategory,
   getList,
   uploadImage,
@@ -18,5 +19,6 @@ product.post(
   uploadImage
 );
 product.post("/add-product", tokenAuth, addProduct);
-product.get("/list", getList);
+product.get("/list", tokenAuth, getList);
+product.delete("/:id", tokenAuth, deleteProduct);
 export default product;

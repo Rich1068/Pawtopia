@@ -75,7 +75,12 @@ const ProductList = () => {
     {
       accessorKey: "actions",
       header: "Actions",
-      cell: ({ row }) => <ProductActionButtons product={row.original} />,
+      cell: ({ row }) => (
+        <ProductActionButtons
+          product={row.original}
+          onDelete={handleDeleteProduct}
+        />
+      ),
     },
   ];
 
@@ -93,6 +98,11 @@ const ProductList = () => {
 
   if (loading) return <LoadingPage fadeOut={false} />;
 
+  const handleDeleteProduct = (productId: string) => {
+    setProducts((prevProducts) =>
+      prevProducts.filter((p) => p._id !== productId)
+    );
+  };
   return (
     <div className="relative font-primary text-amber-950">
       <h2 className="text-3xl sm:text-4xl font-semibold mb-4 text-orange-600">
