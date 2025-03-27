@@ -10,6 +10,7 @@ import {
 import serverAPI from "../helper/axios";
 import type { ICart } from "../types/Types";
 import toast from "react-hot-toast";
+import { useAuth } from "./AuthContext";
 
 interface CartContextType {
   cart: ICart | null;
@@ -23,6 +24,7 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [cart, setCart] = useState<ICart | null>(null);
+  const { user } = useAuth();
   const fetchCart = async () => {
     try {
       const { data } = await serverAPI.get("/cart", {
@@ -36,7 +38,7 @@ export const CartProvider: FC<{ children: ReactNode }> = ({ children }) => {
   };
   useEffect(() => {
     fetchCart();
-  }, []);
+  }, [user]);
 
   const addToCart = async (productId: string, quantity: number) => {
     try {
