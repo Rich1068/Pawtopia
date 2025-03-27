@@ -7,6 +7,8 @@ import {
   signToken,
 } from "../helpers/auth";
 import { validateRegister, validateLogin } from "../helpers/validation";
+import { sendEmail } from "../helpers/mailer";
+import crypto from "crypto";
 
 export const registerUser = async (
   req: Request,
@@ -24,11 +26,20 @@ export const registerUser = async (
       phoneNumber,
       password: hashedPassword,
       role: "user",
+      verified: false,
     });
-    res.json({
-      user: newUser,
+    const verificationToken = crypto.randomBytes(32).toString("hex");
+    const verificationLink = `${process.env.CLIENT_URL}/verify-email?token=${verificationToken}`;
+    const emailHtml = `
+      <h2>Welcome to Pawtopia, ${name}!</h2>
+      <p>Click the link below to verify your email:</p>
+      <a href="${verificationLink}" style="background:#f97316; padding:10px; color:white; text-decoration:none; border-radius:5px;">Verify Email</a>
+    `;
+
+    await sendEmail(email, "Verify Your Email", emailHtml);
+    res.status(200).json({
+      message: "Verification email sent. Please check your inbox.",
     });
-    return;
   } catch (error) {
     console.log(error);
     res.status(500).json({
@@ -47,6 +58,13 @@ export const loginUser = async (req: Request, res: Response) => {
     //used for typescript validation for user
     if (!user) {
       res.status(404).json({ error: "User not found" });
+      return;
+    }
+    if (!user.verified) {
+      res.status(200).json({
+        requiresVerification: true,
+        message: "Please verify your email first.",
+      });
       return;
     }
     const match = await comparePassword(password, user.password!);

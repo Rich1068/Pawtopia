@@ -23,6 +23,10 @@ const isUserExists = async (email: string): Promise<boolean> => {
   const userExists = await User.findOne({ email });
   return !!userExists;
 };
+const isPhoneExists = async (phoneNumber: string): Promise<boolean> => {
+  const phoneExists = await User.findOne({ phoneNumber });
+  return !!phoneExists;
+};
 
 export const validateRegister = async (
   req: Request,
@@ -49,7 +53,10 @@ export const validateRegister = async (
     res.status(400).json({ error: "Invalid phone number format" });
     return false;
   }
-
+  if (await isPhoneExists(phoneNumber)) {
+    res.status(400).json({ error: "Phone Number already in use" });
+    return false;
+  }
   if (!doPasswordsMatch(password, confirmPassword)) {
     res.status(400).json({ error: "Passwords do not match" });
     return false;

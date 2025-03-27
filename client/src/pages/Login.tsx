@@ -28,7 +28,7 @@ const Login = () => {
       return;
     }
     try {
-      await serverAPI.post(
+      const { data } = await serverAPI.post(
         "/login",
         {
           email,
@@ -37,12 +37,20 @@ const Login = () => {
         },
         { withCredentials: true }
       );
+
       await login(rememberMe);
+
       setData({
         email: "",
         password: "",
         rememberMe: false,
       });
+      if (data.requiresVerification) {
+        localStorage.setItem("userEmail", email);
+        toast.error("Please verify your email first.");
+        navigate("/verify-email");
+        return;
+      }
       navigate("/");
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

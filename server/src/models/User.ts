@@ -4,34 +4,42 @@ export const userSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      require: true,
+      required: true,
     },
     email: {
       type: String,
-      require: true,
+      required: true,
       unique: true,
     },
     password: {
       type: String,
-      require: true,
+      required: true,
     },
     role: {
       type: String,
       enum: ["admin", "user"],
-      require: true,
+      required: true,
     },
     profileImage: {
       type: String,
     },
     phoneNumber: {
       type: String,
-      require: true,
+      required: true,
       validate: {
         validator: function (v: string) {
           return /^\d{11}$/.test(v);
         },
         message: "Invalid phone number format",
       },
+    },
+    verified: {
+      type: Boolean,
+      default: false,
+    },
+    verificationToken: {
+      type: String,
+      default: null,
     },
     resetPasswordToken: { type: String, default: null },
     resetPasswordExpires: { type: Date, default: null },
