@@ -34,7 +34,7 @@ const ProductActionButtons = ({
           <Eye size={16} />
         </button>
       </Link>
-      <Link to="/admin/product/:id">
+      <Link to={`/admin/product/edit/${product._id}`}>
         <button className="p-2 bg-green-500 text-white rounded-full hover:bg-green-700">
           <Edit size={16} />
         </button>

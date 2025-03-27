@@ -1,5 +1,13 @@
 import { Response, Request } from "express";
 import Product from "../models/Product";
+import path from "path";
+import fs from "fs";
+import {
+  checkDuplicateProduct,
+  deleteRemovedImages,
+  sanitizeProductData,
+  validateProductData,
+} from "../helpers/productValidation";
 
 export const getCategory = async (req: Request, res: Response) => {
   const categories = await Product.distinct("category"); // Fetch unique categories
@@ -23,48 +31,26 @@ export const addProduct = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { name, categories, description, price, images } = req.body;
-
-    if (!name || !categories || !description || !price || !images) {
-      res.status(400).json({ error: "All fields are required" });
+    const productData = sanitizeProductData(req.body);
+    const validation = validateProductData(productData);
+    if (!validation.valid) {
+      res.status(400).json({ error: validation.error });
       return;
     }
 
-    const sanitizedImages = images.map((img: string) =>
-      img.replace(/^src/, "")
-    );
-    const trimmedName = name.trim();
-    const sanitizedCategories = categories.map((cat: string) => cat.trim());
-    const sanitizedDescription = description.trim();
-    const sanitizedPrice = parseFloat(price);
-
-    if (isNaN(sanitizedPrice) || sanitizedPrice <= 0) {
-      res.status(400).json({ error: "Invalid price" });
+    const duplicateError = await checkDuplicateProduct(productData.name);
+    if (duplicateError) {
+      res.status(409).json({ error: duplicateError });
       return;
     }
 
-    const productExists = await Product.findOne({ name: trimmedName });
-    if (productExists) {
-      res.status(409).json({ error: "Product already exists" });
-      return;
-    }
-
-    const newProduct = await Product.create({
-      name: trimmedName,
-      category: sanitizedCategories,
-      description: sanitizedDescription,
-      price: sanitizedPrice,
-      images: sanitizedImages,
-    });
-
+    const newProduct = await Product.create(productData);
     res
       .status(201)
       .json({ message: "Successfully added a product", product: newProduct });
-    return;
   } catch (error) {
     console.error("Error adding product:", error);
     res.status(500).json({ error: "Internal server error" });
-    return;
   }
 };
 
@@ -118,18 +104,70 @@ export const getList = async (req: Request, res: Response) => {
   }
 };
 
+export const getProduct = async (req: Request, res: Response) => {
+  try {
+    const productId = req.params.id;
+
+    const product = await Product.findById(productId).exec();
+    if (!product) {
+      res.status(404).json({ error: "Product does not exist" });
+      return;
+    }
+    res.status(200).json({ data: product });
+  } catch (error) {
+    console.error("Error retrieving product", error);
+    res.status(500).json({
+      error: "Something went wrong, please contact the developer",
+    });
+  }
+};
+export const editProduct = async (req: Request, res: Response) => {
+  try {
+    const productId = req.params.id;
+    let product = await Product.findById(productId);
+    if (!product) {
+      res.status(404).json({ error: "Product not found" });
+      return;
+    }
+
+    const productData = sanitizeProductData(req.body);
+    deleteRemovedImages(req.body.oldImages, productData.images);
+
+    const validation = validateProductData(productData);
+    if (!validation.valid) {
+      res.status(400).json({ error: validation.error });
+      return;
+    }
+
+    const duplicateError = await checkDuplicateProduct(
+      productData.name,
+      productId
+    );
+    if (duplicateError) {
+      res.status(409).json({ error: duplicateError });
+      return;
+    }
+
+    Object.assign(product, productData);
+    await product.save();
+
+    res.status(200).json({ message: "Product updated successfully", product });
+  } catch (error) {
+    console.error("Error updating product:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 export const deleteProduct = async (req: Request, res: Response) => {
   try {
     const productId = req.params.id;
 
-    // Check if product exists
     const product = await Product.findById(productId).exec();
     if (!product) {
       res.status(404).json({ error: "Product does not exist" });
       return;
     }
 
-    // Delete product
     const deletedProduct = await Product.findByIdAndDelete(productId).exec();
     if (!deletedProduct) {
       res.status(500).json({ error: "Failed to delete product" });

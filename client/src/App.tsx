@@ -19,6 +19,7 @@ import UserLayout from "./components/Layout/UserLayout";
 import AdminLayout from "./components/Layout/AdminLayout";
 import AddProduct from "./pages/Admin/AddProducts";
 import ProductList from "./pages/Admin/ProductList";
+import EditProduct from "./pages/Admin/EditProduct";
 
 axios.defaults.withCredentials = true;
 
@@ -47,6 +48,7 @@ function App() {
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route path="/admin/add-product" element={<AddProduct />} />
             <Route path="/admin/product-list" element={<ProductList />} />
+            <Route path="/admin/product/edit/:id" element={<EditProduct />} />
           </Route>
         </Route>
       </Routes>

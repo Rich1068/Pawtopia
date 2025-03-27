@@ -93,6 +93,17 @@ export interface IProduct {
   _id: string;
   images: string[];
   name: string;
-  price: number;
+  price: string;
   category: string[];
+}
+
+export interface IAddProduct extends Omit<IProduct, "_id"> {
+  _id?: string;
+  description: string;
+}
+
+export interface IProductImage {
+  preview: string;
+  file?: File;
+  isNew: boolean;
 }
