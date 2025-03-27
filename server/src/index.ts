@@ -9,6 +9,8 @@ import pet from "./routes/pets";
 import user from "./routes/user";
 import path from "path";
 import email from "./routes/email";
+import product from "./routes/product";
+import cart from "./routes/cart";
 
 db_connection();
 dotenv.config();
@@ -16,7 +18,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: `${process.env.CLIENT_URL}`,
+    origin: process.env.CLIENT_URL,
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type"],
     credentials: true,
@@ -31,6 +33,8 @@ app.use("/api", auth);
 app.use("/pet", pet);
 app.use("/user", user);
 app.use("/email", email);
+app.use("/product", product);
+app.use("/cart", cart);
 const port = process.env.PORT || 8000;
 app.listen(port, () => {
   console.log("Backend Server running at Port: " + port);

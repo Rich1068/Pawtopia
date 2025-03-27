@@ -3,30 +3,23 @@ import "swiper/css";
 import "swiper/css/free-mode";
 import "swiper/css/navigation";
 import "swiper/css/thumbs";
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Swiper, SwiperClass, SwiperSlide } from "swiper/react";
 import { FreeMode, Navigation, Thumbs } from "swiper/modules";
 import "./petpage.css";
 import { FC, useState, useRef } from "react";
 import { petType } from "../../types/pet";
-import ReactModal from "react-modal";
+import ImageModal from "../ImageModal";
 
 interface IPetCarousel {
-  thumbsSwiper: SwiperClass | null;
-  setThumbsSwiper: React.Dispatch<React.SetStateAction<SwiperClass | null>>;
   petData: petType | null;
   cleanImageUrl: (url: string | undefined) => string | undefined;
 }
 
-export const PetCarousel: FC<IPetCarousel> = ({
-  thumbsSwiper,
-  setThumbsSwiper,
-  petData,
-  cleanImageUrl,
-}) => {
+export const PetCarousel: FC<IPetCarousel> = ({ petData, cleanImageUrl }) => {
   const [mainSwiper, setMainSwiper] = useState<SwiperClass | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-
+  const [thumbsSwiper, setThumbsSwiper] = useState<SwiperClass | null>(null);
   const pictures = petData?.relationships?.pictures?.data || [];
   const hasPictures = pictures.length > 0;
 
@@ -145,31 +138,11 @@ export const PetCarousel: FC<IPetCarousel> = ({
         </div>
       </div>
 
-      <ReactModal
+      <ImageModal
+        imageUrl={selectedImage}
         isOpen={!!selectedImage}
-        ariaHideApp={false}
-        onRequestClose={handleCloseModal}
-        className="p-6 focus:outline-none rounded-lg shadow-lg w-[100%] max-w-2xl mx-auto"
-        overlayClassName="fixed inset-0 bg-black/75 flex justify-center items-center z-50"
-      >
-        <div className="relative flex justify-center items-center">
-          {/* Close Button */}
-          <button
-            onClick={handleCloseModal}
-            className="absolute top-2 right-2 text-white text-2xl"
-            data-testid="close-modal-button"
-          >
-            <X size={30} />
-          </button>
-
-          {/* Centered Image */}
-          <img
-            src={selectedImage || ""}
-            alt="Large preview"
-            className="max-w-full max-h-[90vh] rounded-lg object-contain"
-          />
-        </div>
-      </ReactModal>
+        onClose={handleCloseModal}
+      />
     </>
   );
 };

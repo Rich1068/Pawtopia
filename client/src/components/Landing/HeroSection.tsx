@@ -4,7 +4,7 @@ import { Link } from "react-router";
 export const HeroSection = () => {
   return (
     <section className="relative h-[500px] bg-cover bg-center flex bg-[url('https://www.petside.com/wp-content/uploads/2021/01/Happy-Dog.jpg')] items-center text-white">
-      <div className="max-w-4xl lg:mx-45 text-left max-lg:mx-20">
+      <div className="max-w-4xl lg:mx-45 text-left max-sm:px-8 sm:px-12">
         <h1 className="text-5xl md:text-6xl lg:text-7xl font-semibold drop-shadow-sm font-primary ">
           <span className="underline decoration-orange-500">Adopt</span> a
           Loving

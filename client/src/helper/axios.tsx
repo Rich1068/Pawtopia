@@ -14,18 +14,19 @@ serverAPI.interceptors.response.use(
 
       try {
         // Call refresh token API (token is automatically sent via cookies)
-        await serverAPI.post(
-          `/api/refresh-token`,
+        await axios.post(
+          `${SERVER_URL}/api/refresh-token`,
           {},
           { withCredentials: true }
         );
-
+        console.log("refreshed");
         // Retry the original request
         return serverAPI(originalRequest);
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (refreshError) {
         console.error("Refresh token expired, logging out...");
         if (globalLogout) globalLogout();
+        return Promise.reject(refreshError);
       }
     }
 

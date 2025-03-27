@@ -5,10 +5,10 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { petType } from "../../types/pet";
 import AdoptFilter from "./AdoptFilter";
 import { PetFilter } from "../../types/Types";
-import Cards from "./Cards";
 import ReactPaginate from "react-paginate";
 import { useFilteredPets } from "../../hooks/useFilteredPets";
 import { usePagination } from "../../hooks/usePagination";
+import AdoptCards from "./AdoptCards";
 
 interface IAdoptContainer {
   allPets: petType[];
@@ -35,30 +35,25 @@ const AdoptContainer: FC<IAdoptContainer> = ({ allPets }) => {
     selected,
     searchQuery
   );
-  const { currentPets, currentPage, setCurrentPage, pageCount } = usePagination(
-    filteredPets,
-    25
-  );
+  const {
+    currentItems: currentPets,
+    currentPage,
+    setCurrentPage,
+    pageCount,
+  } = usePagination(filteredPets, 25);
 
   const handlePageClick = (e: { selected: number }) => {
     setCurrentPage(e.selected + 1); // React-Paginate uses 0-based index
-  };
-
-  const cleanImageUrl = (url: string | undefined): string | undefined => {
-    let cleanedUrl = url?.split("?")[0];
-    cleanedUrl = cleanedUrl?.replace(/\/\d+(?=\.\w+$)/, "");
-    cleanedUrl = cleanedUrl?.replace(/\.\w+$/, "");
-    return cleanedUrl;
   };
 
   const toggleFilter = () => {
     setIsOpen(!isOpen);
   };
   return (
-    <div className="h-full w-full bottom-0 px-[8%] bg-fixed bg-center bg-cover bg-no-repeat bg-[url(/assets/img/wallpaper.jpg)] rounded-t-xl">
+    <div className="h-full w-full bottom-0 px-[6%] bg-fixed bg-center bg-cover bg-no-repeat bg-[url(/assets/img/wallpaper.jpg)] rounded-t-xl">
       {/* Mobile Filter Button */}
       <button
-        className="md:hidden ml-auto bg-orange-600 text-white px-4 my-4 py-2 rounded-lg shadow-md flex items-center space-x-2 z-50"
+        className="relative md:hidden ml-auto bg-orange-600 text-white px-4 my-4 py-2 rounded-lg shadow-md flex items-center space-x-2 z-50"
         onClick={toggleFilter}
       >
         <FontAwesomeIcon icon={faFilter} />
@@ -83,7 +78,7 @@ const AdoptContainer: FC<IAdoptContainer> = ({ allPets }) => {
         </div>
       )}
       <div className="flex flex-row min-h-svh shrink">
-        <div className="relative max-md:hidden min-w-50 max-w-64 w-full">
+        <div className="relative max-md:hidden min-w-40 max-w-64 w-auto">
           <AdoptFilter
             selected={selected}
             setSelected={setSelected}
@@ -93,15 +88,14 @@ const AdoptContainer: FC<IAdoptContainer> = ({ allPets }) => {
           />
         </div>
         <div className=" max-md:-mt-10 w-full">
-          <Cards
+          <AdoptCards
             pets={currentPets}
-            cleanImageUrl={cleanImageUrl}
             header={"No Pets Available"}
             text={"Check back later or try selecting different filters."}
           />
         </div>
       </div>
-      <div className="pb-5">
+      <div className="pb-7">
         <ReactPaginate
           forcePage={currentPage - 1}
           previousLabel={"← Previous"}
@@ -111,7 +105,7 @@ const AdoptContainer: FC<IAdoptContainer> = ({ allPets }) => {
           marginPagesDisplayed={2}
           pageRangeDisplayed={3}
           onPageChange={handlePageClick}
-          containerClassName={"flex justify-center space-x-2 mt-6"}
+          containerClassName={"flex justify-center space-x-2 mt-8"}
           activeLinkClassName={"bg-orange-600 text-white"}
           pageLinkClassName={
             "border border-gray-300 px-3 py-1 rounded-md cursor-pointer"

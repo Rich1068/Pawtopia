@@ -83,3 +83,48 @@ export interface FavoritePets {
   petImage: string;
   petName: string;
 }
+
+export interface IAdminLayout {
+  isExpanded: boolean;
+  setIsExpanded?: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+export interface IProduct {
+  _id: string;
+  images: string[];
+  name: string;
+  description: string;
+  price: string;
+  category: string[];
+}
+
+export interface IAddProduct extends Omit<IProduct, "_id"> {
+  _id?: string;
+  description: string;
+}
+
+export interface IProductImage {
+  preview: string;
+  file?: File;
+  isNew: boolean;
+}
+export type ProductFilter = {
+  category: string[];
+};
+export type ProductCounts = {
+  category: Record<string, number>;
+};
+
+export interface ICartProduct {
+  _id: Key | null | undefined;
+  productId: IProduct;
+  quantity: number;
+}
+
+export interface ICart {
+  _id: string;
+  userId: string;
+  products: ICartProduct[];
+  createdAt: string;
+  updatedAt: string;
+}

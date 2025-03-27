@@ -1,18 +1,32 @@
 import multer from "multer";
 import path from "path";
+import fs from "fs";
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "src/assets/img/profile_pic/");
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname));
-  },
-});
+const getUploadPath = (folder: string) => {
+  const uploadPath = `src/assets/img/${folder}/`;
 
-export const upload = multer({
-  storage,
-  limits: { fileSize: 5 * 1024 * 1024 },
-});
+  if (!fs.existsSync(uploadPath)) {
+    fs.mkdirSync(uploadPath, { recursive: true });
+  }
 
-export default upload;
+  return uploadPath;
+};
+
+const storage = (folder: string) =>
+  multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, getUploadPath(folder));
+    },
+    filename: (req, file, cb) => {
+      cb(null, Date.now() + path.extname(file.originalname));
+    },
+  });
+
+// Middleware generator
+export const uploadFile = (folder: string) =>
+  multer({
+    storage: storage(folder),
+    limits: { fileSize: 5 * 1024 * 1024 },
+  });
+
+export default uploadFile;
