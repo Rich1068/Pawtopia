@@ -54,4 +54,69 @@ export const validatePassword = (password: string, confirmPassword: string) => {
   return passwordCheck(password, confirmPassword);
 };
 
+export interface ValidationErrors {
+  [key: string]: string;
+}
+
+export const validateField = (
+  name: string,
+  value: string,
+  formData?: Record<string, string>
+): string => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const phoneRegex = /^\d{11}$/;
+
+  const fieldNames: Record<string, string> = {
+    mode: "mode of communication",
+    livingSituation: "living situation",
+    experience: "experience",
+    otherMode: "other mode of communication",
+    otherLivingSituation: "other living situation",
+  };
+
+  const displayName =
+    fieldNames[name] || name.replace(/([A-Z])/g, " $1").toLowerCase();
+
+  if (!value.trim()) {
+    if (name.startsWith("other")) {
+      const mainField =
+        name.replace("other", "").charAt(0).toLowerCase() + name.slice(6);
+      if (formData?.[mainField] !== "Other") {
+        return "";
+      }
+    }
+
+    return `${
+      displayName.charAt(0).toUpperCase() + displayName.slice(1)
+    } is required.`;
+  }
+
+  switch (name) {
+    case "email":
+      if (!emailRegex.test(value)) return "Invalid email format.";
+      break;
+    case "phone":
+      if (!phoneRegex.test(value)) return "Invalid phone number format.";
+      break;
+    case "reason":
+      if (value.length < 10) return "Reason must be at least 10 characters.";
+      break;
+    case "experience":
+      if (!value) return `Please select your ${displayName}.`;
+      break;
+  }
+
+  return "";
+};
+
+export const validateForm = (
+  formData: Record<string, string>
+): ValidationErrors => {
+  const errors: ValidationErrors = {};
+  Object.keys(formData).forEach((key) => {
+    const error = validateField(key, formData[key], formData);
+    if (error) errors[key] = error;
+  });
+  return errors;
+};
 export default validate;

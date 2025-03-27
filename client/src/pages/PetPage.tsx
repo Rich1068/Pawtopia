@@ -9,11 +9,13 @@ import PageHeader from "../components/PageHeader";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPaw } from "@fortawesome/free-solid-svg-icons";
 import { cleanImageUrl } from "../helper/imageHelper";
+import AdoptionForm from "../components/PetPage/AdoptionForm";
 
 const PetPage = () => {
   const [petData, setPetData] = useState<petType | null>(null);
   const { id } = useParams();
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isFormOpen, setIsFormOpen] = useState<boolean>(false);
 
   useEffect(() => {
     if (!id) return;
@@ -54,15 +56,24 @@ const PetPage = () => {
     <>
       <PageHeader text="Pet Details" />
       <div className="bg-orange-600">
-        <div className="mx-auto rounded-t-xl bg-fixed bg-center bg-cover bg-no-repeat bg-[url(/assets/img/wallpaper.jpg)] p-4 h-full w-full flex max-md:flex-col">
+        <div className="mx-auto rounded-t-xl px-[6%] py-4 bg-fixed bg-center bg-cover bg-no-repeat bg-[url(/assets/img/wallpaper.jpg)] h-full w-full ">
           {/* Left side - PetCarousel */}
-          <div className="flex-1 min-w-[50%] flex justify-center">
-            <PetCarousel petData={petData} cleanImageUrl={cleanImageUrl} />
+          <div className="flex max-lg:flex-col gap-x-4 ">
+            <div className="flex-1 min-w-[50% justify-center">
+              <PetCarousel petData={petData} cleanImageUrl={cleanImageUrl} />
+            </div>
+            {/* Right side - PetPageText */}
+            <div className="flex-1 justify-center ">
+              <PetPageText petData={petData} setIsFormOpen={setIsFormOpen} />
+            </div>
           </div>
-
-          {/* Right side - PetPageText */}
-          <div className="flex-1 min-w-[50%] flex justify-center">
-            <PetPageText petData={petData} />
+          <div className="">
+            {isFormOpen && (
+              <AdoptionForm
+                petId={petData.id}
+                petName={petData.attributes.name}
+              />
+            )}
           </div>
         </div>
       </div>
