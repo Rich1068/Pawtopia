@@ -8,9 +8,16 @@ import { SwiperClass } from "swiper/react";
 import ProductText from "../../components/shop/ViewProduct/ProductText";
 import WarningContainer from "../../components/WarningContainer";
 import TitleComponent from "../../components/shop/Admin/TitleComponent";
+import { useAuth } from "../../context/AuthContext";
+import { useLocation } from "react-router";
+import PageHeader from "../../components/PageHeader";
 
 const ViewProduct = () => {
   const { id } = useParams();
+  const { user } = useAuth();
+  const location = useLocation();
+  const isAdmin = user?.role === "admin";
+  const isAdminView = location.pathname.startsWith("/admin");
   const [product, setProduct] = useState<IProduct | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [thumbsSwiper, setThumbsSwiper] = useState<SwiperClass | null>(null);
@@ -47,19 +54,29 @@ const ViewProduct = () => {
 
   return (
     <>
-      <TitleComponent text="View Product" />
-      <div className="sm:p-4 rounded-xl h-full">
-        <div className="relative mx-auto rounded-t-xl p-4 w-full flex max-lg:flex-col gap-x-4 items-stretch">
-          <div className="flex-1 min-w-[50%] flex flex-col">
-            <ProductCarousel
-              thumbsSwiper={thumbsSwiper}
-              setThumbsSwiper={setThumbsSwiper}
-              productData={product}
-            />
-          </div>
+      {isAdmin && isAdminView ? (
+        <TitleComponent text="View Product" />
+      ) : (
+        <PageHeader text="Product Details" />
+      )}
+      <div className={`${!isAdminView ? "bg-orange-600" : null}`}>
+        <div className="sm:p-4 h-full w-full bg-fixed bg-center bg-cover bg-no-repeat bg-[url(/assets/img/wallpaper.jpg)] rounded-t-xl">
+          <div className="relative mx-auto rounded-t-xl p-4 w-full flex max-lg:flex-col gap-x-4 items-stretch">
+            <div className="flex-1 min-w-[50%] flex flex-col">
+              <ProductCarousel
+                thumbsSwiper={thumbsSwiper}
+                setThumbsSwiper={setThumbsSwiper}
+                productData={product}
+              />
+            </div>
 
-          <div className="flex-1 min-w-[50%] flex flex-col">
-            <ProductText productData={product} />
+            <div className="flex-1 min-w-[50%] flex flex-col lg:pr-8">
+              <ProductText
+                productData={product}
+                isAdmin={isAdmin}
+                isAdminView={isAdminView}
+              />
+            </div>
           </div>
         </div>
       </div>

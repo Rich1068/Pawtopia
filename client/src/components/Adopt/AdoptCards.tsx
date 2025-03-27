@@ -15,15 +15,11 @@ const AdoptCards: FC<ICards> = ({ pets, header, text }) => {
   return (
     <>
       {pets.length > 0 ? (
-        <div className="grid grid-cols-[repeat(auto-fill,_minmax(240px,_1fr))] m-auto">
+        <div className="grid grid-cols-[repeat(auto-fill,_minmax(240px,_1fr))] gap-4 m-auto">
           {pets.map((pet) => (
             <div className="mx-auto" key={pet.id}>
               <div className=" mt-11 w-60 max-[415px]:w-70 transform overflow-hidden rounded-lg bg-white shadow-md duration-300 hover:scale-105 hover:shadow-lg">
-                <Link
-                  to={`/adopt/pets/${pet.id}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
+                <Link to={`/adopt/pets/${pet.id}`}>
                   <CardImages
                     item={pet}
                     getImageUrls={(pet) =>
@@ -37,7 +33,7 @@ const AdoptCards: FC<ICards> = ({ pets, header, text }) => {
                   />
 
                   <div className="p-4">
-                    <h2 className="mb-2 text-lg font-bold font-secondary text-center text-orange-600">
+                    <h2 className="text-lg font-bold font-secondary text-center text-orange-600">
                       {pet.attributes.name}
                     </h2>
                   </div>

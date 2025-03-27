@@ -5,11 +5,13 @@ import { petType } from "../types/pet";
 interface ICardImages<T> {
   item: T;
   getImageUrls: (item: T) => string[]; // Function to extract image URLs
+  style?: string;
 }
 
 const CardImages = <T extends object>({
   item,
   getImageUrls,
+  style,
 }: ICardImages<T>) => {
   const images = getImageUrls(item);
   const [imgIndex, setImgIndex] = useState(0);
@@ -17,7 +19,7 @@ const CardImages = <T extends object>({
   return (
     <>
       <img
-        className="h-48 w-full object-cover object-center"
+        className={`h-48 ${style} w-full object-cover object-center`}
         src={images[imgIndex] || "assets/img/Logo1.png"}
         onError={() => {
           if (imgIndex < images.length - 1) {
