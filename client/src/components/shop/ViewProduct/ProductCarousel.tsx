@@ -12,19 +12,13 @@ import { getFullImageUrl } from "../../../helper/imageHelper";
 import ImageModal from "../../ImageModal";
 
 interface IProductCarousel {
-  thumbsSwiper: SwiperClass | null;
-  setThumbsSwiper: React.Dispatch<React.SetStateAction<SwiperClass | null>>;
   productData: IProduct | null;
 }
 
-export const PetCarousel: FC<IProductCarousel> = ({
-  thumbsSwiper,
-  setThumbsSwiper,
-  productData,
-}) => {
+export const PetCarousel: FC<IProductCarousel> = ({ productData }) => {
   const [mainSwiper, setMainSwiper] = useState<SwiperClass | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-
+  const [thumbsSwiper, setThumbsSwiper] = useState<SwiperClass | null>(null);
   const pictures = productData?.images || [];
   const hasPictures = pictures.length > 0;
   const placeholderImage = "/assets/img/Logo1.png";
@@ -53,7 +47,12 @@ export const PetCarousel: FC<IProductCarousel> = ({
           onSwiper={setMainSwiper}
           spaceBetween={10}
           slidesPerView={1}
-          thumbs={{ swiper: thumbsSwiper }}
+          thumbs={{
+            swiper:
+              thumbsSwiper && thumbsSwiper.destroyed !== true
+                ? thumbsSwiper
+                : undefined,
+          }}
           onBeforeInit={(swiper) => {
             swiperRef.current = swiper;
           }}
@@ -92,7 +91,11 @@ export const PetCarousel: FC<IProductCarousel> = ({
             <ChevronLeft className="text-orange-500 cursor-pointer" />
           </button>
           <Swiper
-            onSwiper={setThumbsSwiper}
+            onSwiper={(swiper) => {
+              if (swiper && swiper.el) {
+                setThumbsSwiper(swiper);
+              }
+            }}
             spaceBetween={10}
             freeMode={true}
             watchSlidesProgress={true}

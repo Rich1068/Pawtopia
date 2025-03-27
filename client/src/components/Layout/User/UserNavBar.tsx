@@ -1,19 +1,33 @@
 import { Link, NavLink } from "react-router";
 import { useRef, useEffect, useState } from "react";
-import { PawPrint, LogOut, Menu, X, UserRound, Heart } from "lucide-react";
+import {
+  PawPrint,
+  LogOut,
+  Menu,
+  X,
+  UserRound,
+  Heart,
+  ShoppingCart,
+} from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
 import { useFavorites } from "../../../context/FavoritesContext";
+import { useCart } from "../../../context/CartContext";
 import Logo from "../../Logo";
+import { getFullImageUrl } from "../../../helper/imageHelper";
 
 const UserNavBar = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [isFavoriteOpen, setIsFavoriteOpen] = useState<boolean>(false);
-  const { user, logout, loading } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [isFavoriteOpen, setIsFavoriteOpen] = useState<boolean>(false);
+  const [isCartOpen, setIsCartOpen] = useState<boolean>(false);
+  const { user, logout, loading } = useAuth();
+  const { favorites } = useFavorites();
+  const { cart, addToCart, decreaseFromCart, removeFromCart } = useCart();
   const [closing, setClosing] = useState(false);
   const favoriteDropdownRef = useRef<HTMLDivElement>(null);
   const profileDropdownRef = useRef<HTMLDivElement>(null);
-  const { favorites } = useFavorites();
+  const cartDropdownRef = useRef<HTMLDivElement>(null);
+  const cartProductCount = cart?.products?.length ?? 0;
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -27,6 +41,12 @@ const UserNavBar = () => {
         !profileDropdownRef.current.contains(event.target as Node)
       ) {
         setDropdownOpen(false);
+      }
+      if (
+        cartDropdownRef.current &&
+        !cartDropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsCartOpen(false);
       }
     };
 
@@ -81,6 +101,155 @@ const UserNavBar = () => {
         <div className="flex max-lg:ml-auto space-x-4 w-auto">
           {user ? (
             <>
+              <div className="relative max-sm:hidden" ref={cartDropdownRef}>
+                <button
+                  className="relative p-2 text-orange-500 items-center mt-1"
+                  onClick={() => setIsCartOpen(!isCartOpen)}
+                >
+                  <ShoppingCart size={28} />
+
+                  {cartProductCount > 0 && (
+                    <span className="absolute -top-0 -right-0 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+                      {cartProductCount}
+                    </span>
+                  )}
+                </button>
+                {isCartOpen && (
+                  <div className="absolute right-0 mt-2 w-110 bg-white border border-orange-500 shadow-lg rounded-lg z-50">
+                    {/* Shopping Cart Title */}
+                    <div className="p-3 border-b border-orange-500 text-center font-semibold text-orange-600">
+                      Shopping Cart
+                    </div>
+
+                    {/* Cart Items List */}
+                    <ul className="max-h-150 overflow-y-auto divide-y divide-gray-300 px-3 font-primary text-amber-950">
+                      {cart && cartProductCount > 0 ? (
+                        cart?.products.map((prod) => {
+                          const productImage =
+                            getFullImageUrl(prod.productId.images?.[0]) ||
+                            "/assets/img/Logo1.jpg";
+                          const productName = prod.productId.name;
+                          const productPrice =
+                            parseFloat(prod.productId.price) || 0;
+                          const totalPrice = (
+                            productPrice * prod.quantity
+                          ).toFixed(2);
+
+                          return (
+                            <li
+                              key={prod._id || prod.productId._id}
+                              className="flex items-center justify-between py-3"
+                            >
+                              {/* Product Image & Details */}
+                              <Link
+                                to={`/shop/product/${prod.productId._id}`}
+                                className="flex items-center"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setIsFavoriteOpen(false);
+                                }}
+                              >
+                                <img
+                                  src={productImage}
+                                  alt={productName}
+                                  className="w-20 h-20 rounded-lg border border-gray-300 object-cover"
+                                />
+                                <div className="ml-3">
+                                  <span className="block text-sm font-medium">
+                                    {productName}
+                                  </span>
+                                  <span className="block text-xs text-gray-500">
+                                    ${productPrice.toFixed(2)}
+                                  </span>
+                                </div>
+                              </Link>
+
+                              {/* Quantity Controls */}
+                              <div className="flex items-center space-x-2">
+                                <button
+                                  className="w-8 h-8 flex items-center justify-center bg-gray-200 hover:bg-gray-300 rounded-md transition"
+                                  onClick={() =>
+                                    decreaseFromCart(prod.productId._id, 1)
+                                  }
+                                  disabled={prod.quantity <= 1}
+                                >
+                                  -
+                                </button>
+                                <span className="w-6 text-center">
+                                  {prod.quantity}
+                                </span>
+                                <button
+                                  className="w-8 h-8 flex items-center justify-center bg-gray-200 hover:bg-gray-300 rounded-md transition"
+                                  onClick={() =>
+                                    addToCart(prod.productId._id, 1)
+                                  }
+                                  disabled={prod.quantity >= 99}
+                                >
+                                  +
+                                </button>
+                              </div>
+
+                              {/* Total Price & Remove Button */}
+                              <div className="text-right">
+                                <span className="block text-sm font-semibold">
+                                  ${totalPrice}
+                                </span>
+                                <button
+                                  className="text-xs text-red-500 hover:text-red-700 transition"
+                                  onClick={() =>
+                                    removeFromCart(prod.productId._id)
+                                  }
+                                >
+                                  Remove
+                                </button>
+                              </div>
+                            </li>
+                          );
+                        })
+                      ) : (
+                        <li className="p-4 text-center text-gray-500">
+                          Your cart is empty
+                        </li>
+                      )}
+                    </ul>
+
+                    {/* Cart Subtotal */}
+                    {cartProductCount > 0 && (
+                      <div className="p-3 border-t border-orange-500">
+                        <div className="flex justify-between text-sm font-semibold text-gray-700">
+                          <span>Subtotal:</span>
+                          <span>
+                            $
+                            {cart?.products
+                              .reduce(
+                                (sum, prod) =>
+                                  sum +
+                                  parseFloat(prod.productId.price) *
+                                    prod.quantity,
+                                0
+                              )
+                              .toFixed(2)}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Checkout Button */}
+                    <div className="p-3 border-t border-orange-500 text-center">
+                      <Link
+                        to="/shop/checkout"
+                        className="block w-full py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setIsCartOpen(false);
+                        }}
+                      >
+                        Proceed to Checkout
+                      </Link>
+                    </div>
+                  </div>
+                )}
+              </div>
               <div className="relative max-sm:hidden" ref={favoriteDropdownRef}>
                 <button
                   className="relative p-2 text-orange-500 items-center mt-1"

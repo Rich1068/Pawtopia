@@ -114,3 +114,17 @@ export type ProductFilter = {
 export type ProductCounts = {
   category: Record<string, number>;
 };
+
+export interface ICartProduct {
+  _id: Key | null | undefined;
+  productId: IProduct;
+  quantity: number;
+}
+
+export interface ICart {
+  _id: string;
+  userId: string;
+  products: ICartProduct[];
+  createdAt: string;
+  updatedAt: string;
+}

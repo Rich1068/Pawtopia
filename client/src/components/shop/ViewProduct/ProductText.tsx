@@ -1,10 +1,11 @@
 import { FC, useState } from "react";
 import type { IProduct } from "../../../types/Types";
-import { Link, useNavigate } from "react-router";
-import { Trash } from "lucide-react";
+import { useNavigate } from "react-router";
 import serverAPI from "../../../helper/axios";
 import toast from "react-hot-toast";
 import WarningModal from "../../WarningModal";
+import AdminButtons from "./AdminButtons";
+import UserButtons from "./UserButtons";
 
 interface IProductText {
   productData: IProduct;
@@ -34,14 +35,20 @@ const ProductText: FC<IProductText> = ({
   };
   return (
     <>
-      <div className="p-6 bg-white rounded-2xl max-lg:mx-auto lg:!mr-auto shadow-lg min-w-full md:min-w-[90%] min-h-auto relative inline-block font-secondary border-2 border-orange-400 pb-20 w-full text-wrap break-words">
+      <div
+        className={`p-6 bg-white rounded-2xl max-lg:mx-auto lg:!mr-auto shadow-lg min-w-full md:min-w-[90%] min-h-auto relative inline-block font-secondary border-2 border-orange-400 ${
+          isAdmin && isAdminView ? "pb-20" : "pb-35"
+        } w-full text-wrap break-words`}
+      >
         {/* Product Name */}
-        <h2 className="text-4xl font-bold mb-4 text-orange-600">{name}</h2>
+        <h2 className="text-4xl font-semibold mb-4 text-orange-600 font-primary">
+          {name}
+        </h2>
 
         {/* Product Details */}
-        <div className="text-gray-700 space-y-4">
+        <div className="text-gray-700 space-y-4 text-lg">
           <strong className="text-orange-500">Category:</strong>{" "}
-          <div className="flex flex-wrap gap-2 w-full ">
+          <div className="flex flex-wrap gap-2 w-full text-base">
             {category.map((cat) => (
               <span
                 key={cat}
@@ -52,32 +59,31 @@ const ProductText: FC<IProductText> = ({
             ))}
           </div>
           <div>
-            <strong className="text-orange-500">Price:</strong>{" "}
-            {new Intl.NumberFormat("en-US", {
-              style: "currency",
-              currency: "USD",
-            }).format(parseFloat(price))}
+            <strong className="text-orange-500 text-lg">Price:</strong>
+            <div className="text-base">
+              {new Intl.NumberFormat("en-US", {
+                style: "currency",
+                currency: "USD",
+              }).format(parseFloat(price))}
+            </div>
           </div>
           <div>
-            <strong className="text-orange-500">Description:</strong>{" "}
-            {description}
+            <strong className="text-orange-500 text-lg">Description:</strong>
+            <div className="text-base">{description}</div>
           </div>
         </div>
         {isAdmin && isAdminView ? (
           <div className="absolute bottom-5 flex gap-x-4 ">
-            <Link to={`/admin/product/edit/${productData._id}`}>
-              <button className=" px-2 h-10 text-lg cursor-pointer hover:bg-orange-400 font-primary font-base border rounded-lg bg-orange-500 text-white">
-                Edit Product
-              </button>
-            </Link>
-            <button
-              className="w-10 h-10 flex items-center justify-center bg-red-500 text-white rounded-md hover:bg-red-700 cursor-pointer"
-              onClick={() => setIsModalOpen(true)}
-            >
-              <Trash size={16} />
-            </button>
+            <AdminButtons
+              productId={productData._id}
+              setIsModalOpen={setIsModalOpen}
+            />
           </div>
-        ) : null}
+        ) : (
+          <div className="absolute bottom-5">
+            <UserButtons product={productData} />
+          </div>
+        )}
       </div>
       <WarningModal
         header="Confirm Deletion"
