@@ -1,4 +1,4 @@
-export const Admin = () => {
+export const AdminDashboard = () => {
   return (
     <>
       <div className="min-h-screen">
@@ -14,4 +14,4 @@ export const Admin = () => {
   );
 };
 
-export default Admin;
+export default AdminDashboard;
