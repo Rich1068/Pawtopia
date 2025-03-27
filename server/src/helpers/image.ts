@@ -29,4 +29,13 @@ export const uploadFile = (folder: string) =>
     limits: { fileSize: 5 * 1024 * 1024 },
   });
 
+export const checkIfImageExists = async (imagePath: string) => {
+  try {
+    await fs.promises.access(imagePath);
+    return true;
+  } catch (error) {
+    return false;
+  }
+};
+
 export default uploadFile;

@@ -11,6 +11,8 @@ import path from "path";
 import email from "./routes/email";
 import product from "./routes/product";
 import cart from "./routes/cart";
+import { handleCheckoutSuccess } from "./controllers/cartController";
+import order from "./routes/order";
 
 db_connection();
 dotenv.config();
@@ -18,14 +20,20 @@ const app = express();
 
 app.use(
   cors({
-    origin: process.env.CLIENT_URL,
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    origin: [process.env.CLIENT_URL!, "https://checkout.stripe.com"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type"],
     credentials: true,
   })
 );
+
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
+app.post(
+  "/stripe/webhook",
+  express.raw({ type: "application/json" }),
+  handleCheckoutSuccess
+);
 app.use(express.json());
 app.use("/assets", express.static(path.join(__dirname, "assets")));
 app.use("/", route);
@@ -35,7 +43,8 @@ app.use("/user", user);
 app.use("/email", email);
 app.use("/product", product);
 app.use("/cart", cart);
-const port = process.env.PORT || 8000;
+app.use("/order", order);
+const port = process.env.PORT || 10000;
 app.listen(port, () => {
   console.log("Backend Server running at Port: " + port);
 });
