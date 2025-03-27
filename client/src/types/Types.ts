@@ -93,6 +93,7 @@ export interface IProduct {
   _id: string;
   images: string[];
   name: string;
+  description: string;
   price: string;
   category: string[];
 }

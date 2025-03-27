@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-
 import { useEffect, useState } from "react";
 import Cards from "../components/Adopt/Cards";
 import PageHeader from "../components/PageHeader";
@@ -7,6 +6,7 @@ import { useFavorites } from "../context/FavoritesContext";
 import serverAPI from "../helper/axios";
 import { petType } from "../types/pet";
 import LoadingPage from "../components/LoadingPage/LoadingPage";
+import { cleanImageUrl } from "../helper/imageHelper";
 
 const Favorite = () => {
   const { favorites } = useFavorites();
@@ -42,12 +42,6 @@ const Favorite = () => {
     return <LoadingPage fadeOut={false} />;
   }
 
-  const cleanImageUrl = (url: string | undefined): string | undefined => {
-    let cleanedUrl = url?.split("?")[0];
-    cleanedUrl = cleanedUrl?.replace(/\/\d+(?=\.\w+$)/, "");
-    cleanedUrl = cleanedUrl?.replace(/\.\w+$/, "");
-    return cleanedUrl;
-  };
   return (
     <>
       <PageHeader text={"My Favorites"} />

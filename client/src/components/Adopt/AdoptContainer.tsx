@@ -9,6 +9,7 @@ import Cards from "./Cards";
 import ReactPaginate from "react-paginate";
 import { useFilteredPets } from "../../hooks/useFilteredPets";
 import { usePagination } from "../../hooks/usePagination";
+import { cleanImageUrl } from "../../helper/imageHelper";
 
 interface IAdoptContainer {
   allPets: petType[];
@@ -42,13 +43,6 @@ const AdoptContainer: FC<IAdoptContainer> = ({ allPets }) => {
 
   const handlePageClick = (e: { selected: number }) => {
     setCurrentPage(e.selected + 1); // React-Paginate uses 0-based index
-  };
-
-  const cleanImageUrl = (url: string | undefined): string | undefined => {
-    let cleanedUrl = url?.split("?")[0];
-    cleanedUrl = cleanedUrl?.replace(/\/\d+(?=\.\w+$)/, "");
-    cleanedUrl = cleanedUrl?.replace(/\.\w+$/, "");
-    return cleanedUrl;
   };
 
   const toggleFilter = () => {

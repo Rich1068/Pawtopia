@@ -6,6 +6,7 @@ import CategorySelector from "../../components/shop/Admin/AddProduct/CategorySel
 import ProductImageUpload from "../../components/shop/Admin/AddProduct/ProductImageUpload";
 import toast from "react-hot-toast";
 import type { IAddProduct, IProductImage } from "../../types/Types";
+import TitleComponent from "../../components/shop/Admin/TitleComponent";
 
 const AddProduct = ({
   productToEdit,
@@ -84,7 +85,8 @@ const AddProduct = ({
             }
           );
           finalImagePaths.push(...uploadRes.data.images);
-        } catch (err) {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
+        } catch (error: any) {
           toast.error("Error uploading images.");
           setLoading(false);
           return;
@@ -130,9 +132,8 @@ const AddProduct = ({
 
   return (
     <div>
-      <h2 className="text-3xl font-semibold mb-4 font-primary text-orange-600">
-        {productToEdit ? "Edit Product" : "Add Product"}
-      </h2>
+      <TitleComponent text={productToEdit ? "Edit Product" : "Add Product"} />
+
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="flex items-start max-lg:flex-col max-lg:gap-y-5 gap-x-10">
           <div className="flex-1 max-lg:w-full max-lg:mx-auto min-w-[300px] ml-auto p-6 bg-white rounded-xl shadow-lg">

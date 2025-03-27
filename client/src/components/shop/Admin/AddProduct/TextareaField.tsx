@@ -21,7 +21,7 @@ const TextareaField: React.FC<TextareaFieldProps> = ({
         value={value}
         onChange={onChange}
         placeholder={placeholder}
-        className="w-full my-2 p-2 border border-gray-300 rounded-lg font-primary text-amber-950  placeholder-gray-400/70"
+        className="w-full min-h-35 my-2 p-2 border border-gray-300 rounded-lg font-primary text-amber-950  placeholder-gray-400/70"
         required
       />
     </div>

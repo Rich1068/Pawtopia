@@ -29,7 +29,7 @@ const ProductActionButtons = ({
   };
   return (
     <div className="flex gap-2 justify-center">
-      <Link to="/admin/product/:id">
+      <Link to={`/admin/product/${product._id}`}>
         <button className="p-2 bg-blue-500 text-white rounded-full hover:bg-blue-700">
           <Eye size={16} />
         </button>

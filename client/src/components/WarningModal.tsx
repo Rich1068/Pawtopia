@@ -33,13 +33,16 @@ export const WarningModal: FC<IWarningModal> = ({
         <p className="text-gray-500">{text}</p>
         <div className="flex gap-x-5 m-2">
           <button
-            className="px-4 py-2 bg-gray-300 rounded-md ring-orange-500"
+            className="px-4 py-2 bg-gray-400 text-white rounded-md cursor-pointer ring-orange-500 
+             hover:bg-gray-500 transition duration-300"
             onClick={() => setIsModalOpen(false)}
           >
             Close
           </button>
+
           <button
-            className="px-4 py-2 bg-orange-500 text-white rounded-md"
+            className="px-4 py-2 bg-orange-500 text-white rounded-md cursor-pointer 
+             hover:bg-orange-600 transition duration-300"
             onClick={onConfirm}
           >
             {confirmText}
