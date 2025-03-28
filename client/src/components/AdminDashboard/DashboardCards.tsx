@@ -1,5 +1,7 @@
 import { FC, JSX } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { ShoppingCart, PawPrint, Clock, DollarSign } from "lucide-react";
+import serverAPI from "../../helper/axios";
 
 interface DashboardCardProps {
   title: string;
@@ -31,39 +33,65 @@ const DashboardCard: FC<DashboardCardProps> = ({
   );
 };
 
-interface DashboardCardsProps {
-  stats: {
-    totalProducts: number;
-    totalRevenue: number;
-    totalAdoptions: number;
-    totalPendingAdoptions: number;
-  };
-}
+const fetchAdminStats = async () => {
+  try {
+    const response = await serverAPI.get("/admin/stats", {
+      withCredentials: true,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching admin stats:", error);
+    throw error;
+  }
+};
 
-const DashboardCards: FC<DashboardCardsProps> = ({ stats }) => {
+const DashboardCards: FC = () => {
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["adminStats"],
+    queryFn: fetchAdminStats,
+    staleTime: 5 * 60 * 1000,
+    refetchOnMount: "always",
+  });
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-40">
+        <p className="animate-spin rounded-full h-8 w-8 border-t-4 border-orange-500"></p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center text-red-500 font-semibold">
+        Error fetching stats. Please try again.
+      </div>
+    );
+  }
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:p-4">
       <DashboardCard
         title="Total Products"
-        value={stats.totalProducts}
+        value={data?.totalProducts ?? 0}
         icon={<ShoppingCart className="w-6 h-6 text-orange-500" />}
         borderColor="border-orange-500"
       />
       <DashboardCard
         title="Total Revenue"
-        value={`$${stats.totalRevenue}`}
+        value={`$${data?.totalRevenue ?? 0}`}
         icon={<DollarSign className="w-6 h-6 text-yellow-500" />}
         borderColor="border-yellow-500"
       />
       <DashboardCard
         title="Pets Adopted"
-        value={stats.totalAdoptions}
+        value={data?.totalAdoptions ?? 0}
         icon={<PawPrint className="w-6 h-6 text-green-500" />}
         borderColor="border-green-500"
       />
       <DashboardCard
         title="Pending Adoptions"
-        value={stats.totalPendingAdoptions}
+        value={data?.totalPendingAdoptions ?? 0}
         icon={<Clock className="w-6 h-6 text-red-500" />}
         borderColor="border-red-500"
       />

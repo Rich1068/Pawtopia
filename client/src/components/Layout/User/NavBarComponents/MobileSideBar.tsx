@@ -9,6 +9,7 @@ import {
   Heart,
   Mail,
   ShoppingBag,
+  PawPrint,
 } from "lucide-react";
 import type { User, FavoritePets } from "../../../../types/Types";
 import { useCart } from "../../../../context/CartContext";
@@ -27,7 +28,7 @@ interface IMobileSidebar {
 const iconMap: Record<string, JSX.Element> = {
   Home: <Home />,
   Shop: <ShoppingBag />,
-  Adopt: <Heart />,
+  Adopt: <PawPrint />,
   Contact: <Mail />,
 };
 

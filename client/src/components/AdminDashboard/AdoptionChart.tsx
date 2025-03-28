@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -10,6 +9,7 @@ import {
   Legend,
   ChartData,
 } from "chart.js";
+import { useQuery } from "@tanstack/react-query";
 import serverAPI from "../../helper/axios";
 
 ChartJS.register(
@@ -21,61 +21,65 @@ ChartJS.register(
   Legend
 );
 
-const AdoptionChart = () => {
-  const [chartData, setChartData] = useState<ChartData<"line">>({
-    labels: [],
-    datasets: [],
+// Fetch function for adoptions per month
+const fetchAdoptionStats = async () => {
+  const { data } = await serverAPI.get("/admin/adoptions-per-month", {
+    withCredentials: true,
   });
+  return data;
+};
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const { data } = await serverAPI.get("/admin/adoptions-per-month", {
-          withCredentials: true,
-        });
+// Custom hook for fetching adoption stats
+export const useAdoptionStats = () => {
+  return useQuery({
+    queryKey: ["adoptionStats"],
+    queryFn: fetchAdoptionStats,
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    refetchOnMount: true, // Refetch on mount
+  });
+};
 
-        // Format data for Chart.js
-        const months = [
-          "Jan",
-          "Feb",
-          "Mar",
-          "Apr",
-          "May",
-          "Jun",
-          "Jul",
-          "Aug",
-          "Sep",
-          "Oct",
-          "Nov",
-          "Dec",
-        ];
-        const adoptionCounts = new Array(12).fill(0);
+const AdoptionChart = () => {
+  const { data, isLoading, isError } = useAdoptionStats();
 
-        data.forEach((item: { _id: number; total: number }) => {
-          if (item._id >= 1 && item._id <= 12) {
-            adoptionCounts[item._id - 1] = item.total;
-          }
-        });
+  // Format data for Chart.js
+  const months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+  const adoptionCounts = new Array(12).fill(0);
 
-        setChartData({
-          labels: months,
-          datasets: [
-            {
-              label: "Adoptions",
-              data: adoptionCounts,
-              backgroundColor: "oklch(0.705 0.213 47.604)",
-              borderColor: "oklch(0.705 0.213 47.604)",
-              borderWidth: 2,
-            },
-          ],
-        });
-      } catch (error) {
-        console.error("Error fetching adoption data:", error);
+  if (data) {
+    data.forEach((item: { _id: number; total: number }) => {
+      if (item._id >= 1 && item._id <= 12) {
+        adoptionCounts[item._id - 1] = item.total;
       }
-    };
+    });
+  }
 
-    fetchData();
-  }, []);
+  const chartData: ChartData<"line"> = {
+    labels: months,
+    datasets: [
+      {
+        label: "Adoptions",
+        data: adoptionCounts,
+        backgroundColor: "oklch(0.705 0.213 47.604)",
+        borderColor: "oklch(0.705 0.213 47.604)",
+        borderWidth: 2,
+      },
+    ],
+  };
+
   const options = {
     maintainAspectRatio: false,
     responsive: true,
@@ -109,10 +113,13 @@ const AdoptionChart = () => {
       <h2 className="text-lg font-semibold mb-3 text-gray-700">
         Total Adoptions Per Month
       </h2>
+
+      {/* Loading & Error States */}
+      {isLoading && <p>Loading...</p>}
+      {isError && <p>Error fetching data</p>}
+
       <div className="w-full overflow-x-auto">
-        {/* Enables horizontal scroll */}
         <div className="min-w-[300px]">
-          {/* Ensures enough space */}
           <Line data={chartData} options={options} />
         </div>
       </div>
