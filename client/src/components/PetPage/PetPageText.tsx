@@ -48,7 +48,7 @@ export const PetPageText: FC<IPetPageText> = ({ petData, setIsFormOpen }) => {
   ];
   return (
     <div
-      className="p-4 bg-white rounded-lg shadow-md min-w-full min-h-full relative inline-block font-secondary"
+      className="p-4 bg-white rounded-lg shadow-md min-w-full relative inline-block font-secondary"
       data-testid="pet-page"
     >
       <h2
@@ -73,7 +73,9 @@ export const PetPageText: FC<IPetPageText> = ({ petData, setIsFormOpen }) => {
           <strong className="text-gray-800">About:</strong>
           <p
             className="text-gray-600"
-            dangerouslySetInnerHTML={{ __html: descriptionHtml }}
+            dangerouslySetInnerHTML={{
+              __html: descriptionHtml.replace(/<img[^>]*>/g, ""),
+            }}
           />
         </div>
       )}

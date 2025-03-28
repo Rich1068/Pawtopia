@@ -54,7 +54,7 @@ export const PetCarousel: FC<IPetCarousel> = ({ petData, cleanImageUrl }) => {
   const swiperRef = useRef<SwiperClass | undefined>(undefined);
   return (
     <>
-      <div className="max-w-100 w-[100%] max:lg:w-[90%] max-sm:w-[80%] mx-auto">
+      <div className="max-w-160 w-[100%] max:lg:w-[90%] mx-auto lg:ml-auto">
         <Swiper
           onSwiper={setMainSwiper}
           spaceBetween={10}
@@ -64,17 +64,17 @@ export const PetCarousel: FC<IPetCarousel> = ({ petData, cleanImageUrl }) => {
             swiperRef.current = swiper;
           }}
           modules={[FreeMode, Navigation, Thumbs]}
-          className="inherit mySwiper2 max-h-125 w-auto"
+          className="max-h-120 mx-auto"
         >
           {hasPictures ? (
             pictures.map((_, i) => (
-              <SwiperSlide key={i} className="!w-full m-auto">
+              <SwiperSlide key={i} className="max-h-auto m-auto">
                 <img
                   src={getImageUrl(i)}
                   onClick={() => handleImageClick(getImageUrl(i))}
                   onError={(e) => (e.currentTarget.src = placeholderImage)}
                   alt="Pet"
-                  className="border rounded-xl border-orange-500 object-contain !h-auto !w-auto"
+                  className="border rounded-xl border-orange-500 object-contain !h-auto sm:!w-90 !min-w-auto !max-h-120"
                 />
               </SwiperSlide>
             ))
@@ -83,7 +83,7 @@ export const PetCarousel: FC<IPetCarousel> = ({ petData, cleanImageUrl }) => {
               <img
                 src="/assets/img/Logo1.png"
                 alt="Placeholder Logo"
-                className="border rounded-xl border-orange-500 object-contain !h-auto !w-auto !max-h-125"
+                className="border rounded-xl border-orange-500 object-contain !h-auto !w-100 !min-w-auto !max-h-100 "
               />
             </SwiperSlide>
           )}

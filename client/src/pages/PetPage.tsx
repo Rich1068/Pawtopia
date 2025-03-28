@@ -59,7 +59,7 @@ const PetPage = () => {
         <div className="mx-auto rounded-t-xl px-[6%] py-4 bg-fixed bg-center bg-cover bg-no-repeat bg-[url(/assets/img/wallpaper.jpg)] h-full w-full ">
           {/* Left side - PetCarousel */}
           <div className="flex max-lg:flex-col gap-x-4 ">
-            <div className="flex-1 min-w-[50% justify-center">
+            <div className="flex-1 min-w-[50%] justify-center">
               <PetCarousel petData={petData} cleanImageUrl={cleanImageUrl} />
             </div>
             {/* Right side - PetPageText */}
