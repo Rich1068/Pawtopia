@@ -24,7 +24,8 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [cart, setCart] = useState<ICart | null>(null);
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
+
   const fetchCart = async () => {
     try {
       const { data } = await serverAPI.get("/cart", {
@@ -38,8 +39,9 @@ export const CartProvider: FC<{ children: ReactNode }> = ({ children }) => {
     }
   };
   useEffect(() => {
+    if (!isAuthenticated || !user?._id) return;
     fetchCart();
-  }, [user]);
+  }, [user, isAuthenticated]);
 
   const addToCart = async (productId: string, quantity: number) => {
     try {

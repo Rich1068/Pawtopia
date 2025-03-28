@@ -30,7 +30,6 @@ export const FavoritesProvider = ({ children }: { children: ReactNode }) => {
     serverAPI
       .get(`/user/favorites`, { withCredentials: true })
       .then((res) => {
-        console.log(res);
         return setFavorites(res.data);
       })
       .catch((error) => console.error("Failed to fetch favorites", error));

@@ -16,7 +16,6 @@ export const getAdminStats = async (req: Request, res: Response) => {
     const totalRevenue = await Order.aggregate([
       { $group: { _id: null, total: { $sum: "$totalAmount" } } },
     ]);
-
     res.json({
       totalProducts,
       totalOrders,

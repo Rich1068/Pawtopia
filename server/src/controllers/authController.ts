@@ -10,16 +10,17 @@ import { sendEmail } from "../helpers/mailer";
 export const verifyUserToken = async (req: AuthRequest, res: Response) => {
   const token = req.cookies.token;
   if (!token) {
-    res.status(401).json({ message: "No token provided" });
+    res.json({ verify: false });
     return;
   }
+
   const verify = await verifyToken(token);
   if (!verify) {
-    res.status(401).json({ message: "Invalid Token" });
+    res.json({ verify: false });
     return;
   }
+
   res.json({ verify });
-  return;
 };
 
 export const refreshToken = async (
@@ -29,28 +30,32 @@ export const refreshToken = async (
   const refreshToken = req.cookies.refreshToken;
 
   if (!refreshToken) {
-    res.status(401).json({ error: "No refresh token found" });
+    res.json({ userData: null });
     return;
   }
 
   try {
-    // Verify the refresh token
+    // Verify refresh token
     const decoded = (await verifyToken(
       refreshToken,
       process.env.JWT_REFRESH_SECRET!
     )) as {
       id: string;
     };
+
     if (!decoded) {
-      res.status(403).json({ error: "Invalid refresh token" });
+      res.json({ userData: null }); // Invalid refresh token
       return;
     }
-    // Generate new Access Token
+
+    // Fetch user data
     const user = await User.findById(decoded.id);
     if (!user) {
-      res.status(403).json({ error: "User not found" });
+      res.json({ userData: null }); // User no longer exists
       return;
     }
+
+    // Generate new access token
     const userData = {
       id: user.id,
       name: user.name,
@@ -58,22 +63,22 @@ export const refreshToken = async (
       phone: user.phoneNumber,
       role: user.role,
     };
+
     const newAccessToken = await signToken({
       id: user.id,
       name: user.name as string,
       role: user.role as "admin" | "user",
     });
+
     res
       .cookie("token", newAccessToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
       })
-      .status(200)
       .json({ userData });
-    return;
   } catch (error) {
-    res.status(403).json({ error: "Invalid refresh token" });
+    res.json({ userData: null });
     return;
   }
 };

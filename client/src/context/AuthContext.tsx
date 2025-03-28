@@ -17,20 +17,29 @@ export const AuthContext = createContext<AuthContextType | null>(null);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const isAuthenticated = !!user;
+  const isAuthenticated = Boolean(user);
 
   const fetchUserData = async () => {
     try {
       const { data } = await serverAPI.get<{ user: User }>("/user/get-user", {
         withCredentials: true,
       });
-      if (data.user.profileImage) {
+
+      if (!data?.user) {
+        console.warn(
+          "User data is null. The user is either not logged in or session expired."
+        );
+      } else if (data?.user?.profileImage) {
         data.user.profileImage = SERVER_URL + data.user.profileImage;
       }
-      setUser(data.user);
-      return { success: true, user: data.user };
+
+      setUser(data?.user || null);
+      return { success: !!data?.user, user: data?.user || null };
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      console.error("Failed to fetch user data", error);
+      console.warn(
+        "Error fetching user data: User not logged in or session expired."
+      );
       setUser(null);
       return { success: false };
     }
@@ -43,17 +52,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         {},
         { withCredentials: true }
       );
-
-      if (!data.verify) {
+      if (!data?.verify) {
         setUser(null);
+        console.warn("User not logged in or session expired.");
         return { success: false };
       }
 
       return await fetchUserData();
-
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      console.error("Failed to verify token");
+      console.warn("Token verification failed, user not logged in.");
       setUser(null);
       return { success: false };
     } finally {
@@ -77,8 +85,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       await serverAPI.post("/api/logout", {}, { withCredentials: true });
       setUser(null);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      console.error("Logout failed", error);
+      console.warn("Logout failed, but proceeding with logout.");
     } finally {
       localStorage.removeItem("rememberMe");
     }
