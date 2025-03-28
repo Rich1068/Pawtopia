@@ -12,6 +12,6 @@ export const useAdminStats = () => {
   return useQuery({
     queryKey: ["adminStats"],
     queryFn: fetchAdminStats,
-    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    staleTime: 5 * 60 * 1000,
   });
 };

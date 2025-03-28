@@ -52,10 +52,81 @@ export const getLatestPendingRequest = async (req: Request, res: Response) => {
   try {
     const latestPendingRequests = await AdoptRequest.find({
       status: "pending",
-    }).sort({ createdAt: -1 });
+    })
+      .limit(5)
+      .sort({ createdAt: -1 })
+      .lean();
 
     res.json(latestPendingRequests);
   } catch (error) {
     res.status(500).json({ message: "Error fetching adoption stats" });
+  }
+};
+
+export const getEarningsPerMonth = async (req: Request, res: Response) => {
+  try {
+    const earnings = await Order.aggregate([
+      {
+        $group: {
+          _id: { $month: "$createdAt" },
+          total: { $sum: "$totalAmount" },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ]);
+
+    res.json(earnings);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching earning stats" });
+  }
+};
+
+export const getMostSoldProducts = async (req: Request, res: Response) => {
+  try {
+    const products = await Order.aggregate([
+      { $unwind: "$products" },
+      {
+        $group: {
+          _id: "$products.productId",
+          totalSold: { $sum: "$products.quantity" },
+        },
+      },
+      {
+        $lookup: {
+          from: "products",
+          localField: "_id",
+          foreignField: "_id",
+          as: "productDetails",
+        },
+      },
+      { $unwind: "$productDetails" },
+      { $sort: { totalSold: -1 } },
+      { $limit: 5 },
+      {
+        $project: {
+          _id: 1,
+          totalSold: 1,
+          name: "$productDetails.name",
+        },
+      },
+    ]);
+
+    res.json(products);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching most sold products" });
+  }
+};
+
+export const getRecentOrders = async (req: Request, res: Response) => {
+  try {
+    const orders = await Order.find()
+      .sort({ createdAt: -1 })
+      .limit(5)
+      .populate("userId", "name email")
+      .lean();
+
+    res.json(orders);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching recent orders" });
   }
 };

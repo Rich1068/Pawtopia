@@ -2,6 +2,9 @@ import { useAdminStats } from "../../hooks/useAdminStats";
 import DashboardCards from "../../components/AdminDashboard/DashboardCards";
 import AdoptionChart from "../../components/AdminDashboard/AdoptionChart";
 import PendingRequestsTable from "../../components/AdminDashboard/PendingRequestTable";
+import EarningsChart from "../../components/AdminDashboard/EarningsChart";
+import MostSoldChart from "../../components/AdminDashboard/MostSoldChart";
+import RecentOrdersTable from "../../components/AdminDashboard/RecentOrdersTable";
 
 const AdminDashboard = () => {
   const { data, isLoading, error } = useAdminStats();
@@ -21,26 +24,35 @@ const AdminDashboard = () => {
     );
 
   return (
-    <div>
+    <div className="flex flex-col">
       {/* Dashboard Cards */}
-      <DashboardCards
-        stats={{
-          totalProducts: data.totalProducts,
-          totalRevenue: data.totalRevenue,
-          totalAdoptions: data.totalAdoptions,
-          totalPendingAdoptions: data.totalPendingAdoptions,
-        }}
-      />
-
-      {/* Placeholder for Graphs and Tables */}
+      <div className="flex-1 w-full">
+        <DashboardCards
+          stats={{
+            totalProducts: data.totalProducts,
+            totalRevenue: data.totalRevenue,
+            totalAdoptions: data.totalAdoptions,
+            totalPendingAdoptions: data.totalPendingAdoptions,
+          }}
+        />
+      </div>
       <div className="mt-6">
-        <h2 className="text-xl font-semibold">Charts & Reports</h2>
-        <div className="flex w-full px-4 gap-x-4">
-          <div className="flex-1 w-full">
+        <h2 className="text-xl font-semibold font-secondary sm:px-4 mb-4">
+          Charts & Reports
+        </h2>
+
+        <div className="flex flex-wrap xl:flex-nowrap sm:px-4 gap-6">
+          {/* Left Side - Charts (Takes More Space) */}
+          <div className="flex-1 flex flex-col gap-6 min-w-[300px] sm:min-w-[400px]">
             <AdoptionChart />
+            <EarningsChart />
+            <MostSoldChart />
           </div>
-          <div className="flex-1 w-full">
+
+          {/* Right Side - Tables (Takes Less Space) */}
+          <div className="flex-1 flex flex-col gap-6 min-w-[300px] sm:min-w-[400px]">
             <PendingRequestsTable />
+            <RecentOrdersTable />
           </div>
         </div>
       </div>

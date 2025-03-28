@@ -42,7 +42,7 @@ interface DashboardCardsProps {
 
 const DashboardCards: FC<DashboardCardsProps> = ({ stats }) => {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 p-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:p-4">
       <DashboardCard
         title="Total Products"
         value={stats.totalProducts}

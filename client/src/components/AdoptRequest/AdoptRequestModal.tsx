@@ -27,7 +27,7 @@ const AdoptRequestModal: FC<IAdoptRequestModal> = ({
         </button>
 
         {/* Title */}
-        <h2 className="text-2xl font-semibold text-orange-500 mb-4">
+        <h2 className="text-2xl font-semibold text-orange-500 mb-4 font-primary">
           {request.petName} Adoption Request
         </h2>
 
