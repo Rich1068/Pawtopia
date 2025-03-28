@@ -11,6 +11,10 @@ export const isValidPhoneNumber = (phoneNumber: string): boolean => {
   const phoneRegex = /^\d{11}$/;
   return phoneRegex.test(phoneNumber);
 };
+export const isPhoneExists = async (phoneNumber: string): Promise<boolean> => {
+  const phoneExists = await User.findOne({ phoneNumber });
+  return !!phoneExists;
+};
 
 const doPasswordsMatch = (
   password: string,
@@ -39,7 +43,10 @@ export const validateRegister = async (
     res.status(409).json({ error: "Email already registered" });
     return false;
   }
-
+  if (await isPhoneExists(phoneNumber)) {
+    res.status(400).json({ error: "Phone Number already in use" });
+    return false;
+  }
   if (!isValidEmail(email)) {
     res.status(400).json({ error: "Invalid email format" });
     return false;

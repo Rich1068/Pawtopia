@@ -7,7 +7,7 @@ interface ILogo {
 const Logo: FC<ILogo> = ({ style }) => {
   return (
     <Link to="/" data-testid="logo-nav">
-      <div className={`flex pl-2 ${style}`}>
+      <div className={`flex ${style}`}>
         <img
           src="/assets/img/Logo1.png"
           alt="logo"

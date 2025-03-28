@@ -3,6 +3,8 @@ import toast from "react-hot-toast";
 import { useNavigate, Link } from "react-router";
 import { useAuth } from "../context/AuthContext";
 import serverAPI from "../helper/axios";
+import PageHeader from "../components/PageHeader";
+import { LoaderCircle } from "lucide-react";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -12,140 +14,139 @@ const Login = () => {
     password: "",
     rememberMe: false,
   });
+  const [loading, setLoading] = useState(false);
 
   const loginUser = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const { email, password, rememberMe } = data;
     const emailCheck = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    if (!data.email || !data.password) {
+    if (!email || !password) {
       toast.error("All fields are required");
       return;
     }
 
-    if (data.email && !emailCheck.test(data.email)) {
+    if (!emailCheck.test(email)) {
       toast.error("Invalid email format");
       return;
     }
+
+    setLoading(true);
     try {
-      await serverAPI.post(
+      const { data } = await serverAPI.post(
         "/login",
-        {
-          email,
-          password,
-          rememberMe,
-        },
+        { email, password, rememberMe },
         { withCredentials: true }
       );
       await login(rememberMe);
-      setData({
-        email: "",
-        password: "",
-        rememberMe: false,
-      });
-      navigate("/");
+      setData({ email: "", password: "", rememberMe: false });
 
+      if (data.message === "Please Verify Email") {
+        localStorage.setItem("unverifiedEmail", data.email);
+        navigate("/verify-email");
+        return;
+      } else {
+        navigate("/");
+      }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      if (error.response) {
-        toast.error(error.response.data.error);
-      } else {
-        toast.error("Something went wrong, please try again.");
-      }
+      toast.error(error.response?.data?.error || "Something went wrong");
+    } finally {
+      setLoading(false);
     }
   };
+
   return (
     <>
-      <div className=" relative h-[240px] bg-orange-600 z-10">
-        <div className="">
-          <form
-            onSubmit={loginUser}
-            className="bg-white max-w-xl mt-30 absolute left-0 right-0 align-middle w-full mx-auto shadow-[0_2px_10px_-3px_rgba(6,81,237,0.3)] p-6 sm:p-8 rounded-2xl"
+      <PageHeader />
+      <div className="min-h-screen -mt-20 sm:-mt-30 z-111 relative">
+        <form
+          onSubmit={loginUser}
+          className="bg-white max-w-lg w-full p-8 mx-auto shadow-lg rounded-2xl border border-gray-200"
+        >
+          <h3 className="text-orange-600 text-4xl font-semibold text-center mb-4 font-primary">
+            Login
+          </h3>
+          <p className="text-gray-500 text-sm text-center mb-6 font-secondary">
+            Log in to your account and adopt/buy a pet now!
+          </p>
+
+          <div className="space-y-5 font-secondary">
+            <div>
+              <label className="block text-gray-700 text-sm font-medium">
+                Email
+              </label>
+              <input
+                type="text"
+                name="email"
+                placeholder="Enter email"
+                value={data.email}
+                onChange={(e) => setData({ ...data, email: e.target.value })}
+                className="w-full bg-gray-100 text-gray-900 text-sm border border-gray-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-400 px-3 py-2 rounded-lg outline-none transition-all"
+              />
+            </div>
+
+            <div>
+              <label className="block text-gray-700 text-sm font-medium">
+                Password
+              </label>
+              <input
+                type="password"
+                name="password"
+                placeholder="Enter password"
+                value={data.password}
+                onChange={(e) => setData({ ...data, password: e.target.value })}
+                className="w-full bg-gray-100 text-gray-900 text-sm border border-gray-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-400 px-3 py-2 rounded-lg outline-none transition-all"
+              />
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between mt-4 font-secondary">
+            <div className="flex items-center">
+              <input
+                id="remember-me"
+                type="checkbox"
+                className="h-4 w-4 rounded accent-orange-500"
+                checked={data.rememberMe}
+                onChange={() =>
+                  setData({ ...data, rememberMe: !data.rememberMe })
+                }
+              />
+              <label htmlFor="remember-me" className="ml-2 text-sm">
+                Remember me
+              </label>
+            </div>
+            <Link
+              to="/forgot-password"
+              className="text-orange-500 text-sm hover:underline"
+            >
+              Forgot password?
+            </Link>
+          </div>
+
+          <button
+            type="submit"
+            className="w-full mt-6 py-2.5 px-4 text-sm font-semibold rounded-lg text-white bg-orange-600 hover:bg-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-400 transition-all font-secondary flex items-center justify-center"
+            disabled={loading}
           >
-            <div className="mb-12">
-              <h3 className="text-orange-600 font-primary font-normal text-4xl text-center">
-                Login
-              </h3>
-              <p className="text-gray-500 text-sm mt-4 leading-relaxed">
-                Log in to your account and adopt/buy a pet now!.
-              </p>
-            </div>
-            <div className=" font-secondary font-semibold">
-              <div className="mb-8">
-                <label className="text-gray-800 text-xs block mb-2">
-                  Email
-                  <input
-                    type="text"
-                    name="email"
-                    placeholder="Enter email"
-                    value={data.email}
-                    onChange={(e) =>
-                      setData({ ...data, email: e.target.value })
-                    }
-                    className="w-full bg-transparent text-sm text-gray-800 border-b border-gray-300 focus:border-orange-500 pl-2 pr-8 py-3 outline-none"
-                  />
-                </label>
-              </div>
+            {loading ? (
+              <LoaderCircle className="animate-spin w-5 h-5" />
+            ) : (
+              "Sign in"
+            )}
+          </button>
 
-              <div className="mb-8">
-                <label className="text-gray-800 text-xs block mb-2">
-                  Password
-                  <input
-                    type="password"
-                    name="password"
-                    placeholder="Enter password"
-                    value={data.password}
-                    onChange={(e) =>
-                      setData({ ...data, password: e.target.value })
-                    }
-                    className="w-full bg-transparent text-sm text-gray-800 border-b border-gray-300 focus:border-orange-500 pl-2 pr-8 py-3 outline-none"
-                  />
-                </label>
-              </div>
-
-              <div className="flex items-center mt-8">
-                <input
-                  id="remember-me"
-                  type="checkbox"
-                  className="h-4 w-4 shrink-0 rounded accent-orange-500"
-                  checked={data.rememberMe}
-                  onChange={() =>
-                    setData({ ...data, rememberMe: !data.rememberMe })
-                  }
-                />
-                <label htmlFor="remember-me" className="ml-3 text-sm">
-                  Remember me
-                </label>
-                <Link
-                  to="/forgot-password"
-                  className="ml-auto text-orange-500 font-semibold hover:underline"
-                >
-                  Forgot your password?
-                </Link>
-              </div>
-
-              <div className="mt-8">
-                <button
-                  type="submit"
-                  className="w-full shadow-xl py-2.5 px-4 text-sm font-semibold tracking-wider rounded-md text-white bg-orange-600 hover:bg-orange-500 focus:outline-none transition-all"
-                >
-                  Sign in
-                </button>
-                <p className="text-gray-800 text-sm mt-4 text-center">
-                  Don't have an account?
-                  <Link
-                    to="/register"
-                    className="text-orange-500 font-semibold hover:underline ml-1"
-                  >
-                    Register here
-                  </Link>
-                </p>
-              </div>
-            </div>
-          </form>
-        </div>
+          <p className="text-gray-700 text-sm mt-4 text-center font-secondary">
+            Don't have an account?
+            <Link
+              to="/register"
+              className="text-orange-500 font-semibold hover:underline ml-1"
+            >
+              Register here
+            </Link>
+          </p>
+        </form>
       </div>
-      <div className=" absolute bottom-0 min-w-full min-h-full bg-cover md:bg-contain bg-[url(/assets/img/wallpaper.jpg)]"></div>
     </>
   );
 };

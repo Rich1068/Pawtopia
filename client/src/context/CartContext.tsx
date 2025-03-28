@@ -32,8 +32,9 @@ export const CartProvider: FC<{ children: ReactNode }> = ({ children }) => {
       });
 
       setCart(data.cart ?? null);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      console.log(error);
+      console.error("Fetch Cart Error");
     }
   };
   useEffect(() => {

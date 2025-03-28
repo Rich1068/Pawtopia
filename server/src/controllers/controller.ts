@@ -2,11 +2,14 @@ import { Response, Request } from "express";
 import User from "../models/User";
 import {
   comparePassword,
+  generateToken,
   hashPassword,
   signRefreshToken,
   signToken,
 } from "../helpers/auth";
+
 import { validateRegister, validateLogin } from "../helpers/validation";
+import { sendEmail } from "../helpers/mailer";
 
 export const registerUser = async (
   req: Request,
@@ -17,6 +20,8 @@ export const registerUser = async (
 
     if (!(await validateRegister(req, res))) return;
 
+    const verifyToken = await generateToken();
+
     const hashedPassword = await hashPassword(password);
     const newUser = await User.create({
       name,
@@ -24,10 +29,22 @@ export const registerUser = async (
       phoneNumber,
       password: hashedPassword,
       role: "user",
+      verifyToken,
     });
-    res.json({
-      user: newUser,
+
+    const verifyUrl = `${process.env.CLIENT_URL}/verify-email?token=${verifyToken}`;
+
+    await sendEmail(
+      email,
+      "Verify Your Email",
+      `Click the link to verify: ${verifyUrl}`
+    );
+
+    res.status(200).json({
+      message: "User registered. Please verify your email.",
+      email: newUser.email,
     });
+
     return;
   } catch (error) {
     console.log(error);
@@ -51,6 +68,12 @@ export const loginUser = async (req: Request, res: Response) => {
     }
     const match = await comparePassword(password, user.password!);
     if (match) {
+      if (!user.verified) {
+        res
+          .status(200)
+          .json({ message: "Please Verify Email", email: user.email });
+        return;
+      }
       const accessToken = await signToken({
         id: user.id,
         name: user.name as string,

@@ -15,10 +15,10 @@ export const sendEmail = async (
   to: string,
   subject: string,
   html: string,
-  replyTo?: string // Marked as optional with "?"
-) => {
+  replyTo?: string
+): Promise<void> => {
   try {
-    const mailOptions: any = {
+    const mailOptions: nodemailer.SendMailOptions = {
       from: `"Pawtopia" <${process.env.SMTP_GMAIL_ACC}>`,
       to,
       subject,
@@ -26,7 +26,8 @@ export const sendEmail = async (
       ...(replyTo && { replyTo }),
     };
 
-    await transporter.sendMail(mailOptions);
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`Email sent to ${to}: ${info.messageId}`);
   } catch (error) {
     console.error("Error sending email:", error);
     throw new Error("Email sending failed");

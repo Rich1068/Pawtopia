@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { signToken, verifyToken } from "../helpers/auth";
+import { generateToken, signToken, verifyToken } from "../helpers/auth";
 import type { AuthRequest, UserType } from "../Types/Types";
 import User from "../models/User";
 import { isValidEmail } from "../helpers/validation";
@@ -112,13 +112,12 @@ export const requestPasswordReset = async (
       res.status(404).json({ message: "User not found" });
       return;
     }
-    const resetToken = crypto.randomBytes(32).toString("hex");
-    const hashedToken = await bcrypt.hash(resetToken, 10);
+    const hashedToken = await generateToken();
     user.resetPasswordToken = hashedToken;
     user.resetPasswordExpires = new Date(Date.now() + 3600000); // 1 hour
     await user.save();
 
-    const resetUrl = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
+    const resetUrl = `${process.env.CLIENT_URL}/reset-password/${hashedToken}`;
     try {
       await sendEmail(
         user.email!,
@@ -194,4 +193,60 @@ export const resetPassword = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Something went wrong" });
   }
 };
-export default { verifyUserToken, logoutUser };
+
+export const verifyEmail = async (req: Request, res: Response) => {
+  try {
+    const { token } = req.query;
+    const user = await User.findOne({ verificationToken: token });
+    if (!user) {
+      res.status(400).json({ error: "Invalid or expired token" });
+      return;
+    }
+    if (user.verified === true) {
+      res.status(400).json({ error: "User already verified" });
+      return;
+    }
+    await user.updateOne({
+      $set: { verified: true },
+      $unset: { verificationToken: "" },
+    });
+
+    res.json({ message: "Email verified successfully. You can now log in." });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+export const resendVerificationEmail = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      res.status(400).json({ error: "Invalid request" });
+      return;
+    }
+    if (user.verified === true) {
+      res.status(400).json({ error: "User is already verified" });
+      return;
+    }
+    const verificationToken = await generateToken();
+    user.verificationToken = verificationToken;
+
+    await user.save();
+
+    const verificationLink = `${process.env.CLIENT_URL}/verify-email?token=${verificationToken}`;
+
+    await sendEmail(
+      email,
+      "Verify Your Email",
+      `Click the link to verify your email: ${verificationLink}`
+    );
+
+    res.json({ message: "Verification email resent successfully." });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};

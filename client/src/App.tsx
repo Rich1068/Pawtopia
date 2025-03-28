@@ -26,6 +26,7 @@ import CheckoutSuccess from "./pages/CheckoutSuccess";
 import OrderHistory from "./pages/OrderHistory";
 import AdminOrderHistory from "./pages/Admin/AdminOrderHistory";
 import AllAdoptRequests from "./pages/Admin/AllAdoptRequest";
+import VerifyEmail from "./pages/VerifyEmail";
 
 axios.defaults.withCredentials = true;
 
@@ -52,6 +53,7 @@ function App() {
           <Route path="/shop/product/:id" element={<ViewProduct />} />
           <Route path="/checkout/success" element={<CheckoutSuccess />} />
           <Route path="/order-history" element={<OrderHistory />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
         </Route>
         <Route element={<AdminLayout />}>
           <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>

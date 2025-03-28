@@ -1,8 +1,6 @@
 import bcrypt from "bcrypt";
 import jwt, { JwtPayload, TokenExpiredError } from "jsonwebtoken";
-import dotenv from "dotenv";
-
-dotenv.config();
+import crypto from "crypto";
 
 export const hashPassword = async (password: string) => {
   try {
@@ -82,3 +80,9 @@ export const verifyToken = async (
   }
 };
 export default { hashPassword, comparePassword, signToken, verifyToken };
+
+export const generateToken = async () => {
+  const token = crypto.randomBytes(32).toString("hex");
+  const hashedToken = await bcrypt.hash(token, 10);
+  return hashedToken;
+};
