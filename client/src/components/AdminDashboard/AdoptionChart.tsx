@@ -65,7 +65,7 @@ const AdoptionChart = () => {
               data: adoptionCounts,
               backgroundColor: "oklch(0.705 0.213 47.604)",
               borderColor: "oklch(0.705 0.213 47.604)",
-              borderWidth: 1,
+              borderWidth: 2,
             },
           ],
         });
