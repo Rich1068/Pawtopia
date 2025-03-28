@@ -7,14 +7,14 @@ import {
   getMostSoldProducts,
   getRecentOrders,
 } from "../controllers/adminController";
-import tokenAuth from "../middlewares/tokenAuth";
+import adminAuth from "../middlewares/adminAuth";
 
 const admin = express.Router();
 
-admin.get("/stats", tokenAuth, getAdminStats);
-admin.get("/adoptions-per-month", tokenAuth, getAdoptionsPerMonth);
-admin.get("/pending-requests", tokenAuth, getLatestPendingRequest);
-admin.get("/earnings-per-month", tokenAuth, getEarningsPerMonth);
-admin.get("/most-sold-products", tokenAuth, getMostSoldProducts);
-admin.get("/recent-orders", tokenAuth, getRecentOrders);
+admin.get("/stats", adminAuth, getAdminStats);
+admin.get("/adoptions-per-month", adminAuth, getAdoptionsPerMonth);
+admin.get("/pending-requests", adminAuth, getLatestPendingRequest);
+admin.get("/earnings-per-month", adminAuth, getEarningsPerMonth);
+admin.get("/most-sold-products", adminAuth, getMostSoldProducts);
+admin.get("/recent-orders", adminAuth, getRecentOrders);
 export default admin;

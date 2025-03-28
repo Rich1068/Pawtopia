@@ -27,6 +27,7 @@ export const authMiddleware = async (
     }
     //requests the ID of the user of the token
     req.userId = decoded.id;
+    req.userRole = decoded.role;
     next();
   } catch (error) {
     res.status(500).json({ error: "Server error" });

@@ -6,11 +6,12 @@ import {
   createAdoptRequest,
   getAdoptRequests,
 } from "../controllers/adoptController";
+import adminAuth from "../middlewares/adminAuth";
 
 const adopt = express.Router();
 
 adopt.post("/create-request", tokenAuth, createAdoptRequest);
-adopt.get("/requests", tokenAuth, getAdoptRequests);
-adopt.put("/:id/approve", tokenAuth, approveAdoptRequest);
-adopt.put("/:id/reject", tokenAuth, rejectAdoptRequest);
+adopt.get("/requests", adminAuth, getAdoptRequests);
+adopt.put("/:id/approve", adminAuth, approveAdoptRequest);
+adopt.put("/:id/reject", adminAuth, rejectAdoptRequest);
 export default adopt;

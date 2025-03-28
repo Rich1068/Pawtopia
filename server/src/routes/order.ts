@@ -5,11 +5,12 @@ import {
   getOrderBySessionId,
   getOrderHistory,
 } from "../controllers/orderController";
+import adminAuth from "../middlewares/adminAuth";
 
 const order = express.Router();
 
 order.get("/success/:sessionId", getOrderBySessionId);
 order.get("/history", tokenAuth, getOrderHistory);
-order.get("/all", tokenAuth, getAllOrders);
+order.get("/all", adminAuth, getAllOrders);
 
 export default order;

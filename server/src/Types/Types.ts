@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 
 export interface AuthRequest extends Request {
   userId?: string;
+  userRole?: string;
 }
 export interface UserType {
   name: string;
