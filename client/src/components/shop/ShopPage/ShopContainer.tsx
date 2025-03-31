@@ -86,7 +86,7 @@ const ShopContainer: FC<{ allProducts: IProduct[] }> = ({ allProducts }) => {
             filteredProducts={filteredProducts}
           />
         </div>
-        <div className=" max-md:-mt-10 w-full">
+        <div className=" max-md:-mt-10 w-full min-h-screen">
           <ShopCards
             products={currentProducts}
             header={"No Products Available"}

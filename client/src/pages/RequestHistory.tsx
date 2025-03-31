@@ -138,7 +138,7 @@ const RequestHistory = () => {
 
   return (
     <div className="relative font-primary text-amber-950">
-      <PageHeader text="Order History" />
+      <PageHeader text="Request History" />
       <div className="p-4 sm:p-6 rounded-xl min-h-screen">
         <div className="sm:px-[6%]">
           <TableFilters
