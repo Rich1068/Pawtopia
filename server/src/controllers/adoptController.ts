@@ -158,3 +158,24 @@ export const rejectAdoptRequest = async (req: AuthRequest, res: Response) => {
     return;
   }
 };
+
+export const getAdoptHistory = async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.userId;
+    if (!userId) {
+      res.status(403).json({ error: "Please Login to see Order History" });
+      return;
+    }
+    const requests = await AdoptRequest.find({ userId }).sort({
+      createdAt: -1,
+    });
+
+    res.json(requests);
+  } catch (error) {
+    console.error("Failed to retrieve Adoption Request History: ", error);
+    res
+      .status(500)
+      .json({ error: "Failed to retrieve Adoption Request History" });
+    return;
+  }
+};

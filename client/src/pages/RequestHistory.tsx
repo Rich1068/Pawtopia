@@ -1,0 +1,163 @@
+import { useState, useEffect, useMemo } from "react";
+import {
+  useReactTable,
+  getCoreRowModel,
+  ColumnDef,
+  getPaginationRowModel,
+  getFilteredRowModel,
+} from "@tanstack/react-table";
+import serverAPI from "../helper/axios";
+import LoadingPage from "../components/LoadingPage/LoadingPage";
+import type { IAdoptRequest } from "../types/Types";
+import PageHeader from "../components/PageHeader";
+import { Eye } from "lucide-react";
+import AdoptRequestModal from "../components/AdoptRequest/AdoptRequestModal";
+import DataTable from "../components/HistoryTable/DataTable";
+import TableFilters from "../components/HistoryTable/TableFilters";
+
+const RequestHistory = () => {
+  const [requests, setRequests] = useState<IAdoptRequest[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const [globalFilter, setGlobalFilter] = useState("");
+  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedRequest, setSelectedRequest] = useState<IAdoptRequest | null>(
+    null
+  );
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  useEffect(() => {
+    const fetchRequests = async () => {
+      try {
+        const response = await serverAPI.get("/adopt/history", {
+          withCredentials: true,
+        });
+        setRequests(response.data);
+      } catch (error) {
+        console.error("Error fetching requests:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRequests();
+  }, []);
+
+  const openModal = (request: IAdoptRequest) => {
+    setSelectedRequest(request);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setSelectedRequest(null);
+    setIsModalOpen(false);
+  };
+
+  const filteredRequests = useMemo(() => {
+    if (!selectedDate) return requests;
+
+    return requests.filter((request) => {
+      const localDate = new Date(
+        request.createdAt as string
+      ).toLocaleDateString("en-CA"); // "YYYY-MM-DD"
+      return localDate === selectedDate;
+    });
+  }, [requests, selectedDate]);
+
+  const columns: ColumnDef<IAdoptRequest>[] = [
+    {
+      accessorKey: "petName",
+      header: "Pet Name",
+    },
+    {
+      accessorKey: "status",
+      header: "Status",
+      cell: ({ row }) => {
+        const status = row.original.status;
+        return (
+          <span
+            className={`px-2 py-1 rounded-md text-white ${
+              status === "pending"
+                ? "bg-yellow-400"
+                : status === "approved"
+                ? "bg-green-500"
+                : "bg-red-500"
+            }`}
+          >
+            {status}
+          </span>
+        );
+      },
+    },
+    {
+      accessorKey: "createdAt",
+      header: "Date",
+      cell: ({ getValue }) => new Date(getValue<Date>()).toLocaleDateString(),
+    },
+
+    {
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }) => {
+        const request = row.original;
+
+        return (
+          <div className="flex gap-3 sm:gap-2 justify-center">
+            {/* View Details */}
+            <button
+              className="text-blue-500 hover:text-blue-700 flex items-center"
+              onClick={() => openModal(request)}
+            >
+              <Eye
+                size={26}
+                className="sm:hidden p-1 rounded-full text-white bg-blue-500 "
+              />{" "}
+              {/* Icon for mobile */}
+              <span className="hidden sm:inline">View Details</span>{" "}
+              {/* Text for large screens */}
+            </button>
+          </div>
+        );
+      },
+    },
+  ];
+
+  const table = useReactTable({
+    data: filteredRequests,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    state: {
+      globalFilter,
+    },
+    onGlobalFilterChange: setGlobalFilter,
+  });
+
+  if (loading) return <LoadingPage fadeOut={false} />;
+
+  return (
+    <div className="relative font-primary text-amber-950">
+      <PageHeader text="Order History" />
+      <div className="p-4 sm:p-6 rounded-xl min-h-screen">
+        <div className="sm:px-[6%]">
+          <TableFilters
+            globalFilter={globalFilter}
+            selectedDate={selectedDate}
+            setSelectedDate={setSelectedDate}
+            setGlobalFilter={setGlobalFilter}
+            table={table}
+          />
+        </div>
+        <DataTable table={table} />
+      </div>
+      <AdoptRequestModal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        request={selectedRequest}
+      />
+    </div>
+  );
+};
+
+export default RequestHistory;

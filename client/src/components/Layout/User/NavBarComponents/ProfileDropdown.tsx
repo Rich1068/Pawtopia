@@ -68,6 +68,13 @@ const ProfileDropdown = () => {
           >
             Order History
           </NavLink>
+          <NavLink
+            to="/request-history"
+            className="block px-4 py-2 font-secondary font-bold text-amber-950 hover:bg-gray-100"
+            onClick={() => setIsProfileOpen(false)}
+          >
+            Request History
+          </NavLink>
           <button
             onClick={() => {
               logout();
