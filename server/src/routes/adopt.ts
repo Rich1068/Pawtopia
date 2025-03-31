@@ -5,6 +5,7 @@ import {
   rejectAdoptRequest,
   createAdoptRequest,
   getAdoptRequests,
+  getAdoptHistory,
 } from "../controllers/adoptController";
 import adminAuth from "../middlewares/adminAuth";
 
@@ -14,4 +15,5 @@ adopt.post("/create-request", tokenAuth, createAdoptRequest);
 adopt.get("/requests", adminAuth, getAdoptRequests);
 adopt.put("/:id/approve", adminAuth, approveAdoptRequest);
 adopt.put("/:id/reject", adminAuth, rejectAdoptRequest);
+adopt.get("/history", tokenAuth, getAdoptHistory);
 export default adopt;

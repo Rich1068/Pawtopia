@@ -1,9 +1,8 @@
 import { Request, Response } from "express";
 import { generateToken, signToken, verifyToken } from "../helpers/auth";
-import type { AuthRequest, UserType } from "../Types/Types";
+import type { AuthRequest } from "../Types/Types";
 import User from "../models/User";
 import { isValidEmail } from "../helpers/validation";
-import crypto from "crypto";
 import bcrypt from "bcrypt";
 import { sendEmail } from "../helpers/mailer";
 
@@ -146,14 +145,12 @@ export const verifyResetToken = async (req: Request, res: Response) => {
     const { token } = req.params;
 
     const user = await User.findOne({
-      resetPasswordToken: { $exists: true },
+      resetPasswordToken: token,
 
-      resetPasswordExpires: { $gt: new Date() }, // Check if token is not expired
+      resetPasswordExpires: { $gt: new Date() },
     });
-
-    if (!user || !(await bcrypt.compare(token, user.resetPasswordToken!))) {
+    if (!user) {
       res.status(400).json({ error: "Invalid or expired token" });
-
       return;
     }
 
@@ -170,22 +167,18 @@ export const resetPassword = async (req: Request, res: Response) => {
     const { password } = req.body;
 
     const user = await User.findOne({
-      resetPasswordToken: { $exists: true },
-
+      resetPasswordToken: token,
       resetPasswordExpires: { $gt: new Date() },
     });
 
-    if (!user || !(await bcrypt.compare(token, user.resetPasswordToken!))) {
+    if (!user) {
       res.status(400).json({ error: "Invalid or expired token" });
-
       return;
     }
 
-    console.log(password);
-
     user.password = await bcrypt.hash(password, 10);
 
-    await user.updateOne({
+    await user!.updateOne({
       $unset: { resetPasswordToken: "", resetPasswordExpires: "" },
     });
 
@@ -246,7 +239,7 @@ export const resendVerificationEmail = async (req: Request, res: Response) => {
     await sendEmail(
       email,
       "Verify Your Email",
-      `Click the link to verify your email: ${verificationLink}`
+      `Click the link to verify your email: <a href="${verificationLink}">URL</a>`
     );
 
     res.json({ message: "Verification email resent successfully." });

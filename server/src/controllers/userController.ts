@@ -9,7 +9,7 @@ import Favorite from "../models/Favorite";
 
 export const getUser = async (req: AuthRequest, res: Response) => {
   try {
-    const user = await User.findById(req.userId).select("-password"); //query from database and exclude password
+    const user = await User.findById(req.userId).select("-password");
     if (!user) {
       res.status(404).json({ message: "User not found" });
       return;
@@ -31,7 +31,7 @@ export const editUser = async (
     if (!validateEdit(req, res)) return;
 
     const updatedUser = await User.findByIdAndUpdate(
-      req.userId, // Use req.user.id instead of req.userId
+      req.userId,
       { name, email, phoneNumber },
       { new: true }
     );
@@ -62,7 +62,7 @@ export const editPassword = async (
     const hashedPassword = await hashPassword(password);
 
     const updatedUser = await User.findByIdAndUpdate(
-      req.userId, // Use req.user.id instead of req.userId
+      req.userId,
       { password: hashedPassword },
       { new: true }
     );

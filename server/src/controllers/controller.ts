@@ -21,7 +21,6 @@ export const registerUser = async (
     if (!(await validateRegister(req, res))) return;
 
     const verifyToken = await generateToken();
-
     const hashedPassword = await hashPassword(password);
     const newUser = await User.create({
       name,
@@ -29,7 +28,7 @@ export const registerUser = async (
       phoneNumber,
       password: hashedPassword,
       role: "user",
-      verifyToken,
+      verificationToken: verifyToken,
     });
 
     const verifyUrl = `${process.env.CLIENT_URL}/verify-email?token=${verifyToken}`;
@@ -37,7 +36,7 @@ export const registerUser = async (
     await sendEmail(
       email,
       "Verify Your Email",
-      `Click the link to verify: ${verifyUrl}`
+      `Click the link to verify: <a href="${verifyUrl}">URL</a>`
     );
 
     res.status(200).json({

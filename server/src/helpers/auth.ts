@@ -64,6 +64,7 @@ export const signRefreshToken = async (user: {
     throw new Error("Error creating refresh token: " + error);
   }
 };
+
 export const verifyToken = async (
   token: string,
   secret: string = process.env.JWT_ACCESS_SECRET!

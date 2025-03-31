@@ -30,7 +30,7 @@ export const getOrderHistory = async (req: AuthRequest, res: Response) => {
 
     res.json(orders);
   } catch (error) {
-    console.error("Error creating checkout session:", error);
+    console.error("Failed to retrieve Order History: ", error);
     res.status(500).json({ error: "Failed to retrieve Order History" });
   }
 };

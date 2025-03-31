@@ -10,7 +10,7 @@ export const getAvailablePets = async (
       "https://api.rescuegroups.org/v5/public/animals/search/available/haspic/isneedingfoster/?limit=250",
       {
         headers: {
-          Authorization: "zKb4tfPS",
+          Authorization: `${process.env.API_KEY}`,
         },
       }
     );
@@ -29,7 +29,7 @@ export const getPetDetail = async (
       `https://api.rescuegroups.org/v5/public/animals/${id}`,
       {
         headers: {
-          Authorization: "zKb4tfPS",
+          Authorization: `${process.env.API_KEY}`,
         },
       }
     );
@@ -53,7 +53,7 @@ export const getFavPets = async (
     const petPromises = petIds.map((id: string) =>
       axios.get(`https://api.rescuegroups.org/v5/public/animals/${id}`, {
         headers: {
-          Authorization: "zKb4tfPS",
+          Authorization: `${process.env.API_KEY}`,
         },
       })
     );
