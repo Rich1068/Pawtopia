@@ -1,25 +1,21 @@
 import { Search } from "lucide-react";
 import { Table } from "@tanstack/react-table";
-import { IOrder } from "../../types/Types";
 
-interface OrderFiltersProps {
+interface ITableFilters<TData> {
   globalFilter: string;
   setGlobalFilter: (filter: string) => void;
   selectedDate: string;
   setSelectedDate: (date: string) => void;
-  table: Table<IOrder>;
+  table: Table<TData>;
 }
 
-const OrderFilters: React.FC<OrderFiltersProps> = ({
+const TableFilters = <TData,>({
   globalFilter,
   setGlobalFilter,
   selectedDate,
   setSelectedDate,
   table,
-}) => {
-  const handleDateChange = (date: string) => {
-    setSelectedDate(date);
-  };
+}: ITableFilters<TData>) => {
   return (
     <div className="flex flex-col md:flex-row md:items-center gap-3">
       <div className="flex w-full sm:w-auto gap-3">
@@ -53,7 +49,7 @@ const OrderFilters: React.FC<OrderFiltersProps> = ({
         <input
           type="date"
           value={selectedDate}
-          onChange={(e) => handleDateChange(e.target.value)}
+          onChange={(e) => setSelectedDate(e.target.value)}
           className="p-2 border border-orange-400 rounded font-primary text-amber-950 w-full sm:w-auto"
         />
       </div>
@@ -61,4 +57,4 @@ const OrderFilters: React.FC<OrderFiltersProps> = ({
   );
 };
 
-export default OrderFilters;
+export default TableFilters;

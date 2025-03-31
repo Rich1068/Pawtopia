@@ -13,9 +13,9 @@ import AdoptRequestFilters from "../../components/AdoptRequest/AdoptRequestFilte
 import LoadingPage from "../../components/LoadingPage/LoadingPage";
 import TitleComponent from "../../components/shop/Admin/TitleComponent";
 import { IAdoptRequest } from "../../types/Types";
-import AdoptRequestTable from "../../components/AdoptRequest/AdoptRequestTable";
 import WarningModal from "../../components/WarningModal";
 import toast from "react-hot-toast";
+import DataTable from "../../components/HistoryTable/DataTable";
 
 const AllAdoptRequests = () => {
   const [requests, setRequests] = useState<IAdoptRequest[]>([]);
@@ -102,6 +102,11 @@ const AllAdoptRequests = () => {
       cell: ({ row }) => {
         return <span>{row.original.name}</span>;
       },
+    },
+    {
+      accessorKey: "createdAt",
+      header: "Date",
+      cell: ({ getValue }) => new Date(getValue<string>()).toLocaleDateString(),
     },
     {
       accessorKey: "status",
@@ -207,7 +212,7 @@ const AllAdoptRequests = () => {
           setGlobalFilter={setGlobalFilter}
           table={table}
         />
-        <AdoptRequestTable table={table} style="!p-0" />
+        <DataTable table={table} style="!p-0" />
       </div>
       <AdoptRequestModal
         isOpen={isModalOpen}

@@ -9,11 +9,11 @@ import {
 import serverAPI from "../../helper/axios";
 import LoadingPage from "../../components/LoadingPage/LoadingPage";
 import ProductFilters from "../../components/shop/Admin/ProductList/ProductFilters";
-import ProductTable from "../../components/shop/Admin/ProductList/ProductTable";
 import ProductActionButtons from "../../components/shop/Admin/ProductList/ProductActionButtons";
 import { IProduct } from "../../types/Types";
 import { getFullImageUrl } from "../../helper/imageHelper";
 import TitleComponent from "../../components/shop/Admin/TitleComponent";
+import DataTable from "../../components/HistoryTable/DataTable";
 
 const ProductList = () => {
   const [products, setProducts] = useState<IProduct[]>([]);
@@ -115,7 +115,7 @@ const ProductList = () => {
           setSelectedCategories={setSelectedCategories}
           table={table}
         />
-        <ProductTable table={table} />
+        <DataTable table={table} style="!p-0" />
       </div>
     </div>
   );

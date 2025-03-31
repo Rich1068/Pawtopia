@@ -1,16 +1,23 @@
 import { flexRender, Table } from "@tanstack/react-table";
-import type { IProduct } from "../../../../types/Types";
 
-const ProductTable = ({ table }: { table: Table<IProduct> }) => {
+interface IDataTable<T> {
+  table: Table<T>;
+  style?: string;
+}
+
+const DataTable = <T,>({ table, style }: IDataTable<T>) => {
   return (
-    <>
+    <div className={`sm:px-[6%] ${style}`}>
       <div className="overflow-x-auto mt-4 rounded-md border border-orange-300 shadow-md">
         <table className="w-full rounded-md overflow-hidden">
           <thead className="bg-orange-500 text-white text-sm sm:text-xl">
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <th key={header.id} className="p-3 text-center font-semibold">
+                  <th
+                    key={header.id}
+                    className="p-2 sm:p-3 text-center font-semibold"
+                  >
                     {flexRender(
                       header.column.columnDef.header,
                       header.getContext()
@@ -56,8 +63,8 @@ const ProductTable = ({ table }: { table: Table<IProduct> }) => {
           Next
         </button>
       </div>
-    </>
+    </div>
   );
 };
 
-export default ProductTable;
+export default DataTable;

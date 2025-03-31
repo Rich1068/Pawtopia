@@ -46,7 +46,7 @@ const UserButtons: FC<IUserButtons> = ({ product }) => {
       return;
     }
     addToCart(product._id, quantity);
-    navigate("/checkout");
+    navigate("/shop/checkout");
   };
 
   const handleAddToCart = () => {

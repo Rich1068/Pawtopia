@@ -7,12 +7,12 @@ import {
   getFilteredRowModel,
 } from "@tanstack/react-table";
 import serverAPI from "../helper/axios";
-import OrderTable from "../components/OrderHistory/OrderTable";
 import LoadingPage from "../components/LoadingPage/LoadingPage";
 import type { IOrder } from "../types/Types";
 import PageHeader from "../components/PageHeader";
 import OrderDetailsModal from "../components/OrderHistory/OrderDetailModal";
-import OrderFilters from "../components/OrderHistory/OrderFilters";
+import TableFilters from "../components/HistoryTable/TableFilters";
+import DataTable from "../components/HistoryTable/DataTable";
 
 const OrderHistory = () => {
   const [orders, setOrders] = useState<IOrder[]>([]);
@@ -106,7 +106,7 @@ const OrderHistory = () => {
       <PageHeader text="Order History" />
       <div className="p-4 sm:p-6 rounded-xl min-h-screen">
         <div className="sm:px-[6%]">
-          <OrderFilters
+          <TableFilters
             globalFilter={globalFilter}
             selectedDate={selectedDate}
             setSelectedDate={setSelectedDate}
@@ -114,7 +114,7 @@ const OrderHistory = () => {
             table={table}
           />
         </div>
-        <OrderTable table={table} />
+        <DataTable table={table} />
       </div>
       <OrderDetailsModal
         isOpen={!!selectedOrder}
