@@ -15,11 +15,11 @@ describe("InputField Component", () => {
 
     // Verify label is correctly associated with input
     const label = screen.getByText("Username");
-    expect(label).toBeInTheDocument();
+    expect(label).toBeVisible();
 
     // Ensure input exists
     const input = screen.getByRole("textbox");
-    expect(input).toBeInTheDocument();
+    expect(input).toBeVisible();
   });
 
   it("renders with a placeholder if provided", () => {
@@ -34,7 +34,7 @@ describe("InputField Component", () => {
     );
 
     const input = screen.getByPlaceholderText("Enter your email");
-    expect(input).toBeInTheDocument();
+    expect(input).toBeVisible();
   });
 
   it("renders with the correct input type", () => {

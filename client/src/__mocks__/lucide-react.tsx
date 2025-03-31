@@ -7,6 +7,7 @@ const createMockIcon = (name: string) =>
   };
 
 // Export commonly used icons or mock them dynamically
+export const ArrowLeft = createMockIcon("ArrowLeft");
 export const ChevronDown = createMockIcon("ChevronDown");
 export const ChevronUp = createMockIcon("ChevronUp");
 export const ChevronLeft = createMockIcon("ChevronLeft");
@@ -21,6 +22,7 @@ export const Heart = createMockIcon("Heart");
 // Default export fallback if needed
 export default {
   __esModule: true,
+  ArrowLeft,
   ChevronDown,
   ChevronUp,
   ChevronLeft,
