@@ -59,7 +59,7 @@ export const getCart = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.userId;
     if (!userId) {
-      res.status(200).json({ cart: null }); // Just return null cart without an error
+      res.status(200).json({ cart: null });
       return;
     }
     const cart = await Cart.findOne({ userId })
@@ -67,7 +67,7 @@ export const getCart = async (req: AuthRequest, res: Response) => {
       .lean();
 
     if (!cart) {
-      res.status(200).json({ cart: null }); // Return null if no cart exists
+      res.status(200).json({ cart: null });
       return;
     }
 
@@ -90,7 +90,7 @@ export const removeCartItem = async (req: AuthRequest, res: Response) => {
     console.log("product id " + cartItemId);
     const cart = await Cart.findOneAndUpdate(
       { userId },
-      { $pull: { products: { productId: productObjectId } } }, // Match by ObjectId
+      { $pull: { products: { productId: productObjectId } } },
       { new: true }
     ).populate("products.productId");
     console.log("cart", cart);

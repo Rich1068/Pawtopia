@@ -4,7 +4,16 @@ import AddProduct from "../../../pages/Admin/AddProducts";
 import serverAPI from "../../../helper/axios";
 import "@testing-library/jest-dom";
 import userEvent from "@testing-library/user-event";
+import { MemoryRouter } from "react-router";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const renderComponent = (productToEdit?: any) => {
+  return render(
+    <MemoryRouter>
+      <AddProduct productToEdit={productToEdit} />
+    </MemoryRouter>
+  );
+};
 jest.mock("../../../helper/axios", () => ({
   post: jest.fn().mockImplementation((url) => {
     if (url === "/product/upload-images") {
@@ -16,6 +25,9 @@ jest.mock("../../../helper/axios", () => ({
 
 jest.mock("react-hot-toast", () => ({ error: jest.fn(), success: jest.fn() }));
 
+jest.mock("../../../components/shop/Admin/TitleComponent", () => () => (
+  <div data-testid="mock-title-component" />
+));
 jest.mock(
   "../../../components/shop/Admin/AddProduct/InputField",
   () =>
@@ -95,7 +107,7 @@ jest.mock(
               file,
               isNew: true,
             }));
-            setProductImages([...productImages, ...newImages]); // Ensure state updates
+            setProductImages([...productImages, ...newImages]);
           }}
         />
       )
@@ -143,7 +155,7 @@ describe("AddProduct Component", () => {
   });
 
   it("should render form fields correctly", () => {
-    render(<AddProduct />);
+    renderComponent();
 
     expect(screen.getByTestId("name")).toBeInTheDocument();
     expect(screen.getByTestId("description")).toBeInTheDocument();
@@ -156,7 +168,7 @@ describe("AddProduct Component", () => {
   });
 
   it("should show an error if required fields are missing", async () => {
-    render(<AddProduct />);
+    renderComponent();
     submitForm();
 
     await waitFor(() => {
@@ -165,7 +177,7 @@ describe("AddProduct Component", () => {
   });
 
   it("should validate price", async () => {
-    render(<AddProduct />);
+    renderComponent();
     await fillForm({ price: "-10" });
     submitForm();
 
@@ -180,7 +192,7 @@ describe("AddProduct Component", () => {
       .mockResolvedValueOnce({ data: { images: ["test.jpg"] } }) // Image upload response
       .mockResolvedValueOnce({}); // Product submission response
 
-    render(<AddProduct />);
+    renderComponent();
     await fillForm({ includeImage: true });
 
     // Check file upload
@@ -218,8 +230,7 @@ describe("AddProduct Component", () => {
       category: ["Test Category"],
       images: ["existing.jpg"],
     };
-
-    render(<AddProduct productToEdit={productToEdit} />);
+    renderComponent(productToEdit);
 
     expect(screen.getByTestId("name")).toHaveValue("Existing Product");
     expect(screen.getByTestId("description")).toHaveValue(
@@ -243,6 +254,25 @@ describe("AddProduct Component", () => {
       expect(toast.success).toHaveBeenCalledWith(
         "Product updated successfully!"
       );
+    });
+  });
+  it("should show an error if image upload fails", async () => {
+    (serverAPI.post as jest.Mock)
+      .mockRejectedValueOnce(new Error("Failed to upload"))
+      .mockResolvedValueOnce({});
+
+    renderComponent();
+    await fillForm({ includeImage: true });
+
+    submitForm();
+
+    await waitFor(() => {
+      expect(serverAPI.post).toHaveBeenCalledWith(
+        "/product/upload-images",
+        expect.any(FormData),
+        expect.any(Object)
+      );
+      expect(toast.error).toHaveBeenCalledWith("Error uploading images.");
     });
   });
 });

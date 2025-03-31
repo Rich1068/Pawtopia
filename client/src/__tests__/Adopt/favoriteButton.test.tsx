@@ -36,7 +36,11 @@ const setup = (
 
   (useAuth as jest.Mock).mockReturnValue({ user }); // Mock authentication
 
-  return render(<FavoriteButton pet={mockPets[0]} />);
+  return render(
+    <BrowserRouter>
+      <FavoriteButton pet={mockPets[0]} />
+    </BrowserRouter>
+  );
 };
 
 describe("FavoriteButton Component", () => {

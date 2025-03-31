@@ -1,3 +1,4 @@
+import { FC } from "react";
 interface InputFieldProps {
   label: string;
   name: string;
@@ -7,7 +8,7 @@ interface InputFieldProps {
   type?: string;
 }
 
-const InputField: React.FC<InputFieldProps> = ({
+const InputField: FC<InputFieldProps> = ({
   label,
   name,
   value,
@@ -17,8 +18,11 @@ const InputField: React.FC<InputFieldProps> = ({
 }) => {
   return (
     <div className="mb-2">
-      <label className=" font-primary text-lg text-amber-950">{label}</label>
+      <label htmlFor={name} className=" font-primary text-lg text-amber-950">
+        {label}
+      </label>
       <input
+        id={name}
         type={type}
         name={name}
         value={value}

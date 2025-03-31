@@ -16,7 +16,6 @@ const ProductImageUpload = ({
     const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
     const maxSize = 2 * 1024 * 1024; // 2MB
 
-    const existingCount = productImages.length;
     const maxAllowed = 5;
 
     const validFiles = fileArray.filter((file) => {
@@ -33,13 +32,18 @@ const ProductImageUpload = ({
       return true;
     });
 
-    const remainingSlots = maxAllowed - existingCount;
-    if (validFiles.length > remainingSlots) {
-      alert(`You can only add ${remainingSlots} more image(s).`);
+    const totalAfterAdding = productImages.length + validFiles.length;
+
+    if (totalAfterAdding > maxAllowed) {
+      alert(`You can only upload up to ${maxAllowed} images.`);
+      return;
     }
-
+    const remainingSlots = maxAllowed - productImages.length;
     const filesToAdd = validFiles.slice(0, remainingSlots);
-
+    if (filesToAdd.length === 0) {
+      console.log("No valid files to add. Skipping state update.");
+      return;
+    }
     const newImageObjects = filesToAdd.map((file) => ({
       file,
       preview: URL.createObjectURL(file),
@@ -52,6 +56,7 @@ const ProductImageUpload = ({
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       handleFiles(e.target.files);
+      e.target.value = "";
     }
   };
 

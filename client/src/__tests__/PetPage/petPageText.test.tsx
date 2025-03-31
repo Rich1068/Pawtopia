@@ -4,14 +4,17 @@ import { mockPets } from "../../__mocks__/mockPets";
 import "@testing-library/jest-dom";
 import { AuthProvider } from "../../context/AuthContext";
 import { FavoritesProvider } from "../../context/FavoritesContext";
+import { BrowserRouter } from "react-router";
 
 const renderPageText = (pets = mockPets[0]) => {
   return render(
-    <AuthProvider>
-      <FavoritesProvider>
-        <PetPageText petData={pets} />
-      </FavoritesProvider>
-    </AuthProvider>
+    <BrowserRouter>
+      <AuthProvider>
+        <FavoritesProvider>
+          <PetPageText petData={pets} setIsFormOpen={jest.fn()} />
+        </FavoritesProvider>
+      </AuthProvider>
+    </BrowserRouter>
   );
 };
 describe("PetPageText Component", () => {
@@ -47,7 +50,9 @@ describe("PetPageText Component", () => {
   });
 
   test("does not render anything if petData is null", () => {
-    const { container } = render(<PetPageText petData={null} />);
+    const { container } = render(
+      <PetPageText petData={null} setIsFormOpen={jest.fn()} />
+    );
     expect(container.firstChild).toBeNull();
   });
 });

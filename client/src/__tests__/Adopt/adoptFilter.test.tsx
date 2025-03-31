@@ -38,7 +38,7 @@ describe("AdoptFilter component", () => {
   it("renders the title, search input, and all filter sections", () => {
     render(<AdoptFilter {...mockProps} />);
 
-    expect(screen.getByText("Filters")).toBeVisible();
+    expect(screen.getByText(/Filters/i)).toBeVisible();
     expect(screen.getByPlaceholderText("Search for a pet...")).toBeVisible();
 
     // Confirm mocked filter sections are rendered

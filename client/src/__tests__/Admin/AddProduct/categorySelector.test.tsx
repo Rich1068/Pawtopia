@@ -1,127 +1,163 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import "@testing-library/jest-dom";
 import CategorySelector from "../../../components/shop/Admin/AddProduct/CategorySelector";
-import serverAPI from "../../../helper/axios";
+import { useCategories } from "../../../hooks/useCategories";
+import "@testing-library/jest-dom";
 
-jest.mock("../../../helper/axios", () => ({
-  get: jest.fn(),
-}));
+jest.mock("../../../hooks/useCategories");
+
+const mockUseCategories = useCategories as jest.MockedFunction<
+  typeof useCategories
+>;
 
 describe("CategorySelector Component", () => {
-  const mockCategories = ["Dog Food", "Cat Toys", "Pet Grooming", "Dog Toys"];
-  const mockSetSelectedCategories = jest.fn();
-
-  const renderCategorySelector = (selectedCategories: string[] = []) => {
-    return render(
-      <CategorySelector
-        selectedCategories={selectedCategories}
-        setSelectedCategories={mockSetSelectedCategories}
-      />
-    );
-  };
-
-  const openDropdown = async () => {
-    fireEvent.click(screen.getByText("▼"));
-    await waitFor(() => {
-      expect(screen.getByPlaceholderText("Enter new category")).toBeVisible();
-    });
-  };
+  let setSelectedCategories: jest.Mock;
 
   beforeEach(() => {
-    jest.clearAllMocks();
-
-    (serverAPI.get as jest.Mock).mockResolvedValue({
-      data: mockCategories,
+    setSelectedCategories = jest.fn();
+    mockUseCategories.mockReturnValue({
+      categories: ["Category1", "Category2"],
+      setCategories: jest.fn(),
+      loading: false,
+      error: null,
     });
   });
 
-  it("should render and fetch categories on mount", async () => {
-    renderCategorySelector();
-
-    expect(screen.getByText("Category")).toBeVisible();
-    expect(screen.getByText("Select or add categories")).toBeVisible();
-
-    expect(serverAPI.get).toHaveBeenCalledWith("/product/get-categories", {
-      withCredentials: true,
-    });
-    await openDropdown();
-    mockCategories.forEach((category) => {
-      expect(screen.getByText(category)).toBeVisible();
-    });
-  });
-
-  it("should handle selecting categories", async () => {
-    renderCategorySelector();
-    await openDropdown();
-    fireEvent.click(screen.getByText("Dog Food"));
-    expect(mockSetSelectedCategories).toHaveBeenCalledWith(["Dog Food"]);
-  });
-
-  it("should display selected categories as tags", () => {
-    renderCategorySelector(["Cat Toys"]);
-    const categoryTag = screen.getByText("Cat Toys");
-    expect(categoryTag).toBeVisible();
-    expect(categoryTag.closest("span")).toHaveClass("bg-orange-400");
-  });
-
-  it("should allow removing selected categories", () => {
-    renderCategorySelector(["Pet Grooming"]);
-    fireEvent.click(screen.getByText("✕"));
-    expect(mockSetSelectedCategories).toHaveBeenCalledWith([]);
-  });
-
-  it("should allow adding new categories", async () => {
-    renderCategorySelector();
-    await openDropdown();
-    await userEvent.type(
-      screen.getByPlaceholderText("Enter new category"),
-      "Bird Cages"
+  test("renders correctly with default state", () => {
+    render(
+      <CategorySelector
+        selectedCategories={[]}
+        setSelectedCategories={setSelectedCategories}
+      />
     );
-    fireEvent.click(screen.getByText("Add Category"));
 
-    expect(mockSetSelectedCategories).toHaveBeenCalledWith(["Bird Cages"]);
+    expect(screen.getByText("Select or add categories")).toBeInTheDocument();
   });
 
-  it("should handle dropdown toggle and outside clicks", async () => {
-    renderCategorySelector();
-    await openDropdown();
-    fireEvent.mouseDown(document.body);
-    await waitFor(() => {
-      expect(
-        screen.queryByPlaceholderText("Enter new category")
-      ).not.toBeInTheDocument();
-    });
-    await openDropdown();
-    fireEvent.click(screen.getByText("▲"));
-    await waitFor(() => {
-      expect(
-        screen.queryByPlaceholderText("Enter new category")
-      ).not.toBeInTheDocument();
-    });
-  });
-
-  it("should not add duplicate categories to selection", async () => {
-    renderCategorySelector(["Dog Toys"]);
-    await openDropdown();
-
-    fireEvent.click(screen.getByRole("button", { name: "Dog Toys" }));
-    expect(mockSetSelectedCategories).not.toHaveBeenCalled();
-  });
-
-  it("should handle API errors gracefully", async () => {
-    const originalConsoleError = console.error;
-    console.error = jest.fn();
-    (serverAPI.get as jest.Mock).mockRejectedValue(new Error("API error"));
-
-    renderCategorySelector();
-    await openDropdown();
-    expect(console.error).toHaveBeenCalledWith(
-      "Failed to fetch categories:",
-      expect.any(Error)
+  test("displays existing categories when dropdown is open", () => {
+    render(
+      <CategorySelector
+        selectedCategories={[]}
+        setSelectedCategories={setSelectedCategories}
+      />
     );
-    expect(screen.getByText("No Categories")).toBeVisible();
 
-    console.error = originalConsoleError;
+    // Open the dropdown
+    fireEvent.click(screen.getByText("Select or add categories"));
+
+    expect(screen.getByText("Category1")).toBeInTheDocument();
+    expect(screen.getByText("Category2")).toBeInTheDocument();
+  });
+
+  test("selects a category when clicked", () => {
+    render(
+      <CategorySelector
+        selectedCategories={[]}
+        setSelectedCategories={setSelectedCategories}
+      />
+    );
+
+    fireEvent.click(screen.getByText("Select or add categories")); // Open dropdown
+    fireEvent.click(screen.getByText("Category1")); // Select category
+
+    expect(setSelectedCategories).toHaveBeenCalledWith(["Category1"]);
+  });
+
+  test("removes a selected category when remove button is clicked", () => {
+    render(
+      <CategorySelector
+        selectedCategories={["Category1"]}
+        setSelectedCategories={setSelectedCategories}
+      />
+    );
+
+    fireEvent.click(screen.getByText("✕")); // Click remove button
+
+    expect(setSelectedCategories).toHaveBeenCalledWith([]);
+  });
+
+  test("adds a new category", async () => {
+    const setCategories = jest.fn();
+    mockUseCategories.mockReturnValue({
+      categories: ["Category1"],
+      setCategories,
+      loading: false,
+      error: null,
+    });
+
+    render(
+      <CategorySelector
+        selectedCategories={[]}
+        setSelectedCategories={setSelectedCategories}
+      />
+    );
+
+    fireEvent.click(screen.getByText("Select or add categories")); // Open dropdown
+    fireEvent.change(screen.getByPlaceholderText("Enter new category"), {
+      target: { value: "NewCategory" },
+    });
+
+    fireEvent.click(screen.getByText("Add Category")); // Click Add Category button
+
+    await waitFor(() => {
+      expect(setCategories).toHaveBeenCalledWith(["Category1", "NewCategory"]); // Ensure new category is added
+      expect(setSelectedCategories).toHaveBeenCalledWith(["NewCategory"]); // Ensure category is selected
+    });
+  });
+
+  test("handles loading state", () => {
+    mockUseCategories.mockReturnValue({
+      categories: [],
+      setCategories: jest.fn(),
+      loading: true,
+      error: null,
+    });
+
+    render(
+      <CategorySelector
+        selectedCategories={[]}
+        setSelectedCategories={setSelectedCategories}
+      />
+    );
+
+    fireEvent.click(screen.getByText("Select or add categories"));
+    expect(screen.getByText("Loading...")).toBeInTheDocument();
+  });
+
+  test("handles error state", () => {
+    mockUseCategories.mockReturnValue({
+      categories: [],
+      setCategories: jest.fn(),
+      loading: false,
+      error: "Failed to load categories",
+    });
+
+    render(
+      <CategorySelector
+        selectedCategories={[]}
+        setSelectedCategories={setSelectedCategories}
+      />
+    );
+
+    fireEvent.click(screen.getByText("Select or add categories"));
+    expect(screen.getByText("Failed to load categories")).toBeInTheDocument();
+  });
+
+  test("toggles dropdown when clicked", () => {
+    render(
+      <CategorySelector
+        selectedCategories={[]}
+        setSelectedCategories={setSelectedCategories}
+      />
+    );
+
+    const dropdownButton = screen.getByText("Select or add categories");
+
+    // Open dropdown
+    fireEvent.click(dropdownButton);
+    expect(screen.getByText("Category1")).toBeInTheDocument();
+
+    // Close dropdown
+    fireEvent.click(dropdownButton);
+    expect(screen.queryByText("Category1")).not.toBeInTheDocument();
   });
 });

@@ -14,9 +14,10 @@ jest.mock("../../hooks/usePagination", () => ({
 jest.mock("../../components/Adopt/AdoptFilter", () => () => (
   <div data-testid="mock-filter" />
 ));
-jest.mock("../../components/Adopt/Cards", () => () => (
+jest.mock("../../components/Adopt/AdoptCards", () => () => (
   <div data-testid="mock-cards" />
 ));
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 jest.mock("react-paginate", () => (props: any) => (
   <button
     data-testid="mock-paginate"

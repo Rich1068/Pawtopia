@@ -15,8 +15,11 @@ const TextareaField: React.FC<TextareaFieldProps> = ({
 }) => {
   return (
     <div className="mb-2">
-      <label className="font-primary text-lg text-amber-950">{label}</label>
+      <label htmlFor={name} className="font-primary text-lg text-amber-950">
+        {label}
+      </label>
       <textarea
+        id={name}
         name={name}
         value={value}
         onChange={onChange}
