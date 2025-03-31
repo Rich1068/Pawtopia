@@ -34,3 +34,12 @@ export const mockProducts: IProduct[] = [
     price: "30",
   },
 ];
+
+export const mockProduct: IProduct = {
+  _id: "1",
+  name: "Premium Dog Food",
+  category: ["Dog Supplies"],
+  images: ["dog_food.jpeg"],
+  description: "Healthy food for dogs",
+  price: "25",
+};
