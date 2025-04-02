@@ -1,11 +1,11 @@
 import { FC } from "react";
 import { Search } from "lucide-react";
-import ProductFilterSection from "./ProductFilterSection";
 import { useCategories } from "../../../hooks/useCategories";
 import { IProduct } from "../../../types/Types";
+import ShopFilterSection from "./ShopFilterSection";
 
-interface ProductFilterProps {
-  selected: Record<string, string[]>; // Dynamic filters (category-based)
+interface IProductFilter {
+  selected: Record<string, string[]>;
   setSelected: React.Dispatch<React.SetStateAction<Record<string, string[]>>>;
   productCounts: Record<string, number>;
   searchQuery: string;
@@ -13,7 +13,7 @@ interface ProductFilterProps {
   filteredProducts: IProduct[];
 }
 
-const ShopFilter: FC<ProductFilterProps> = ({
+const ShopFilter: FC<IProductFilter> = ({
   selected,
   setSelected,
   productCounts,
@@ -60,8 +60,7 @@ const ShopFilter: FC<ProductFilterProps> = ({
         />
       </div>
 
-      {/* Category Filter Section */}
-      <ProductFilterSection
+      <ShopFilterSection
         key="category"
         title="Category"
         options={categories}

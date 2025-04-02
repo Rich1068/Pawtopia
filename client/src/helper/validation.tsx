@@ -73,17 +73,18 @@ export const validateField = (
     otherMode: "other mode of communication",
     otherLivingSituation: "other living situation",
   };
-
   const displayName =
     fieldNames[name] || name.replace(/([A-Z])/g, " $1").toLowerCase();
 
   if (!value.trim()) {
-    if (name.startsWith("other")) {
-      const mainField =
-        name.replace("other", "").charAt(0).toLowerCase() + name.slice(6);
-      if (formData?.[mainField] !== "Other") {
-        return "";
-      }
+    if (name === "otherMode") {
+      if (formData?.mode !== "Other") return "";
+      return "Please specify your mode of communication.";
+    }
+
+    if (name === "otherLivingSituation") {
+      if (formData?.livingSituation !== "Other") return "";
+      return "Please specify your living situation.";
     }
 
     return `${

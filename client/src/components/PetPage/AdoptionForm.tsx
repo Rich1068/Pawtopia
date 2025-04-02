@@ -37,19 +37,29 @@ const AdoptionForm: React.FC<AdoptionFormProps> = ({ petId, petName }) => {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
+
     setFormData((prev) => ({ ...prev, [name]: value }));
 
-    if (errors[name]) {
-      const newErrors = { ...errors, [name]: validateField(name, value) };
-      setErrors(newErrors);
+    const validationError = validateField(name, value);
+    if (validationError) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        [name]: validationError,
+      }));
+    } else {
+      setErrors((prevErrors) => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { [name]: _, ...restErrors } = prevErrors;
+        return restErrors;
+      });
     }
+    console.log(errors);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const validationErrors = validateForm(formData);
-    console.log("Validation Errors:", validationErrors);
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
@@ -126,6 +136,7 @@ const AdoptionForm: React.FC<AdoptionFormProps> = ({ petId, petName }) => {
             <input
               type="text"
               name="name"
+              data-testid="name-input"
               value={formData.name}
               onChange={handleChange}
               className="w-full p-2 border-b-2 border-orange-400 bg-transparent text-amber-950 focus:outline-none focus:ring-0 focus:border-orange-600 transition"
@@ -145,6 +156,7 @@ const AdoptionForm: React.FC<AdoptionFormProps> = ({ petId, petName }) => {
               <input
                 type="email"
                 name="email"
+                data-testid="email-input"
                 value={formData.email}
                 onChange={handleChange}
                 className="w-full p-2 border-b-2 border-orange-400 bg-transparent text-amber-950 focus:outline-none focus:ring-0 focus:border-orange-600 transition"
@@ -162,6 +174,7 @@ const AdoptionForm: React.FC<AdoptionFormProps> = ({ petId, petName }) => {
               <input
                 type="text"
                 name="phone"
+                data-testid="phone-input"
                 value={formData.phone}
                 onChange={handleChange}
                 className="w-full p-2 border-b-2 border-orange-400 bg-transparent text-amber-950 focus:outline-none focus:ring-0 focus:border-orange-600 transition"
@@ -178,6 +191,7 @@ const AdoptionForm: React.FC<AdoptionFormProps> = ({ petId, petName }) => {
             <input
               type="text"
               name="address"
+              data-testid="address-input"
               value={formData.address}
               onChange={handleChange}
               className="w-full p-2 border-b-2 border-orange-400 bg-transparent text-amber-950 focus:outline-none focus:ring-0 focus:border-orange-600 transition"
@@ -198,6 +212,7 @@ const AdoptionForm: React.FC<AdoptionFormProps> = ({ petId, petName }) => {
                   <input
                     type="radio"
                     name="livingSituation"
+                    data-testid={`${option}-situation-input`}
                     value={option}
                     checked={formData.livingSituation === option}
                     onChange={handleRadioChange}
@@ -210,6 +225,7 @@ const AdoptionForm: React.FC<AdoptionFormProps> = ({ petId, petName }) => {
                 <input
                   type="text"
                   name="otherLivingSituation"
+                  data-testid="situation-other-input"
                   value={formData.otherLivingSituation}
                   onChange={handleChange}
                   placeholder="Please specify..."
@@ -218,8 +234,10 @@ const AdoptionForm: React.FC<AdoptionFormProps> = ({ petId, petName }) => {
               )}
             </div>
 
-            {errors.livingSituation && (
-              <p className="text-red-500 text-sm">{errors.livingSituation}</p>
+            {(errors.livingSituation || errors.otherLivingSituation) && (
+              <p className="text-red-500 text-sm">
+                {errors.livingSituation || errors.otherLivingSituation}
+              </p>
             )}
           </div>
 
@@ -234,6 +252,7 @@ const AdoptionForm: React.FC<AdoptionFormProps> = ({ petId, petName }) => {
                   <input
                     type="radio"
                     name="mode"
+                    data-testid={`${option}-mode-input`}
                     value={option}
                     checked={formData.mode === option}
                     onChange={handleRadioChange}
@@ -246,6 +265,7 @@ const AdoptionForm: React.FC<AdoptionFormProps> = ({ petId, petName }) => {
                 <input
                   type="text"
                   name="otherMode"
+                  data-testid="mode-other-input"
                   value={formData.otherMode}
                   onChange={handleChange}
                   placeholder="Please specify..."
@@ -254,8 +274,10 @@ const AdoptionForm: React.FC<AdoptionFormProps> = ({ petId, petName }) => {
               )}
             </div>
 
-            {errors.mode && (
-              <p className="text-red-500 text-sm">{errors.mode}</p>
+            {(errors.mode || errors.otherMode) && (
+              <p className="text-red-500 text-sm">
+                {errors.mode || errors.otherMode}
+              </p>
             )}
           </div>
           <div>
@@ -274,6 +296,7 @@ const AdoptionForm: React.FC<AdoptionFormProps> = ({ petId, petName }) => {
                     type="radio"
                     name="experience"
                     value={option}
+                    data-testid={`${option}-experience-input`}
                     checked={formData.experience === option}
                     onChange={handleChange}
                     className="accent-orange-500"
@@ -297,6 +320,7 @@ const AdoptionForm: React.FC<AdoptionFormProps> = ({ petId, petName }) => {
               name="reason"
               value={formData.reason}
               onChange={handleChange}
+              data-testid="reason-input"
               placeholder="Please describe in at least 10 characters why you want to adopt this pet."
               className="w-full mt-2 p-2 border border-orange-400 bg-transparent text-amber-950 focus:outline-none focus:ring-0 focus:border-orange-600 transition"
             />
@@ -308,6 +332,7 @@ const AdoptionForm: React.FC<AdoptionFormProps> = ({ petId, petName }) => {
           {/* Submit Button */}
           <button
             type="submit"
+            data-testid="submit-button"
             className="mt-4 w-full max-w-80 mx-auto px-6 py-3 bg-orange-500 text-white font-semibold rounded-3xl shadow-md hover:bg-orange-600 transition disabled:opacity-50"
             disabled={isSubmitting}
           >

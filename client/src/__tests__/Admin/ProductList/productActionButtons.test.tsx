@@ -6,13 +6,13 @@ import toast from "react-hot-toast";
 import { mockProduct } from "../../../__mocks__/mockProducts";
 import { MemoryRouter } from "react-router";
 
+jest.mock("lucide-react");
 jest.mock("react-router", () => ({
   ...jest.requireActual("react-router"),
   Link: ({ to, children }: { to: string; children: React.ReactNode }) => (
     <a href={to}>{children}</a>
   ),
 }));
-
 jest.mock("react-hot-toast", () => ({
   success: jest.fn(),
   error: jest.fn(),
@@ -37,22 +37,22 @@ describe("ProductActionButtons Component", () => {
   it("renders all action buttons", () => {
     renderComponent();
 
-    expect(screen.getByRole("button", { name: /view/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /edit/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /trash/i })).toBeInTheDocument();
+    expect(screen.getByTestId("view-button")).toBeVisible();
+    expect(screen.getByTestId("edit-button")).toBeVisible();
+    expect(screen.getByTestId("delete-button")).toBeVisible();
   });
 
   it("opens and closes the delete confirmation modal", () => {
     renderComponent();
 
-    fireEvent.click(screen.getByRole("button", { name: /trash/i }));
+    fireEvent.click(screen.getByTestId("delete-button"));
 
     expect(screen.getByText(/confirm deletion/i)).toBeVisible();
     expect(
-      screen.getByText(/are you sure you want to delete "Test Product"\?/i)
+      screen.getByText(/Are you sure you want to delete "Premium Dog Food"\?/i)
     ).toBeVisible();
 
-    fireEvent.click(screen.getByText(/cancel/i));
+    fireEvent.click(screen.getByText(/close/i));
 
     expect(screen.queryByText(/confirm deletion/i)).not.toBeInTheDocument();
   });
@@ -61,14 +61,14 @@ describe("ProductActionButtons Component", () => {
     (serverAPI.delete as jest.Mock).mockResolvedValueOnce({});
 
     renderComponent();
-    fireEvent.click(screen.getByRole("button", { name: /trash/i }));
-    fireEvent.click(screen.getByText(/delete/i));
+    fireEvent.click(screen.getByTestId("delete-button"));
+    fireEvent.click(screen.getByRole("button", { name: "Delete" }));
 
     await waitFor(() => {
-      expect(serverAPI.delete).toHaveBeenCalledWith("/product/123", {
+      expect(serverAPI.delete).toHaveBeenCalledWith("/product/1", {
         withCredentials: true,
       });
-      expect(mockOnDelete).toHaveBeenCalledWith("123");
+      expect(mockOnDelete).toHaveBeenCalledWith("1");
       expect(toast.success).toHaveBeenCalledWith(
         "Product Successfully Deleted"
       );
@@ -81,11 +81,11 @@ describe("ProductActionButtons Component", () => {
     );
 
     renderComponent();
-    fireEvent.click(screen.getByRole("button", { name: /trash/i }));
-    fireEvent.click(screen.getByText(/delete/i));
+    fireEvent.click(screen.getByTestId("delete-button"));
+    fireEvent.click(screen.getByRole("button", { name: "Delete" }));
 
     await waitFor(() => {
-      expect(serverAPI.delete).toHaveBeenCalledWith("/product/123", {
+      expect(serverAPI.delete).toHaveBeenCalledWith("/product/1", {
         withCredentials: true,
       });
       expect(mockOnDelete).not.toHaveBeenCalled();

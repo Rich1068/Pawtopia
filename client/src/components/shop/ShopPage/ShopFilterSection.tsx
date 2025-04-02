@@ -1,7 +1,7 @@
 import { FC, useEffect, useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 
-interface IProductFilterSection {
+interface IShopFilterSection {
   title: string;
   options: string[];
   selected: string[];
@@ -10,7 +10,7 @@ interface IProductFilterSection {
   handleCheckboxChange: (filterType: string, value: string) => void;
 }
 
-const ProductFilterSection: FC<IProductFilterSection> = ({
+const ShopFilterSection: FC<IShopFilterSection> = ({
   title,
   options,
   selected,
@@ -65,4 +65,4 @@ const ProductFilterSection: FC<IProductFilterSection> = ({
   );
 };
 
-export default ProductFilterSection;
+export default ShopFilterSection;

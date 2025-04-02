@@ -28,4 +28,10 @@ describe("Breadcrumbs Component", () => {
     expect(screen.getByText("Shop")).toBeVisible();
     expect(screen.getByText("Product Details")).toBeVisible();
   });
+
+  test("decodes URI components in breadcrumbs", () => {
+    renderWithRouter("/category/%E2%9C%94");
+
+    expect(screen.getByText("✔")).toBeInTheDocument();
+  });
 });

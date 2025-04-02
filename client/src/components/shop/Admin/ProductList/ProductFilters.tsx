@@ -3,8 +3,9 @@ import CategoryFilter from "./CategoryFilter";
 import { Link } from "react-router";
 import { Table } from "@tanstack/react-table";
 import type { IProduct } from "../../../../types/Types";
+import { FC } from "react";
 
-interface ProductFiltersProps {
+interface IProductFilters {
   globalFilter: string;
   setGlobalFilter: (filter: string) => void;
   selectedCategories: string[];
@@ -12,7 +13,7 @@ interface ProductFiltersProps {
   table: Table<IProduct>;
 }
 
-const ProductFilters: React.FC<ProductFiltersProps> = ({
+const ProductFilters: FC<IProductFilters> = ({
   globalFilter,
   setGlobalFilter,
   selectedCategories,

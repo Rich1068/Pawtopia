@@ -30,16 +30,23 @@ const ProductActionButtons = ({
   return (
     <div className="flex gap-2 justify-center">
       <Link to={`/admin/product/${product._id}`}>
-        <button className="p-2 bg-blue-500 text-white rounded-full hover:bg-blue-700">
+        <button
+          data-testid="view-button"
+          className="p-2 bg-blue-500 text-white rounded-full hover:bg-blue-700"
+        >
           <Eye size={16} />
         </button>
       </Link>
       <Link to={`/admin/product/edit/${product._id}`}>
-        <button className="p-2 bg-green-500 text-white rounded-full hover:bg-green-700">
+        <button
+          data-testid="edit-button"
+          className="p-2 bg-green-500 text-white rounded-full hover:bg-green-700"
+        >
           <Edit size={16} />
         </button>
       </Link>
       <button
+        data-testid="delete-button"
         className="p-2 bg-red-500 text-white rounded-full hover:bg-red-700"
         onClick={() => setIsModalOpen(true)}
       >
