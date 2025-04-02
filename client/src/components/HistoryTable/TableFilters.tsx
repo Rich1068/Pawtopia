@@ -25,7 +25,11 @@ const TableFilters = <TData,>({
           onChange={(e) => table.setPageSize(Number(e.target.value))}
         >
           {[10, 20, 30, 40, 50].map((pageSize) => (
-            <option key={pageSize} value={pageSize}>
+            <option
+              key={pageSize}
+              value={pageSize}
+              data-testid={`${pageSize}-size-input`}
+            >
               {pageSize}
             </option>
           ))}
@@ -37,6 +41,7 @@ const TableFilters = <TData,>({
           <input
             type="text"
             value={globalFilter ?? ""}
+            data-testid="search-input"
             onChange={(e) => setGlobalFilter(e.target.value)}
             placeholder="Search"
             className="pl-10 p-2 border border-orange-400 rounded w-full focus:ring-2 focus:ring-orange-500"
@@ -49,6 +54,7 @@ const TableFilters = <TData,>({
         <input
           type="date"
           value={selectedDate}
+          data-testid="date-input"
           onChange={(e) => setSelectedDate(e.target.value)}
           className="p-2 border border-orange-400 rounded font-primary text-amber-950 w-full sm:w-auto"
         />
