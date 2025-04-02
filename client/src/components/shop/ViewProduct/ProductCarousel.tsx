@@ -15,7 +15,7 @@ interface IProductCarousel {
   productData: IProduct | null;
 }
 
-export const PetCarousel: FC<IProductCarousel> = ({ productData }) => {
+export const ProductCarousel: FC<IProductCarousel> = ({ productData }) => {
   const [mainSwiper, setMainSwiper] = useState<SwiperClass | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [thumbsSwiper, setThumbsSwiper] = useState<SwiperClass | null>(null);
@@ -149,4 +149,4 @@ export const PetCarousel: FC<IProductCarousel> = ({ productData }) => {
   );
 };
 
-export default PetCarousel;
+export default ProductCarousel;

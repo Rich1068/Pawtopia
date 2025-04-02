@@ -5,7 +5,7 @@ export const mockProducts: IProduct[] = [
     _id: "1",
     name: "Premium Dog Food",
     category: ["Dog Supplies"],
-    images: ["dog_food.jpeg"],
+    images: ["dog_food.jpeg", "dog_food2.jpeg"],
     description: "Healthy food for dogs",
     price: "25",
   },
@@ -32,6 +32,14 @@ export const mockProducts: IProduct[] = [
     images: ["litter_box.jpeg"],
     description: "Easy-to-clean litter box for cats",
     price: "30",
+  },
+  {
+    _id: "5",
+    name: "Cat Toy",
+    category: ["Cat Supplies"],
+    images: [],
+    description: "Best Cat Toy in the shop",
+    price: "40",
   },
 ];
 

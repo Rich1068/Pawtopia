@@ -1,4 +1,4 @@
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import type { IProduct } from "../../../types/Types";
 import { useCart } from "../../../context/CartContext";
 import { useNavigate } from "react-router";
@@ -16,6 +16,11 @@ const UserButtons: FC<IUserButtons> = ({ product }) => {
   const navigate = useNavigate();
   const [quantity, setQuantity] = useState(1);
 
+  useEffect(() => {
+    if (quantity < 1) setQuantity(1);
+    if (quantity > 99) setQuantity(99);
+  }, [quantity]);
+
   const handleDecrease = () => {
     if (quantity > 1) setQuantity(quantity - 1);
   };
@@ -31,13 +36,15 @@ const UserButtons: FC<IUserButtons> = ({ product }) => {
       setQuantity(1);
       return;
     }
+    const sanitizedValue = value.replace(/[^0-9]/g, "");
 
-    const numValue = Number(value);
-    if (!isNaN(numValue)) {
-      if (numValue < 1) setQuantity(1);
-      else if (numValue > 99) setQuantity(99);
-      else setQuantity(numValue);
+    if (sanitizedValue === "") {
+      setQuantity(1);
+      return;
     }
+    const numValue = parseInt(sanitizedValue, 10);
+    const integerValue = Math.trunc(numValue);
+    setQuantity(Math.min(99, Math.max(1, integerValue)));
   };
 
   const handleBuyNow = () => {
@@ -73,6 +80,7 @@ const UserButtons: FC<IUserButtons> = ({ product }) => {
           </button>
           <input
             type="text"
+            pattern="[0-9]*"
             className="w-8 text-center text-lg rounded-md"
             value={quantity}
             onChange={handleQuantityChange}
