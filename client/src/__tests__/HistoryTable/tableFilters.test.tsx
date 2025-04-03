@@ -32,17 +32,17 @@ describe("TableFilters", () => {
   it("renders all filter controls with correct test IDs", () => {
     render(<TableFilters {...defaultProps} />);
 
-    expect(screen.getByTestId("search-input")).toBeInTheDocument();
-    expect(screen.getByTestId("date-input")).toBeInTheDocument();
-    expect(screen.getByTestId("10-size-input")).toBeInTheDocument();
-    expect(screen.getByTestId("icon-Search")).toBeInTheDocument();
+    expect(screen.getByTestId("search-input")).toBeVisible();
+    expect(screen.getByTestId("date-input")).toBeVisible();
+    expect(screen.getByTestId("10-size-input")).toBeVisible();
+    expect(screen.getByTestId("icon-Search")).toBeVisible();
   });
 
   it("has all page size options with correct test IDs", () => {
     render(<TableFilters {...defaultProps} />);
 
     [10, 20, 30, 40, 50].forEach((size) => {
-      expect(screen.getByTestId(`${size}-size-input`)).toBeInTheDocument();
+      expect(screen.getByTestId(`${size}-size-input`)).toBeVisible();
     });
   });
 
