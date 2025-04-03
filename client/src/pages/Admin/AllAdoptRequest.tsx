@@ -97,7 +97,7 @@ const AllAdoptRequests = () => {
       header: "Pet Name",
     },
     {
-      accessorKey: "adopterName",
+      accessorKey: "name",
       header: "Adopter",
       cell: ({ row }) => {
         return <span>{row.original.name}</span>;

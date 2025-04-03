@@ -2,7 +2,7 @@ import { Table } from "@tanstack/react-table";
 import { IAdoptRequest } from "../../types/Types";
 import { Search } from "lucide-react";
 
-interface IAdoptRequestFilters {
+export interface IAdoptRequestFilters {
   globalFilter: string;
   statusFilter: "pending" | "approved" | "rejected";
   setStatusFilter: (status: "pending" | "approved" | "rejected") => void;
@@ -21,6 +21,7 @@ const AdoptRequestFilters: React.FC<IAdoptRequestFilters> = ({
     <div className="flex flex-col md:flex-row md:items-center gap-3">
       <div className="flex w-full sm:w-auto gap-3">
         <select
+          aria-label="pagesize"
           className="p-2 border border-orange-400 rounded font-primary text-amber-950 w-full sm:w-auto"
           value={table.getState().pagination.pageSize}
           onChange={(e) => table.setPageSize(Number(e.target.value))}
@@ -47,6 +48,7 @@ const AdoptRequestFilters: React.FC<IAdoptRequestFilters> = ({
       {/* Date Filter aligned to the right on PC */}
       <div className="w-full md:w-auto md:ml-auto items-stretch flex h-full">
         <select
+          aria-label="status"
           value={statusFilter}
           onChange={(e) =>
             setStatusFilter(
