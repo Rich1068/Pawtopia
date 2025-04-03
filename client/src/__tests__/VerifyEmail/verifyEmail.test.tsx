@@ -38,8 +38,8 @@ describe("VerifyEmail Component", () => {
 
   test("shows verification message by default", () => {
     setup();
-    expect(screen.getByText("Please verify your email.")).toBeInTheDocument();
-    expect(screen.getByText("Resend Email")).toBeInTheDocument();
+    expect(screen.getByText("Please verify your email.")).toBeVisible();
+    expect(screen.getByText("Resend Email")).toBeVisible();
   });
 
   test("verifies email when token exists", async () => {
@@ -49,7 +49,7 @@ describe("VerifyEmail Component", () => {
       expect(serverAPI.get).toHaveBeenCalledWith(
         "/api/verify-email?token=test123"
       );
-      expect(screen.getByText("Email verified!")).toBeInTheDocument();
+      expect(screen.getByText("Email verified!")).toBeVisible();
     });
   });
 
@@ -61,7 +61,7 @@ describe("VerifyEmail Component", () => {
     setup({ token: "bad-token" });
 
     await waitFor(() => {
-      expect(screen.getByText("Invalid token")).toBeInTheDocument();
+      expect(screen.getByText("Invalid token")).toBeVisible();
     });
   });
 
@@ -88,7 +88,7 @@ describe("VerifyEmail Component", () => {
     fireEvent.click(screen.getByText("Resend Email"));
 
     await waitFor(() => {
-      expect(screen.getByText("Resend failed")).toBeInTheDocument();
+      expect(screen.getByText("Resend failed")).toBeVisible();
     });
   });
 
