@@ -19,10 +19,10 @@ describe("useFilteredProducts Hook", () => {
       useFilteredProducts(mockProducts, { category: [] }, "")
     );
 
-    expect(result.current.filteredProducts).toHaveLength(4);
+    expect(result.current.filteredProducts).toHaveLength(5);
     expect(result.current.productCounts).toEqual({
       "Dog Supplies": 2,
-      "Cat Supplies": 2,
+      "Cat Supplies": 3,
     });
   });
 

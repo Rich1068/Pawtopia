@@ -61,6 +61,7 @@ const Login = () => {
       <PageHeader />
       <div className="min-h-screen -mt-20 sm:-mt-30 z-111 relative">
         <form
+          data-testid="login-form"
           onSubmit={loginUser}
           className="bg-white max-w-lg w-full p-8 mx-auto shadow-lg rounded-2xl border border-gray-200"
         >
@@ -83,6 +84,7 @@ const Login = () => {
                 value={data.email}
                 onChange={(e) => setData({ ...data, email: e.target.value })}
                 className="w-full bg-gray-100 text-gray-900 text-sm border border-gray-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-400 px-3 py-2 rounded-lg outline-none transition-all"
+                required
               />
             </div>
 
@@ -97,6 +99,7 @@ const Login = () => {
                 value={data.password}
                 onChange={(e) => setData({ ...data, password: e.target.value })}
                 className="w-full bg-gray-100 text-gray-900 text-sm border border-gray-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-400 px-3 py-2 rounded-lg outline-none transition-all"
+                required
               />
             </div>
           </div>

@@ -1,5 +1,5 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import ProfileImageUpload from "../components/Profile/ProfileImageUpload";
+import ProfileImageUpload from "../../components/Profile/ProfileImageUpload";
 import "@testing-library/jest-dom";
 
 const mockOnClose = jest.fn();

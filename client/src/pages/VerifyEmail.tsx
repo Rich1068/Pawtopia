@@ -58,7 +58,10 @@ const VerifyEmail = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen -mt-35 px-6 font-secondary">
       <div className="bg-white shadow-md rounded-lg p-6 max-w-md w-full text-center">
-        <h2 className="text-xl font-bold text-gray-700">{message}</h2>
+        <h2
+          className="text-xl font-bold text-gray-700"
+          dangerouslySetInnerHTML={{ __html: message }}
+        ></h2>
 
         {verified ? (
           <button
@@ -69,7 +72,7 @@ const VerifyEmail = () => {
           </button>
         ) : !token ? (
           <>
-            <p className="text-gray-500 mt-4">
+            <p className="text-gray-500 mt-4" data-testid="p-body">
               We’ve sent a verification email. Didn’t receive it?
             </p>
             <button

@@ -61,6 +61,7 @@ export const Register = () => {
       <PageHeader />
       <div className="min-h-screen -mt-20 sm:-mt-30 relative z-111">
         <form
+          data-testid="register-form"
           onSubmit={registerUser}
           className="bg-white max-w-xl w-full mx-auto shadow-lg p-8 sm:p-10 rounded-2xl border border-gray-200"
         >
@@ -95,10 +96,12 @@ export const Register = () => {
               <input
                 type={type}
                 name={name}
+                id={name}
                 placeholder={placeholder}
                 value={data[name as keyof typeof data]}
                 onChange={(e) => setData({ ...data, [name]: e.target.value })}
                 className="w-full bg-gray-100 text-gray-900 text-sm border border-gray-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-400 px-3 py-3 rounded-lg outline-none transition-all"
+                required
               />
             </div>
           ))}

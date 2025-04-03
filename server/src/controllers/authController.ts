@@ -209,7 +209,9 @@ export const verifyEmail = async (req: Request, res: Response) => {
       $unset: { verificationToken: "" },
     });
 
-    res.json({ message: "Email verified successfully. You can now log in." });
+    res.json({
+      message: "Email verified successfully.<br /> You can now log in.",
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });

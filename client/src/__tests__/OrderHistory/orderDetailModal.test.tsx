@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import OrderDetailsModal from "../components/OrderHistory/OrderDetailModal";
-import { IOrder } from "../types/Types";
+import OrderDetailsModal from "../../components/OrderHistory/OrderDetailModal";
+import { mockOrder } from "../../__mocks__/mockOrders";
 import "@testing-library/jest-dom";
 
 // Mock react-modal
@@ -10,26 +10,7 @@ jest.mock("react-modal", () => ({
     isOpen ? <div data-testid="modal">{children}</div> : null
   ),
 }));
-const mockOrder: IOrder = {
-  orderId: "ORD123",
-  createdAt: "2023-05-15T10:30:00Z",
-  userId: "1",
-  totalAmount: 99.99,
-  products: [
-    {
-      productId: "1",
-      name: "Test Product 1",
-      price: 29.99,
-      quantity: 2,
-    },
-    {
-      productId: "2",
-      name: "Test Product 2",
-      price: 39.99,
-      quantity: 1,
-    },
-  ],
-};
+
 describe("OrderDetailsModal", () => {
   const mockProps = {
     isOpen: true,

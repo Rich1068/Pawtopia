@@ -4,13 +4,16 @@ import serverAPI from "../helper/axios";
 import type { IProduct } from "../types/Types";
 import LoadingPage from "../components/LoadingPage/LoadingPage";
 import ShopContainer from "../components/shop/ShopPage/ShopContainer";
+import toast from "react-hot-toast";
 
-const fetchProducts = async () => {
+export const fetchProducts = async () => {
   try {
     const { data } = await serverAPI.get("/product/get-products");
     return data.data as IProduct[];
   } catch (error) {
-    console.log("FetchPets error: ", error);
+    console.log("Fetch Products error: ", error);
+    toast.error("Fetch Products error. Please try again later!");
+    throw error;
   }
 };
 

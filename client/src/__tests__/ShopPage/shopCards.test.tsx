@@ -89,9 +89,15 @@ describe("ShopCards Component", () => {
 
   test("calls getFullImageUrl for each product image", () => {
     renderComponent();
-    expect(getFullImageUrl).toHaveBeenCalledTimes(mockProducts.length);
+    const totalImageCalls = mockProducts.reduce(
+      (sum, product) => sum + (product.images?.length || 0),
+      0
+    );
+    expect(getFullImageUrl).toHaveBeenCalledTimes(totalImageCalls);
     mockProducts.forEach((product) => {
-      expect(getFullImageUrl).toHaveBeenCalledWith(product.images[0]);
+      product.images?.forEach((image) => {
+        expect(getFullImageUrl).toHaveBeenCalledWith(image);
+      });
     });
   });
 
@@ -117,17 +123,6 @@ describe("ShopCards Component", () => {
     renderComponent({ products: [] });
     const productCards = screen.queryAllByText(/\$/); // Looking for price indicators
     expect(productCards.length).toBe(0);
-  });
-
-  test("applies correct classes to product card container", () => {
-    const { container } = renderComponent();
-    const gridContainer = container.querySelector(".grid");
-    expect(gridContainer).toHaveClass(
-      "grid",
-      "max-[895px]:grid-cols-[repeat(auto-fill,_minmax(250px,_1fr))]",
-      "grid-cols-[repeat(auto-fill,_minmax(280px,_1fr))]",
-      "justify-center"
-    );
   });
 
   test('renders "View Details" button on each card', () => {

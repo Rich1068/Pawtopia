@@ -1,10 +1,10 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import ProfileImageCard from "../components/Profile/ProfileImageCard";
-import { User } from "../types/Types";
+import ProfileImageCard from "../../components/Profile/ProfileImageCard";
+import { User } from "../../types/Types";
 import "@testing-library/jest-dom";
 import React from "react";
 
-jest.mock("../context/AuthContext", () => ({
+jest.mock("../../context/AuthContext", () => ({
   AuthContext: {
     Provider: ({ children }: { children: React.ReactNode }) => children,
   },

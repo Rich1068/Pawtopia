@@ -3,8 +3,9 @@ import { useCart } from "../context/CartContext";
 import { Link } from "react-router";
 import serverAPI from "../helper/axios";
 import PageHeader from "../components/PageHeader";
-import { Loader2, Minus, Plus } from "lucide-react";
+import { LoaderCircle, Minus, Plus } from "lucide-react";
 import { getFullImageUrl } from "../helper/imageHelper";
+import toast from "react-hot-toast";
 
 const Checkout = () => {
   const { cart, addToCart, decreaseFromCart, removeFromCart } = useCart();
@@ -34,6 +35,7 @@ const Checkout = () => {
       }
     } catch (error) {
       console.error("Checkout error", error);
+      toast.error("Failed to process checkout. Please try again later.");
     } finally {
       setLoading(false);
     }
@@ -44,30 +46,43 @@ const Checkout = () => {
       <PageHeader text="Checkout" />
       <div className="min-h-screen flex justify-center p-2 sm:p-6">
         <div className="bg-white max-w-3xl w-full p-4 sm:p-6 rounded-xl shadow-lg self-start">
-          <h2 className="text-3xl font-primary font-semibold mb-6 text-orange-600 text-center">
+          <h2
+            className="text-3xl font-primary font-semibold mb-6 text-orange-600 text-center"
+            data-testid="cart-title"
+          >
             Shopping Cart
           </h2>
-
           {cartLength > 0 ? (
             <div className="border-b pb-4 space-y-4 font-secondary">
               {cart?.products.map((item) => (
                 <div
                   key={item.productId._id}
                   className="grid grid-cols-[1fr_auto_auto] sm:grid-cols-[auto_1fr_auto_auto] gap-4 items-center bg-gray-50 p-4 rounded-md shadow-sm"
+                  data-testid="cart-item"
                 >
                   <img
                     src={getFullImageUrl(item.productId.images[0])}
                     alt={item.productId.name}
                     className="w-16 h-16 object-cover rounded-md max-sm:hidden"
+                    data-testid={`product-image-${item.productId._id}`}
                   />
 
                   <div>
-                    <Link to={`/shop/product/${item.productId._id}`}>
-                      <h3 className="text-lg font-semibold text-gray-800">
+                    <Link
+                      to={`/shop/product/${item.productId._id}`}
+                      data-testid="product-link"
+                    >
+                      <h3
+                        className="text-lg font-semibold text-gray-800"
+                        data-testid={`product-name-${item.productId._id}`}
+                      >
                         {item.productId.name}
                       </h3>
                     </Link>
-                    <p className="text-sm text-gray-500">
+                    <p
+                      className="text-sm text-gray-500"
+                      data-testid={`product-price-${item.productId._id}`}
+                    >
                       ${parseFloat(item.productId.price).toFixed(2)}
                     </p>
                   </div>
@@ -77,6 +92,7 @@ const Checkout = () => {
                       onClick={() => decreaseFromCart(item.productId._id, 1)}
                       className="p-1 bg-gray-200 hover:bg-gray-300 rounded"
                       disabled={item.quantity <= 1}
+                      data-testid={`decrease-quantity-${item.productId._id}`}
                     >
                       <Minus size={16} />
                     </button>
@@ -85,17 +101,19 @@ const Checkout = () => {
                       value={item.quantity}
                       readOnly
                       className="w-8 text-center border border-gray-300 rounded"
+                      data-testid={`quantity-input-${item.productId._id}`}
                     />
                     <button
                       onClick={() => addToCart(item.productId._id, 1)}
                       className="p-1 bg-orange-500 hover:bg-orange-600 text-white rounded"
                       disabled={item.quantity >= 99}
+                      data-testid={`increase-quantity-${item.productId._id}`}
                     >
                       <Plus size={16} />
                     </button>
                   </div>
                   <div className="text-md font-semibold text-gray-700 text-right w-20 sm:w-25">
-                    <div>
+                    <div data-testid={`item-subtotal-${item.productId._id}`}>
                       $
                       {(
                         parseFloat(item.productId.price) * item.quantity
@@ -104,6 +122,7 @@ const Checkout = () => {
                     <button
                       onClick={() => removeFromCart(item.productId._id)}
                       className="text-red-500 text-sm hover:text-red-700 cursor-pointer"
+                      data-testid={`remove-item-${item.productId._id}`}
                     >
                       Remove
                     </button>
@@ -112,23 +131,33 @@ const Checkout = () => {
               ))}
             </div>
           ) : (
-            <p className="text-center text-gray-500 font-secondary">
+            <p
+              className="text-center text-gray-500 font-secondary"
+              data-testid="empty-cart-message"
+            >
               Your cart is empty.
             </p>
           )}
 
           <div className="flex justify-between items-center mt-6 text-lg font-semibold font-secondary">
             <span className="text-gray-800">Total:</span>
-            <span className="text-orange-600">${total.toFixed(2)}</span>
+            <span className="text-orange-600" data-testid="cart-total">
+              ${total.toFixed(2)}
+            </span>
           </div>
 
           <button
             onClick={handleCheckout}
             className="w-full font-secondary mt-6 bg-orange-500 text-white py-3 rounded-md font-semibold hover:bg-orange-600 transition flex items-center justify-center gap-2"
             disabled={loading}
+            data-testid="checkout-button"
           >
             {loading ? (
-              <Loader2 size={20} className="animate-spin" />
+              <LoaderCircle
+                size={20}
+                className="animate-spin"
+                data-testid="loading-spinner"
+              />
             ) : (
               "Proceed to Payment"
             )}
@@ -137,6 +166,7 @@ const Checkout = () => {
           <Link
             to="/shop"
             className="block text-center font-secondary mt-4 text-orange-500 hover:underline"
+            data-testid="continue-shopping-link"
           >
             Continue Shopping
           </Link>
