@@ -119,7 +119,7 @@ describe("OrderHistory Component", () => {
         "Error fetching orders:",
         expect.any(Error)
       );
-      expect(screen.queryByText("Loading...")).not.toBeVisible();
+      expect(screen.queryByText("Loading...")).not.toBeInTheDocument();
     });
   });
 
