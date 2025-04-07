@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import ProfileCard from "../../components/Profile/ProfileCard";
-import { AuthContext, useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../context/AuthContext";
 import serverAPI from "../../helper/axios";
 import "@testing-library/jest-dom";
 import toast from "react-hot-toast";
