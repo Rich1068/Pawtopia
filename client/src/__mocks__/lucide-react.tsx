@@ -24,6 +24,7 @@ export const Edit = createMockIcon("Edit");
 export const Trash = createMockIcon("Trash");
 export const Minus = createMockIcon("Minus");
 export const Plus = createMockIcon("Plus");
+export const Check = createMockIcon("Check");
 export const LoaderCircle = createMockIcon("LoaderCircle");
 // Default export fallback if needed
 export default {
@@ -45,5 +46,6 @@ export default {
   Trash,
   Minus,
   Plus,
+  Check,
   LoaderCircle,
 };

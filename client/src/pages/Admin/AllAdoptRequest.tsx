@@ -10,16 +10,16 @@ import { Eye, Check, X } from "lucide-react";
 import serverAPI from "../../helper/axios";
 import AdoptRequestModal from "../../components/AdoptRequest/AdoptRequestModal";
 import AdoptRequestFilters from "../../components/AdoptRequest/AdoptRequestFilters";
-import LoadingPage from "../../components/LoadingPage/LoadingPage";
 import TitleComponent from "../../components/shop/Admin/TitleComponent";
 import { IAdoptRequest } from "../../types/Types";
 import WarningModal from "../../components/WarningModal";
 import toast from "react-hot-toast";
 import DataTable from "../../components/HistoryTable/DataTable";
+import { LoaderCircle } from "lucide-react";
 
 const AllAdoptRequests = () => {
   const [requests, setRequests] = useState<IAdoptRequest[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState<IAdoptRequest | null>(
     null
   );
@@ -39,6 +39,7 @@ const AllAdoptRequests = () => {
 
   const fetchAdoptRequests = async () => {
     try {
+      setLoading(true);
       const { data } = await serverAPI.get("/adopt/requests", {
         params: { status: statusFilter },
         withCredentials: true,
@@ -136,7 +137,6 @@ const AllAdoptRequests = () => {
 
         return (
           <div className="flex gap-3 sm:gap-2 justify-center">
-            {/* View Details */}
             <button
               className="text-blue-500 hover:text-blue-700 flex items-center"
               onClick={() => openModal(request)}
@@ -145,12 +145,9 @@ const AllAdoptRequests = () => {
                 size={26}
                 className="sm:hidden p-1 rounded-full text-white bg-blue-500 "
               />{" "}
-              {/* Icon for mobile */}
               <span className="hidden sm:inline">View Details</span>{" "}
-              {/* Text for large screens */}
             </button>
 
-            {/* Approve Request */}
             <button
               className="text-green-500 hover:text-green-700 flex items-center"
               onClick={() => {
@@ -199,8 +196,6 @@ const AllAdoptRequests = () => {
     onGlobalFilterChange: setGlobalFilter,
   });
 
-  if (loading) return <LoadingPage fadeOut={false} />;
-
   return (
     <div className="relative font-primary text-amber-950">
       <TitleComponent text={"Adoption Requests"} />
@@ -212,7 +207,13 @@ const AllAdoptRequests = () => {
           setGlobalFilter={setGlobalFilter}
           table={table}
         />
-        <DataTable table={table} style="!p-0" />
+        {loading ? (
+          <div className="flex justify-center items-center h-full">
+            <LoaderCircle className="animate-spin text-orange-500" size={40} />
+          </div>
+        ) : (
+          <DataTable table={table} style="!p-0" />
+        )}
       </div>
       <AdoptRequestModal
         isOpen={isModalOpen}

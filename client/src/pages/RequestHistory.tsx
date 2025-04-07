@@ -103,7 +103,6 @@ const RequestHistory = () => {
 
         return (
           <div className="flex gap-3 sm:gap-2 justify-center">
-            {/* View Details */}
             <button
               className="text-blue-500 hover:text-blue-700 flex items-center"
               onClick={() => openModal(request)}
@@ -112,9 +111,7 @@ const RequestHistory = () => {
                 size={26}
                 className="sm:hidden p-1 rounded-full text-white bg-blue-500 "
               />{" "}
-              {/* Icon for mobile */}
               <span className="hidden sm:inline">View Details</span>{" "}
-              {/* Text for large screens */}
             </button>
           </div>
         );

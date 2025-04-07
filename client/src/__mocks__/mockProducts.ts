@@ -39,7 +39,7 @@ export const mockProducts: IProduct[] = [
     category: ["Cat Supplies"],
     images: [],
     description: "Best Cat Toy in the shop",
-    price: "40",
+    price: "45",
   },
 ];
 

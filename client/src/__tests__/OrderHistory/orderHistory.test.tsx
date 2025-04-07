@@ -64,8 +64,11 @@ describe("OrderHistory Component", () => {
     (PageHeader as jest.Mock).mockImplementation(({ text }) => (
       <div>{text}</div>
     ));
-    (OrderDetailsModal as jest.Mock).mockImplementation(() => (
-      <div>OrderDetailsModal</div>
+    (OrderDetailsModal as jest.Mock).mockImplementation(({ isOpen, order }) => (
+      <div>
+        OrderDetailsModal - {isOpen ? "Open" : "Closed"} -{" "}
+        {order ? order.orderId : "No Order"}
+      </div>
     ));
     (TableFilters as jest.Mock).mockImplementation(() => (
       <div>TableFilters</div>
@@ -74,10 +77,16 @@ describe("OrderHistory Component", () => {
       <div>
         DataTable
         <button
-          onClick={() =>
-            table.getRowModel().rows[0]?.original &&
-            (OrderDetailsModal as jest.Mock).mock.calls[0][0].onClose()
-          }
+          data-testid="view-details-button"
+          onClick={() => {
+            const firstOrder = table.getRowModel().rows[0]?.original;
+            if (firstOrder) {
+              // Simulate the setSelectedOrder call
+              (OrderDetailsModal as jest.Mock).mock.calls[0][0].onClose();
+              (OrderDetailsModal as jest.Mock).mock.calls[0][0].order =
+                firstOrder;
+            }
+          }}
         >
           View Details
         </button>
@@ -136,6 +145,21 @@ describe("OrderHistory Component", () => {
             expect.objectContaining({ accessorKey: "totalAmount" }),
             expect.objectContaining({ id: "actions" }),
           ]),
+          data: expect.any(Array),
+        })
+      );
+    });
+  });
+
+  it("handles empty order list", async () => {
+    (serverAPI.get as jest.Mock).mockResolvedValue({ data: [] });
+    renderComponent();
+
+    await waitFor(() => {
+      expect(screen.queryByText("Loading...")).not.toBeInTheDocument();
+      expect(useReactTable).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: [],
         })
       );
     });

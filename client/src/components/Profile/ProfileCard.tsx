@@ -1,11 +1,11 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import ProfileField from "./ProfileField";
 import { FC } from "react";
 import { User } from "../../types/Types";
 import serverAPI from "../../helper/axios";
 import validate, { validatePassword } from "../../helper/validation";
-import { AuthContext } from "../../context/AuthContext";
 import toast from "react-hot-toast";
+import { useAuth } from "../../context/AuthContext";
 
 const ProfileCard: FC<{ user: User }> = ({ user }) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -19,7 +19,7 @@ const ProfileCard: FC<{ user: User }> = ({ user }) => {
     newPassword: "",
     confirmPassword: "",
   });
-  const { verifyToken } = useContext(AuthContext)!;
+  const { verifyToken } = useAuth();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -152,7 +152,13 @@ const ProfileCard: FC<{ user: User }> = ({ user }) => {
               </p>
             </div>
             <button
-              onClick={() => setIsEditing(!isEditing)}
+              onClick={() => {
+                if (isEditing) {
+                  cancelEditing();
+                } else {
+                  setIsEditing(true);
+                }
+              }}
               className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600"
             >
               {isEditing ? "Cancel" : "Edit"}
