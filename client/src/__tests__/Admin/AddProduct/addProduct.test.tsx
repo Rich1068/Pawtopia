@@ -157,14 +157,12 @@ describe("AddProduct Component", () => {
   it("should render form fields correctly", () => {
     renderComponent();
 
-    expect(screen.getByTestId("name")).toBeInTheDocument();
-    expect(screen.getByTestId("description")).toBeInTheDocument();
-    expect(screen.getByTestId("price")).toBeInTheDocument();
-    expect(screen.getByTestId("category-selector")).toBeInTheDocument();
-    expect(screen.getByTestId("image-upload")).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: /add product/i })
-    ).toBeInTheDocument();
+    expect(screen.getByTestId("name")).toBeVisible();
+    expect(screen.getByTestId("description")).toBeVisible();
+    expect(screen.getByTestId("price")).toBeVisible();
+    expect(screen.getByTestId("category-selector")).toBeVisible();
+    expect(screen.getByTestId("image-upload")).toBeVisible();
+    expect(screen.getByRole("button", { name: /add product/i })).toBeVisible();
   });
 
   it("should show an error if required fields are missing", async () => {

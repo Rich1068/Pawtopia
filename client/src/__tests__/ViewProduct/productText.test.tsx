@@ -74,21 +74,21 @@ describe("ProductText", () => {
   // Existing tests
   it("renders product information correctly", () => {
     renderComponent();
-    expect(screen.getByText(mockProduct.name)).toBeInTheDocument();
-    expect(screen.getByText(mockProduct.description)).toBeInTheDocument();
-    expect(screen.getByText(`$${mockProduct.price}.00`)).toBeInTheDocument();
-    expect(screen.getByText(mockProduct.category[0])).toBeInTheDocument();
+    expect(screen.getByText(mockProduct.name)).toBeVisible();
+    expect(screen.getByText(mockProduct.description)).toBeVisible();
+    expect(screen.getByText(`$${mockProduct.price}.00`)).toBeVisible();
+    expect(screen.getByText(mockProduct.category[0])).toBeVisible();
   });
 
   it("renders UserButtons when not in admin view", () => {
     renderComponent();
-    expect(screen.getByTestId("user-buttons")).toBeInTheDocument();
+    expect(screen.getByTestId("user-buttons")).toBeVisible();
     expect(screen.queryByTestId("admin-buttons")).not.toBeInTheDocument();
   });
 
   it("renders AdminButtons when in admin view", () => {
     renderComponent(true, true);
-    expect(screen.getByTestId("admin-buttons")).toBeInTheDocument();
+    expect(screen.getByTestId("admin-buttons")).toBeVisible();
     expect(screen.queryByTestId("user-buttons")).not.toBeInTheDocument();
   });
 
@@ -98,7 +98,7 @@ describe("ProductText", () => {
 
       fireEvent.click(screen.getByTestId("admin-buttons"));
 
-      expect(screen.getByTestId("warning-modal")).toBeInTheDocument();
+      expect(screen.getByTestId("warning-modal")).toBeVisible();
     });
 
     it("closes warning modal when cancel is clicked", () => {

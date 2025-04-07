@@ -39,7 +39,7 @@ describe("ProductImageUpload Component", () => {
     renderComponent();
     expect(
       screen.getByText("Drag & drop images here or click to upload")
-    ).toBeInTheDocument();
+    ).toBeVisible();
   });
 
   it("allows selecting and uploading valid image files", async () => {

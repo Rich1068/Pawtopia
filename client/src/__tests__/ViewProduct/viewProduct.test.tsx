@@ -68,7 +68,7 @@ describe("ViewProduct", () => {
       () => new Promise(() => {})
     );
     renderComponent();
-    expect(screen.getByTestId("loading-page")).toBeInTheDocument();
+    expect(screen.getByTestId("loading-page")).toBeVisible();
   });
 
   it("fetches and displays product data successfully", async () => {
@@ -79,8 +79,8 @@ describe("ViewProduct", () => {
 
     await waitFor(() => {
       expect(serverAPI.get).toHaveBeenCalledWith(`/product/123`);
-      expect(screen.getByTestId("product-carousel")).toBeInTheDocument();
-      expect(screen.getByTestId("product-text")).toBeInTheDocument();
+      expect(screen.getByTestId("product-carousel")).toBeVisible();
+      expect(screen.getByTestId("product-text")).toBeVisible();
     });
   });
 
@@ -89,7 +89,7 @@ describe("ViewProduct", () => {
     renderComponent();
 
     await waitFor(() => {
-      expect(screen.getByTestId("warning-container")).toBeInTheDocument();
+      expect(screen.getByTestId("warning-container")).toBeVisible();
     });
   });
 
@@ -100,7 +100,7 @@ describe("ViewProduct", () => {
     renderComponent("123", true, true);
 
     await waitFor(() => {
-      expect(screen.getByTestId("title-component")).toBeInTheDocument();
+      expect(screen.getByTestId("title-component")).toBeVisible();
       expect(screen.queryByTestId("page-header")).not.toBeInTheDocument();
     });
   });
@@ -112,7 +112,7 @@ describe("ViewProduct", () => {
     renderComponent();
 
     await waitFor(() => {
-      expect(screen.getByTestId("page-header")).toBeInTheDocument();
+      expect(screen.getByTestId("page-header")).toBeVisible();
       expect(screen.queryByTestId("title-component")).not.toBeInTheDocument();
     });
   });

@@ -91,7 +91,7 @@ describe("OrderHistory Component", () => {
 
   it("shows loading state initially", () => {
     renderComponent();
-    expect(screen.getByText("Loading...")).toBeInTheDocument();
+    expect(screen.getByText("Loading...")).toBeVisible();
   });
 
   it("fetches and displays orders", async () => {
@@ -102,9 +102,9 @@ describe("OrderHistory Component", () => {
       expect(serverAPI.get).toHaveBeenCalledWith("/order/history", {
         withCredentials: true,
       });
-      expect(screen.getByText("Order History")).toBeInTheDocument();
-      expect(screen.getByText("TableFilters")).toBeInTheDocument();
-      expect(screen.getByText("DataTable")).toBeInTheDocument();
+      expect(screen.getByText("Order History")).toBeVisible();
+      expect(screen.getByText("TableFilters")).toBeVisible();
+      expect(screen.getByText("DataTable")).toBeVisible();
     });
   });
 
@@ -119,7 +119,7 @@ describe("OrderHistory Component", () => {
         "Error fetching orders:",
         expect.any(Error)
       );
-      expect(screen.queryByText("Loading...")).not.toBeInTheDocument();
+      expect(screen.queryByText("Loading...")).not.toBeVisible();
     });
   });
 

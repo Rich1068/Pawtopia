@@ -35,8 +35,8 @@ describe("AdminButtons", () => {
   it("renders both buttons with correct properties", () => {
     const { editButton, deleteButton, editLink } = getElements();
 
-    expect(editButton).toBeInTheDocument();
-    expect(deleteButton).toBeInTheDocument();
+    expect(editButton).toBeVisible();
+    expect(deleteButton).toBeVisible();
     expect(editLink).toHaveAttribute("href", "/admin/product/edit/123");
   });
 

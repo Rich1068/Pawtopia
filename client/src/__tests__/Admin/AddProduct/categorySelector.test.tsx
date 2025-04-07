@@ -30,7 +30,7 @@ describe("CategorySelector Component", () => {
       />
     );
 
-    expect(screen.getByText("Select or add categories")).toBeInTheDocument();
+    expect(screen.getByText("Select or add categories")).toBeVisible();
   });
 
   test("displays existing categories when dropdown is open", () => {
@@ -44,8 +44,8 @@ describe("CategorySelector Component", () => {
     // Open the dropdown
     fireEvent.click(screen.getByText("Select or add categories"));
 
-    expect(screen.getByText("Category1")).toBeInTheDocument();
-    expect(screen.getByText("Category2")).toBeInTheDocument();
+    expect(screen.getByText("Category1")).toBeVisible();
+    expect(screen.getByText("Category2")).toBeVisible();
   });
 
   test("selects a category when clicked", () => {
@@ -120,7 +120,7 @@ describe("CategorySelector Component", () => {
     );
 
     fireEvent.click(screen.getByText("Select or add categories"));
-    expect(screen.getByText("Loading...")).toBeInTheDocument();
+    expect(screen.getByText("Loading...")).toBeVisible();
   });
 
   test("handles error state", () => {
@@ -139,7 +139,7 @@ describe("CategorySelector Component", () => {
     );
 
     fireEvent.click(screen.getByText("Select or add categories"));
-    expect(screen.getByText("Failed to load categories")).toBeInTheDocument();
+    expect(screen.getByText("Failed to load categories")).toBeVisible();
   });
 
   test("toggles dropdown when clicked", () => {
@@ -154,7 +154,7 @@ describe("CategorySelector Component", () => {
 
     // Open dropdown
     fireEvent.click(dropdownButton);
-    expect(screen.getByText("Category1")).toBeInTheDocument();
+    expect(screen.getByText("Category1")).toBeVisible();
 
     // Close dropdown
     fireEvent.click(dropdownButton);

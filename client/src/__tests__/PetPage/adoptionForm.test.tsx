@@ -68,7 +68,7 @@ describe("AdoptionForm", () => {
 
     expect(
       screen.getByText(/Your adoption request has been submitted!/i)
-    ).toBeInTheDocument();
+    ).toBeVisible();
   });
 
   test("should show validation error when name field is empty", async () => {
@@ -79,7 +79,7 @@ describe("AdoptionForm", () => {
     });
     fireEvent.click(screen.getByTestId("submit-button"));
     await waitFor(() => {
-      expect(screen.getByText(/Name is required/i)).toBeInTheDocument();
+      expect(screen.getByText(/Name is required/i)).toBeVisible();
     });
   });
 
@@ -88,7 +88,7 @@ describe("AdoptionForm", () => {
 
     fireEvent.click(screen.getByTestId("Other-situation-input"));
 
-    expect(screen.getByTestId("situation-other-input")).toBeInTheDocument();
+    expect(screen.getByTestId("situation-other-input")).toBeVisible();
   });
 
   test("should show the 'Other' field when 'Other' is selected for mode of communication", () => {
@@ -96,7 +96,7 @@ describe("AdoptionForm", () => {
 
     fireEvent.click(screen.getByTestId("Other-mode-input"));
 
-    expect(screen.getByTestId("mode-other-input")).toBeInTheDocument();
+    expect(screen.getByTestId("mode-other-input")).toBeVisible();
   });
 
   test("should show error toast when form submission fails", async () => {

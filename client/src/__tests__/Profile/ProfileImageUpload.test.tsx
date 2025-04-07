@@ -10,7 +10,7 @@ const renderProfileImageUpload = (props = {}) => {
       isOpen={true}
       onClose={mockOnClose}
       onImageSave={mockOnImageSave}
-      {...props} // Allow overriding props if needed
+      {...props}
     />
   );
 };
@@ -21,8 +21,17 @@ const uploadImage = () => {
   const input = screen.getByTestId("file-input");
   fireEvent.change(input, { target: { files: [mockFile] } });
 
-  return mockFile; // Return the file for assertions
+  return mockFile;
 };
+const uploadInvalidFile = () => {
+  const mockFile = new File(["mock content"], "document.pdf", {
+    type: "application/pdf",
+  });
+  const input = screen.getByTestId("file-input");
+  fireEvent.change(input, { target: { files: [mockFile] } });
+  return mockFile;
+};
+
 describe("ProfileImageUpload Unit Test", () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -70,5 +79,18 @@ describe("ProfileImageUpload Unit Test", () => {
     renderProfileImageUpload(true);
     const saveButton = screen.getByText("Save");
     expect(saveButton).toBeDisabled();
+  });
+
+  it("shows an alert when an invalid file type is selected", () => {
+    const alertMock = jest.spyOn(window, "alert").mockImplementation(() => {});
+
+    renderProfileImageUpload();
+    uploadInvalidFile();
+
+    // Check if alert was called with the correct message
+    expect(alertMock).toHaveBeenCalledWith("Please select a valid image file.");
+
+    // Restore the original implementation
+    alertMock.mockRestore();
   });
 });

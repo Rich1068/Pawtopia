@@ -1,13 +1,13 @@
 import { UserRound, Pencil } from "lucide-react";
-import { FC, useContext, useState } from "react";
+import { FC, useState } from "react";
 import { User } from "../../types/Types";
 import ProfileImageUpload from "./ProfileImageUpload";
-import { AuthContext } from "../../context/AuthContext";
+import { useAuth } from "../../context/AuthContext";
 import serverAPI from "../../helper/axios";
 
 const ProfileImageCard: FC<{ user: User }> = ({ user }) => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
-  const { verifyToken } = useContext(AuthContext)!;
+  const { verifyToken } = useAuth();
   const handleImageSave = async (image: File | null) => {
     //console.log(profileImage)
     const formData = new FormData();

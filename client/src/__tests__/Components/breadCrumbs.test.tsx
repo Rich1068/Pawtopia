@@ -32,6 +32,6 @@ describe("Breadcrumbs Component", () => {
   test("decodes URI components in breadcrumbs", () => {
     renderWithRouter("/category/%E2%9C%94");
 
-    expect(screen.getByText("✔")).toBeInTheDocument();
+    expect(screen.getByText("✔")).toBeVisible();
   });
 });
