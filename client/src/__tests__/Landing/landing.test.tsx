@@ -19,9 +19,9 @@ describe("Landing Page", () => {
   it("renders all landing sections", () => {
     render(<Landing />);
 
-    expect(screen.getByTestId("mock-hero-section")).toBeInTheDocument();
-    expect(screen.getByTestId("mock-center-text")).toBeInTheDocument();
-    expect(screen.getByTestId("mock-hero-section2")).toBeInTheDocument();
-    expect(screen.getByTestId("mock-carousel")).toBeInTheDocument();
+    expect(screen.getByTestId("mock-hero-section")).toBeVisible();
+    expect(screen.getByTestId("mock-center-text")).toBeVisible();
+    expect(screen.getByTestId("mock-hero-section2")).toBeVisible();
+    expect(screen.getByTestId("mock-carousel")).toBeVisible();
   });
 });

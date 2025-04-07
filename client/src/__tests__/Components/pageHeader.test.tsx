@@ -27,7 +27,7 @@ describe("PageHeader Component", () => {
     );
 
     const pawPrintIcon = screen.getByTestId("icon-PawPrint");
-    expect(pawPrintIcon).toBeInTheDocument();
+    expect(pawPrintIcon).toBeVisible();
   });
 
   test("renders Breadcrumbs component", () => {
