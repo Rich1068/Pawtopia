@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import Landing from "../../pages/Landing";
 import "@testing-library/jest-dom";
 
@@ -16,12 +16,13 @@ jest.mock("../../components/Landing/Carousel/Carousel", () => () => (
 ));
 
 describe("Landing Page", () => {
-  it("renders all landing sections", () => {
+  it("renders all landing sections", async () => {
     render(<Landing />);
-
-    expect(screen.getByTestId("mock-hero-section")).toBeVisible();
-    expect(screen.getByTestId("mock-center-text")).toBeVisible();
-    expect(screen.getByTestId("mock-hero-section2")).toBeVisible();
-    expect(screen.getByTestId("mock-carousel")).toBeVisible();
+    await waitFor(() => {
+      expect(screen.getByTestId("mock-hero-section")).toBeVisible();
+      expect(screen.getByTestId("mock-center-text")).toBeVisible();
+      expect(screen.getByTestId("mock-hero-section2")).toBeVisible();
+      expect(screen.getByTestId("mock-carousel")).toBeVisible();
+    });
   });
 });
