@@ -82,7 +82,7 @@ const UserNavBar = () => {
       <MobileSidebar
         isOpen={isMobileMenuOpen}
         closing={closing}
-        handleClose={() => setIsMobileMenuOpen(false)}
+        handleClose={() => handleClose()}
         user={user}
         logout={logout}
         favorites={favorites}
