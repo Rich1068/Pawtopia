@@ -1,7 +1,6 @@
 import { FC, JSX } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { ShoppingCart, PawPrint, Clock, DollarSign } from "lucide-react";
-import serverAPI from "../../helper/axios";
+import { useAdminStats } from "../../hooks/useDashboardStats";
 
 interface DashboardCardProps {
   title: string;
@@ -33,30 +32,16 @@ const DashboardCard: FC<DashboardCardProps> = ({
   );
 };
 
-const fetchAdminStats = async () => {
-  try {
-    const response = await serverAPI.get("/admin/stats", {
-      withCredentials: true,
-    });
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching admin stats:", error);
-    throw error;
-  }
-};
-
 const DashboardCards: FC = () => {
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["adminStats"],
-    queryFn: fetchAdminStats,
-    staleTime: 5 * 60 * 1000,
-    refetchOnMount: "always",
-  });
+  const { data, isLoading, error } = useAdminStats();
 
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-40">
-        <p className="animate-spin rounded-full h-8 w-8 border-t-4 border-orange-500"></p>
+        <p
+          role="status"
+          className="animate-spin rounded-full h-8 w-8 border-t-4 border-orange-500"
+        ></p>
       </div>
     );
   }

@@ -15,7 +15,9 @@ html {
   background-repeat: no-repeat;
   background-attachment: fixed;
 }
-
+body {
+  overflow-x: hidden;
+}
 @keyframes bounce-right {
   0%,
   100% {

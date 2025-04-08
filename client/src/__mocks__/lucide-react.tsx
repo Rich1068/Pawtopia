@@ -5,7 +5,6 @@ const createMockIcon = (name: string) =>
   function MockIcon(props: React.HTMLAttributes<HTMLDivElement>) {
     return <div data-testid={`icon-${name}`} {...props} />;
   };
-
 // Export commonly used icons or mock them dynamically
 export const ArrowLeft = createMockIcon("ArrowLeft");
 export const ChevronDown = createMockIcon("ChevronDown");
@@ -26,6 +25,10 @@ export const Minus = createMockIcon("Minus");
 export const Plus = createMockIcon("Plus");
 export const Check = createMockIcon("Check");
 export const LoaderCircle = createMockIcon("LoaderCircle");
+export const DollarSign = createMockIcon("DollarSign");
+export const ShoppingCart = createMockIcon("ShoppingCart");
+export const Clock = createMockIcon("Clock");
+
 // Default export fallback if needed
 export default {
   __esModule: true,
@@ -48,4 +51,7 @@ export default {
   Plus,
   Check,
   LoaderCircle,
+  DollarSign,
+  ShoppingCart,
+  Clock,
 };

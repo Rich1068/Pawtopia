@@ -13,9 +13,7 @@ const AdminLayout = () => {
       <AdminSideBar isExpanded={isExpanded} setIsExpanded={setIsExpanded} />
       <div
         className={`transition-all min-h-screen !pt-25 p-4 sm:p-8 ${
-          isExpanded
-            ? "md:ml-60 md:w-[calc(100%-15rem)]"
-            : "ml-20 w-[calc(100%-5rem) max-md:ml-0 max-md:w-0]"
+          isExpanded ? "md:ml-60" : "ml-20 max-md:ml-0 max-md:w-0]"
         }`}
       >
         <Outlet />

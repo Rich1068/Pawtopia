@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -11,7 +10,7 @@ import {
   ChartData,
   ChartOptions,
 } from "chart.js";
-import serverAPI from "../../helper/axios";
+import { useMostSoldProducts } from "../../hooks/useDashboardStats";
 
 ChartJS.register(
   CategoryScale,
@@ -23,44 +22,29 @@ ChartJS.register(
 );
 
 const MostSoldChart = () => {
-  const [chartData, setChartData] = useState<
-    ChartData<"bar", number[], string>
-  >({
-    labels: [],
-    datasets: [],
-  });
+  const { data, isLoading, isError } = useMostSoldProducts();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const { data } = await serverAPI.get("/admin/most-sold-products", {
-          withCredentials: true,
-        });
+  interface MostSoldProduct {
+    name: string;
+    totalSold: number;
+  }
 
-        const productNames = data.map((item: { name: string }) => item.name);
-        const totalSales = data.map(
-          (item: { totalSold: number }) => item.totalSold
-        );
-
-        setChartData({
-          labels: productNames,
-          datasets: [
-            {
-              label: "Units Sold",
-              data: totalSales,
-              backgroundColor: "oklch(0.705 0.213 47.604)",
-              borderColor: "oklch(0.705 0.213 47.604)",
-              borderWidth: 1,
-            },
-          ],
-        });
-      } catch (error) {
-        console.error("Error fetching most sold products:", error);
-      }
-    };
-
-    fetchData();
-  }, []);
+  const chartData: ChartData<"bar", number[], string> = {
+    labels:
+      (data as MostSoldProduct[] | undefined)?.map((item) => item.name) ?? [],
+    datasets: [
+      {
+        label: "Units Sold",
+        data:
+          (data as MostSoldProduct[] | undefined)?.map(
+            (item) => item.totalSold
+          ) ?? [],
+        backgroundColor: "oklch(0.705 0.213 47.604)",
+        borderColor: "oklch(0.705 0.213 47.604)",
+        borderWidth: 1,
+      },
+    ],
+  };
   const options: ChartOptions<"bar"> = {
     maintainAspectRatio: false,
     responsive: true,
@@ -85,6 +69,10 @@ const MostSoldChart = () => {
       <h2 className="text-lg font-semibold mb-3 text-gray-700">
         Most Sold Products
       </h2>
+
+      {isLoading && <p>Loading...</p>}
+      {isError && <p>Error fetching data</p>}
+
       <div className="h-auto">
         <Bar data={chartData} options={options} />
       </div>

@@ -1,38 +1,21 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   useReactTable,
   getCoreRowModel,
   ColumnDef,
   getPaginationRowModel,
 } from "@tanstack/react-table";
-import serverAPI from "../../helper/axios";
 import OrderDetailsModal from "../../components/OrderHistory/OrderDetailModal";
 import type { IOrder } from "../../types/Types";
 import TableSection from "./TableSection";
 import { Link } from "react-router";
+import { useRecentOrders } from "../../hooks/useDashboardStats";
 
 const RecentOrdersTable = () => {
-  const [orders, setOrders] = useState<IOrder[]>([]);
-  const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<IOrder | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        const { data } = await serverAPI.get("/admin/recent-orders", {
-          withCredentials: true,
-        });
-        setOrders(data);
-      } catch (error) {
-        console.error("Error fetching recent orders:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchOrders();
-  }, []);
+  const { data, isLoading, isError } = useRecentOrders();
 
   const openModal = (order: IOrder) => {
     setSelectedOrder(order);
@@ -84,7 +67,7 @@ const RecentOrdersTable = () => {
   ];
 
   const table = useReactTable({
-    data: orders,
+    data: data || [],
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -102,9 +85,16 @@ const RecentOrdersTable = () => {
           </button>
         </Link>
       </div>
-      {loading ? (
+      {isLoading ? (
         <div className="flex justify-center items-center py-4">
-          <div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+          <div
+            role="status"
+            className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"
+          ></div>
+        </div>
+      ) : isError ? (
+        <div className="text-center text-red-500 py-4">
+          Error fetching recent orders. Please try again later.
         </div>
       ) : (
         <TableSection table={table} style="!p-0" />

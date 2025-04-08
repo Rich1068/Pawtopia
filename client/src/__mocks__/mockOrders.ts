@@ -15,7 +15,7 @@ export const mockOrders: IOrder[] = [
     orderId: "ORD456",
     createdAt: "2023-01-02T00:00:00Z",
     totalAmount: 59.99,
-    userId: "1",
+    userId: "2",
     products: [
       { productId: "3", name: "Product 3", price: 19.99, quantity: 3 },
     ],
