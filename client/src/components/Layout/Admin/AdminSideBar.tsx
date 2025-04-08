@@ -46,6 +46,7 @@ const AdminSidebar: FC<IAdminLayout> = ({ isExpanded, setIsExpanded }) => {
                     setIsStoreOpen(!isStoreOpen);
                   }
                 }}
+                data-testid={`${name}-button`}
                 className={`rounded-xl flex items-center px-2 py-3 transition w-full ${
                   isExpanded ? "gap-4 justify-start" : "justify-center"
                 } hover:bg-orange-50 ${

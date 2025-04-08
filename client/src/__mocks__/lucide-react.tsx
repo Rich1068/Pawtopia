@@ -28,7 +28,9 @@ export const LoaderCircle = createMockIcon("LoaderCircle");
 export const DollarSign = createMockIcon("DollarSign");
 export const ShoppingCart = createMockIcon("ShoppingCart");
 export const Clock = createMockIcon("Clock");
-
+export const Menu = createMockIcon("Menu");
+export const Store = createMockIcon("Store");
+export const LayoutGrid = createMockIcon("LayoutGrid");
 // Default export fallback if needed
 export default {
   __esModule: true,
@@ -54,4 +56,7 @@ export default {
   DollarSign,
   ShoppingCart,
   Clock,
+  Menu,
+  Store,
+  LayoutGrid,
 };

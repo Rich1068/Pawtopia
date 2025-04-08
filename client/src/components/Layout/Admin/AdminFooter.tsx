@@ -4,6 +4,7 @@ import { IAdminLayout } from "../../../types/Types";
 const AdminFooter: FC<IAdminLayout> = ({ isExpanded }) => {
   return (
     <footer
+      role="contentinfo"
       className={`w-full bottom-0 bg-white shadow-md py-4 text-center text-gray-700 text-sm transition-all ${
         isExpanded
           ? "md:ml-60 md:w-[calc(100%-15rem)]"

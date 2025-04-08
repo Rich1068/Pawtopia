@@ -9,7 +9,6 @@ const AdminNavbar: FC<IAdminLayout> = ({ isExpanded, setIsExpanded }) => {
     <nav
       className={`fixed top-0 h-[79px] z-125 bg-white shadow-md flex items-center justify-between text-amber-950 transition-all w-full`}
     >
-      {/* Sidebar Toggle Button */}
       <div className="sm:px-0.5 px-4.5 py-1 flex items-center sm:justify-between max-w-70 w-full">
         <div className="max-sm:hidden">
           <Logo />
@@ -27,10 +26,8 @@ const AdminNavbar: FC<IAdminLayout> = ({ isExpanded, setIsExpanded }) => {
         </button>
       </div>
 
-      {/* Spacer to push icons to the right */}
       <div className="flex-1"></div>
 
-      {/* Notification & Profile Icons */}
       <div className="flex items-center gap-6 max-sm:gap-2 pr-2 sm:pr-4">
         <ProfileDropdown />
       </div>
