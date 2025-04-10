@@ -98,6 +98,7 @@ export interface IProduct {
   description: string;
   price: string;
   category: string[];
+  isArchived: boolean;
 }
 
 export interface IAddProduct extends Omit<IProduct, "_id"> {

@@ -7,6 +7,8 @@ import {
   getCategory,
   getList,
   getProduct,
+  recoverProduct,
+  softDeleteProduct,
   uploadImage,
 } from "../controllers/productController";
 import tokenAuth from "../middlewares/tokenAuth";
@@ -28,4 +30,6 @@ product.get("/get-products", getAllProduct);
 product.get("/:id", getProduct);
 product.put("/:id", adminAuth, editProduct);
 product.delete("/:id", adminAuth, deleteProduct);
+product.patch("/:id/soft-delete", adminAuth, softDeleteProduct);
+product.patch("/:id/recover", adminAuth, recoverProduct);
 export default product;

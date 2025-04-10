@@ -56,46 +56,22 @@ export const addProduct = async (
 
 export const getList = async (req: Request, res: Response) => {
   try {
-    const {
-      page = 1,
-      limit = 10,
-      search = "",
-      sortBy = "createdAt",
-      order = "desc",
-      categories = "",
-    } = req.query;
+    const { categories, status } = req.query;
 
-    const pageNumber = Number(page);
-    const limitNumber = Number(limit);
-    const sortOrder = order === "asc" ? 1 : -1;
-
-    const query: any = {};
-
-    if (search) {
-      query.$or = [
-        { name: { $regex: search, $options: "i" } }, // Case-insensitive search
-        { description: { $regex: search, $options: "i" } },
-      ];
+    const filter: any = {};
+    if (status === "available") {
+      filter.isArchived = false;
+    } else if (status === "archived") {
+      filter.isArchived = true;
     }
     if (categories) {
       const categoryArray = (categories as string).split(",");
-      query.category = { $in: categoryArray };
+      filter.category = { $in: categoryArray };
     }
 
-    const total = await Product.countDocuments(query);
-
-    const productList = await Product.find(query)
-      .sort({ [sortBy as string]: sortOrder })
-      .skip((pageNumber - 1) * limitNumber)
-      .limit(limitNumber);
-
-    res.json({
-      data: productList,
-      total,
-      page: pageNumber,
-      limit: limitNumber,
-      totalPages: Math.ceil(total / limitNumber),
-    });
+    const products = await Product.find(filter);
+    res.status(200).json({ data: products });
+    return;
   } catch (error) {
     console.error("Error fetching product list:", error);
     res.status(500).json({ error: "Server error" });
@@ -166,6 +142,58 @@ export const editProduct = async (req: Request, res: Response) => {
   }
 };
 
+export const recoverProduct = async (req: Request, res: Response) => {
+  try {
+    const productId = req.params.id;
+    const product = await Product.findById(productId).exec();
+
+    if (!product) {
+      res.status(404).json({ error: "Product does not exist" });
+      return;
+    }
+    if (!product.isArchived) {
+      res.status(400).json({ error: "Product is not Archived" });
+      return;
+    }
+    await Product.findByIdAndUpdate(
+      productId,
+      { isArchived: false },
+      { new: true, runValidators: true }
+    );
+    res.status(200).json({ message: "Product successfully recovered" });
+    return;
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+    return;
+  }
+};
+export const softDeleteProduct = async (req: Request, res: Response) => {
+  try {
+    console.log("HELLOOOO");
+    const productId = req.params.id;
+    const product = await Product.findById(productId).exec();
+
+    if (!product) {
+      res.status(404).json({ error: "Product does not exist" });
+      return;
+    }
+    if (product.isArchived) {
+      res.status(400).json({ error: "Product already archived" });
+      return;
+    }
+    await Product.findByIdAndUpdate(
+      productId,
+      { isArchived: true },
+      { new: true, runValidators: true }
+    );
+    res.status(200).json({ message: "Product successfully archived" });
+    return;
+  } catch (error) {
+    console.error("Error soft deleting product:", error);
+    res.status(500).json({ error: "Internal server error" });
+    return;
+  }
+};
 export const deleteProduct = async (req: Request, res: Response) => {
   try {
     const productId = req.params.id;

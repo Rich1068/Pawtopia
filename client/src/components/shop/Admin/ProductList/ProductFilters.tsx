@@ -10,6 +10,8 @@ interface IProductFilters {
   setGlobalFilter: (filter: string) => void;
   selectedCategories: string[];
   setSelectedCategories: (categories: string[]) => void;
+  statusFilter: string;
+  setStatusFilter: (status: string) => void;
   table: Table<IProduct>;
 }
 
@@ -18,6 +20,8 @@ const ProductFilters: FC<IProductFilters> = ({
   setGlobalFilter,
   selectedCategories,
   setSelectedCategories,
+  statusFilter,
+  setStatusFilter,
   table,
 }) => {
   return (
@@ -33,6 +37,16 @@ const ProductFilters: FC<IProductFilters> = ({
               {pageSize}
             </option>
           ))}
+        </select>
+
+        <select
+          className="p-2 border border-orange-400 rounded font-primary text-amber-950 w-full sm:w-auto"
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+        >
+          <option value="All">All</option>
+          <option value="Available">Available</option>
+          <option value="Archived">Archived</option>
         </select>
 
         <div className="relative w-7/1 flex-grow">
