@@ -1,8 +1,8 @@
 // __mocks__/lucide-react.ts
 import React from "react";
 
-const createMockIcon = (name: string) =>
-  function MockIcon(props: React.HTMLAttributes<HTMLDivElement>) {
+const createMockIcon =
+  (name: string) => (props: React.HTMLAttributes<HTMLDivElement>) => {
     return <div data-testid={`icon-${name}`} {...props} />;
   };
 // Export commonly used icons or mock them dynamically
@@ -31,6 +31,9 @@ export const Clock = createMockIcon("Clock");
 export const Menu = createMockIcon("Menu");
 export const Store = createMockIcon("Store");
 export const LayoutGrid = createMockIcon("LayoutGrid");
+export const LogOut = createMockIcon("LogOut");
+export const Mail = createMockIcon("Mail");
+export const ShoppingBag = createMockIcon("ShoppingBag");
 // Default export fallback if needed
 export default {
   __esModule: true,
@@ -59,4 +62,7 @@ export default {
   Menu,
   Store,
   LayoutGrid,
+  LogOut,
+  Mail,
+  ShoppingBag,
 };

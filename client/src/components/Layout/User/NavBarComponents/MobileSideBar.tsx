@@ -14,7 +14,7 @@ import {
 import type { User, FavoritePets } from "../../../../types/Types";
 import { useCart } from "../../../../context/CartContext";
 
-interface IMobileSidebar {
+export interface IMobileSidebar {
   isOpen: boolean;
   closing: boolean;
   handleClose: () => void;
@@ -24,7 +24,34 @@ interface IMobileSidebar {
   navItems: { name: string; path: string; testId: string }[];
 }
 
-// Map navItem names to Lucide icons
+const getNavLinkClass = (isActive: boolean) =>
+  `flex items-center gap-3 px-4 py-3 rounded-xl font-secondary font-extrabold text-lg transition-all ${
+    isActive
+      ? "bg-orange-300/25 text-orange-600"
+      : "hover:bg-orange-50 text-amber-950"
+  }`;
+
+const renderNavLink = (
+  name: string,
+  path: string,
+  testId: string,
+  icon: JSX.Element,
+  handleClose: () => void,
+  count?: number
+) => (
+  <NavLink
+    to={path}
+    className={({ isActive }) => getNavLinkClass(isActive)}
+    onClick={handleClose}
+    data-testid={`${testId}-nav`}
+  >
+    {icon} {name}
+    {count !== undefined && count > 0 && (
+      <span className="text-orange-500">({count})</span>
+    )}
+  </NavLink>
+);
+
 const iconMap: Record<string, JSX.Element> = {
   Home: <Home />,
   Shop: <ShoppingBag />,
@@ -42,7 +69,6 @@ const MobileSidebar: FC<IMobileSidebar> = ({
   navItems,
 }) => {
   const { cart } = useCart();
-  const cartLength = cart?.products.length || 0;
 
   if (!isOpen) return null;
 
@@ -50,6 +76,7 @@ const MobileSidebar: FC<IMobileSidebar> = ({
     <div
       className={`bg-white fixed top-0 left-0 w-3/4 sm:w-1/2 min-w-[300px] h-full shadow-md p-6 z-50 transform transition-transform duration-300 ease-in-out 
         ${closing ? "animate-slide-out" : "animate-slide-in"}`}
+      data-testid="mobile-sidebar"
     >
       {/* User Profile */}
       <div className="flex items-center relative">
@@ -75,62 +102,38 @@ const MobileSidebar: FC<IMobileSidebar> = ({
       {/* Navigation Links */}
       <nav className="mt-5">
         <ul className="space-y-2">
-          {navItems.map(({ name, path, testId }) => (
-            <li key={name}>
-              <NavLink
-                to={path}
-                className={({ isActive }) =>
-                  `flex items-center gap-3 px-4 py-3 rounded-xl font-secondary font-extrabold text-lg transition-all ${
-                    isActive
-                      ? "bg-orange-300/25 text-orange-600"
-                      : "hover:bg-orange-50 text-amber-950"
-                  }`
-                }
-                onClick={handleClose}
-                data-testid={`${testId}-nav`}
-              >
-                {iconMap[name] || <Home />} {name}
-              </NavLink>
-            </li>
-          ))}
+          {navItems.map(({ name, path, testId }) =>
+            renderNavLink(
+              name,
+              path,
+              testId,
+              iconMap[name] || <Home />,
+              handleClose
+            )
+          )}
 
           {/* Authentication Links */}
           {user ? (
             <>
-              {/* Favorites */}
               <li>
-                <NavLink
-                  to="/favorites"
-                  className={({ isActive }) =>
-                    `flex items-center gap-3 px-4 py-3 rounded-xl font-secondary font-extrabold text-lg transition-all ${
-                      isActive
-                        ? "bg-orange-300/25 text-orange-600"
-                        : "hover:bg-orange-50 text-amber-950"
-                    }`
-                  }
-                  onClick={handleClose}
-                  data-testid="fav-nav"
-                >
-                  <Heart /> Favorites{" "}
-                  {favorites.length > 0 ? `(${favorites.length})` : ""}
-                </NavLink>
+                {renderNavLink(
+                  "Favorites",
+                  "/favorites",
+                  "fav",
+                  <Heart />,
+                  handleClose,
+                  favorites.length
+                )}
               </li>
               <li>
-                <NavLink
-                  to="/shop/checkout"
-                  className={({ isActive }) =>
-                    `flex items-center gap-3 px-4 py-3 rounded-xl font-secondary font-extrabold text-lg transition-all ${
-                      isActive
-                        ? "bg-orange-300/25 text-orange-600"
-                        : "hover:bg-orange-50 text-amber-950"
-                    }`
-                  }
-                  onClick={handleClose}
-                  data-testid="fav-nav"
-                >
-                  <ShoppingCart /> Cart{" "}
-                  {cartLength > 0 ? `(${cartLength})` : null}
-                </NavLink>
+                {renderNavLink(
+                  "Cart",
+                  "/shop/checkout",
+                  "cart",
+                  <ShoppingCart />,
+                  handleClose,
+                  cart?.products.length
+                )}
               </li>
               <li>
                 <button
@@ -147,34 +150,22 @@ const MobileSidebar: FC<IMobileSidebar> = ({
           ) : (
             <>
               <li>
-                <NavLink
-                  to="/login"
-                  className={({ isActive }) =>
-                    `flex items-center gap-3 px-4 py-3 rounded-xl font-secondary font-extrabold text-lg transition-all ${
-                      isActive
-                        ? "bg-orange-300/25 text-orange-600"
-                        : "hover:bg-orange-50 text-amber-950"
-                    }`
-                  }
-                  onClick={handleClose}
-                >
-                  Login
-                </NavLink>
+                {renderNavLink(
+                  "Login",
+                  "/login",
+                  "login",
+                  <UserRound />,
+                  handleClose
+                )}
               </li>
               <li>
-                <NavLink
-                  to="/register"
-                  className={({ isActive }) =>
-                    `flex items-center gap-3 px-4 py-3 rounded-xl font-secondary font-extrabold text-lg transition-all ${
-                      isActive
-                        ? "bg-orange-300/25 text-orange-600"
-                        : "hover:bg-orange-50 text-amber-950"
-                    }`
-                  }
-                  onClick={handleClose}
-                >
-                  Register
-                </NavLink>
+                {renderNavLink(
+                  "Register",
+                  "/register",
+                  "register",
+                  <UserRound />,
+                  handleClose
+                )}
               </li>
             </>
           )}
