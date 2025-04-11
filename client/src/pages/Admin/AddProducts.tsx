@@ -35,16 +35,6 @@ const AddProduct = ({
     }
   }, [product.images]);
 
-  const uploadNewImages = async () => {
-    const formData = new FormData();
-    newImages.forEach((file) => formData.append("images", file));
-    const uploadRes = await serverAPI.post(`/product/upload-images`, formData, {
-      withCredentials: true,
-      headers: { "Content-Type": "multipart/form-data" },
-    });
-    return uploadRes.data.images;
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -83,7 +73,21 @@ const AddProduct = ({
 
       if (productToEdit) {
         // ✅ Updating an existing product
-        const updateRes = await serverAPI.put(
+        if (newImages.length > 0) {
+          const formData = new FormData();
+          newImages.forEach((file) => formData.append("images", file));
+          const uploadRes = await serverAPI.post(
+            `/product/${productToEdit._id}/upload-images`,
+            formData,
+            {
+              withCredentials: true,
+              headers: { "Content-Type": "multipart/form-data" },
+            }
+          );
+          finalImagePaths.push(...uploadRes.data.images);
+        }
+
+        await serverAPI.put(
           `/product/${productToEdit._id}`,
           {
             ...product,
@@ -92,22 +96,6 @@ const AddProduct = ({
           },
           { withCredentials: true }
         );
-
-        // 🟢 2. Upload new images after successful update
-        if (newImages.length > 0) {
-          const formData = new FormData();
-          newImages.forEach((file) => formData.append("images", file));
-
-          await serverAPI.post(
-            `/product/${productToEdit._id}/upload-images`,
-            formData,
-            {
-              withCredentials: true,
-              headers: { "Content-Type": "multipart/form-data" },
-            }
-          );
-        }
-
         toast.success("Product updated successfully!");
         onRefresh?.();
       } else {
