@@ -25,10 +25,10 @@ const ProductFilters: FC<IProductFilters> = ({
   table,
 }) => {
   return (
-    <div className="flex flex-col md:flex-row md:items-center gap-3">
-      <div className="flex w-full sm:w-auto gap-3">
+    <div className="flex flex-col lg:flex-row md:items-center gap-3">
+      <div className="flex w-full lg:w-auto gap-3">
         <select
-          className="p-2 border border-orange-400 rounded font-primary text-amber-950 w-full sm:w-auto"
+          className="p-2 border min-w-12 border-orange-400 rounded font-primary text-amber-950 w-full md:w-auto"
           value={table.getState().pagination.pageSize}
           onChange={(e) => table.setPageSize(Number(e.target.value))}
         >
@@ -40,7 +40,7 @@ const ProductFilters: FC<IProductFilters> = ({
         </select>
 
         <select
-          className="p-2 border flex-grow border-orange-400 rounded font-primary text-amber-950 w-full sm:w-auto"
+          className="p-2 border border-orange-400 rounded font-primary text-amber-950 min-w-auto"
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
         >
@@ -49,7 +49,7 @@ const ProductFilters: FC<IProductFilters> = ({
           <option value="Archived">Archived</option>
         </select>
 
-        <div className="relative w-7/1 flex-grow">
+        <div className="relative w-8/1 md:min-w-60 flex-grow">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-orange-500" />
 
           <input
@@ -62,18 +62,22 @@ const ProductFilters: FC<IProductFilters> = ({
         </div>
       </div>
 
-      <div className="flex-grow relative">
-        <CategoryFilter
-          selectedCategories={selectedCategories}
-          setSelectedCategories={setSelectedCategories}
-        />
+      <div className="flex-grow relative w-full flex max-sm:flex-col gap-3">
+        <div className="w-auto flex-1">
+          <CategoryFilter
+            selectedCategories={selectedCategories}
+            setSelectedCategories={setSelectedCategories}
+          />
+        </div>
+        <Link
+          to="/admin/add-product"
+          className=" max-lg:flex-1 w-full lg:w-auto md:ml-auto"
+        >
+          <button className="w-full px-4 py-2 border border-orange-500 rounded-lg text-orange-500 hover:bg-orange-500 hover:text-white transition">
+            + Add New Product
+          </button>
+        </Link>
       </div>
-
-      <Link to="/admin/add-product" className="w-full md:w-auto md:ml-auto">
-        <button className="w-full md:w-auto px-4 py-2 border border-orange-500 rounded-lg text-orange-500 hover:bg-orange-500 hover:text-white transition">
-          + Add New Product
-        </button>
-      </Link>
     </div>
   );
 };

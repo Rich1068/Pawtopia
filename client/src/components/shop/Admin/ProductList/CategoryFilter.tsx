@@ -56,7 +56,7 @@ const CategoryFilter: React.FC<CategoryFilterProps> = ({
 
   return (
     <div
-      className="relative w-full min-w-40 md:max-w-64 font-primary"
+      className="relative w-full min-w-40 lg:max-w-64 font-primary"
       ref={dropdownRef}
     >
       <div

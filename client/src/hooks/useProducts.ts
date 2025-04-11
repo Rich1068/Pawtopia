@@ -25,7 +25,7 @@ export const useProducts = (
         if (statusFilter !== "All") {
           params.append(
             "status",
-            statusFilter === "Available" ? "active" : "archived"
+            statusFilter === "Available" ? "available" : "archived"
           );
         }
 
