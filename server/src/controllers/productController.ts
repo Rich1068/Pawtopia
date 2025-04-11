@@ -14,16 +14,17 @@ export const getCategory = async (req: Request, res: Response) => {
   res.json(categories);
 };
 
-export const uploadImage = (req: Request, res: Response): void => {
-  if (!req.files || (req.files as Express.Multer.File[]).length === 0) {
-    res.status(400).json({ error: "No files uploaded" });
-    return;
-  }
+export const uploadImage = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const imagePaths = (req.files as Express.Multer.File[]).map(
+    (file) => file.path
+  );
+  const sanitizedImages =
+    imagePaths?.map((img: string) => img.replace(/^src/, "")) || [];
 
-  res.json({
-    images: (req.files as Express.Multer.File[]).map((file) => file.path),
-  });
-  return;
+  res.status(200).json({ message: "Images uploaded", images: sanitizedImages });
 };
 
 export const addProduct = async (
@@ -50,6 +51,49 @@ export const addProduct = async (
       .json({ message: "Successfully added a product", product: newProduct });
   } catch (error) {
     console.error("Error adding product:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+export const editProduct = async (req: Request, res: Response) => {
+  try {
+    const productId = req.params.id;
+    let product = await Product.findById(productId);
+    if (!product) {
+      res.status(404).json({ error: "Product not found" });
+      return;
+    }
+
+    const productData = sanitizeProductData(req.body);
+
+    const validation = validateProductData(productData);
+    if (!validation.valid) {
+      res.status(400).json({ error: validation.error });
+      return;
+    }
+
+    const duplicateError = await checkDuplicateProduct(
+      productData.name,
+      productId
+    );
+    if (duplicateError) {
+      res.status(409).json({ error: duplicateError });
+      return;
+    }
+
+    // Save old images before overwriting
+    const oldImages = [...product.images];
+
+    // Update the product
+    Object.assign(product, productData);
+    await product.save();
+
+    // ✅ Now safely delete removed images after update success
+    deleteRemovedImages(oldImages, productData.images);
+
+    res.status(200).json({ message: "Product updated successfully", product });
+  } catch (error) {
+    console.error("Error updating product:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 };
@@ -105,42 +149,6 @@ export const getProduct = async (req: Request, res: Response) => {
     });
   }
 };
-export const editProduct = async (req: Request, res: Response) => {
-  try {
-    const productId = req.params.id;
-    let product = await Product.findById(productId);
-    if (!product) {
-      res.status(404).json({ error: "Product not found" });
-      return;
-    }
-
-    const productData = sanitizeProductData(req.body);
-    deleteRemovedImages(req.body.oldImages, productData.images);
-
-    const validation = validateProductData(productData);
-    if (!validation.valid) {
-      res.status(400).json({ error: validation.error });
-      return;
-    }
-
-    const duplicateError = await checkDuplicateProduct(
-      productData.name,
-      productId
-    );
-    if (duplicateError) {
-      res.status(409).json({ error: duplicateError });
-      return;
-    }
-
-    Object.assign(product, productData);
-    await product.save();
-
-    res.status(200).json({ message: "Product updated successfully", product });
-  } catch (error) {
-    console.error("Error updating product:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-};
 
 export const recoverProduct = async (req: Request, res: Response) => {
   try {
@@ -169,7 +177,6 @@ export const recoverProduct = async (req: Request, res: Response) => {
 };
 export const softDeleteProduct = async (req: Request, res: Response) => {
   try {
-    console.log("HELLOOOO");
     const productId = req.params.id;
     const product = await Product.findById(productId).exec();
 

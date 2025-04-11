@@ -19,7 +19,7 @@ const product = express.Router();
 
 product.get("/get-categories", getCategory);
 product.post(
-  "/upload-images",
+  "/:id/upload-images",
   adminAuth,
   uploadFile("product_pic").array("images", 5),
   uploadImage

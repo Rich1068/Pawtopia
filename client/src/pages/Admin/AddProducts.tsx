@@ -34,7 +34,17 @@ const AddProduct = ({
       setProductImages(existing);
     }
   }, [product.images]);
-  console.log(productImages);
+
+  const uploadNewImages = async () => {
+    const formData = new FormData();
+    newImages.forEach((file) => formData.append("images", file));
+    const uploadRes = await serverAPI.post(`/product/upload-images`, formData, {
+      withCredentials: true,
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return uploadRes.data.images;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -69,32 +79,11 @@ const AddProduct = ({
         .map((img) => img.file as File);
       const finalImagePaths = productImages
         .filter((img) => !img.isNew)
-        .map((img) => img.preview); // for old images
-
-      if (newImages.length > 0) {
-        const formData = new FormData();
-        newImages.forEach((file) => formData.append("images", file));
-
-        try {
-          const uploadRes = await serverAPI.post(
-            "/product/upload-images",
-            formData,
-            {
-              withCredentials: true,
-              headers: { "Content-Type": "multipart/form-data" },
-            }
-          );
-          finalImagePaths.push(...uploadRes.data.images);
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
-        } catch (error: any) {
-          toast.error("Error uploading images.");
-          setLoading(false);
-          return;
-        }
-      }
+        .map((img) => img.preview);
 
       if (productToEdit) {
-        await serverAPI.put(
+        // ✅ Updating an existing product
+        const updateRes = await serverAPI.put(
           `/product/${productToEdit._id}`,
           {
             ...product,
@@ -103,14 +92,49 @@ const AddProduct = ({
           },
           { withCredentials: true }
         );
+
+        // 🟢 2. Upload new images after successful update
+        if (newImages.length > 0) {
+          const formData = new FormData();
+          newImages.forEach((file) => formData.append("images", file));
+
+          await serverAPI.post(
+            `/product/${productToEdit._id}/upload-images`,
+            formData,
+            {
+              withCredentials: true,
+              headers: { "Content-Type": "multipart/form-data" },
+            }
+          );
+        }
+
         toast.success("Product updated successfully!");
         onRefresh?.();
       } else {
-        await serverAPI.post(
+        // ✅ Adding new product — no images yet
+        const createRes = await serverAPI.post(
           "/product/add-product",
-          { ...product, images: finalImagePaths },
+          { ...product, images: [] },
           { withCredentials: true }
         );
+
+        const newProduct = createRes.data.product;
+
+        if (newImages.length > 0) {
+          const formData = new FormData();
+          newImages.forEach((file) => formData.append("images", file));
+          formData.append("productId", newProduct._id);
+
+          const uploadRes = await serverAPI.post(
+            `/product/${newProduct._id}/upload-images`,
+            formData,
+            {
+              withCredentials: true,
+              headers: { "Content-Type": "multipart/form-data" },
+            }
+          );
+        }
+
         toast.success("Product added successfully!");
         setProduct({
           name: "",
@@ -121,10 +145,9 @@ const AddProduct = ({
         });
         setProductImages([]);
       }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error("Error saving product:", error);
-      toast.error(error.response?.data?.error);
+      toast.error(error.response?.data?.error || "Error saving product.");
     } finally {
       setLoading(false);
     }

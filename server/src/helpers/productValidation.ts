@@ -14,8 +14,8 @@ export const sanitizeProductData = (data: any) => {
 };
 
 export const validateProductData = (data: any) => {
-  const { name, category, description, price, images } = data;
-  if (!name || !category.length || !description || !price || !images.length) {
+  const { name, category, description, price } = data;
+  if (!name || !category.length || !description || !price) {
     return { valid: false, error: "All fields are required" };
   }
   if (isNaN(price) || price <= 0) {
