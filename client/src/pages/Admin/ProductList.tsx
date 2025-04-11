@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback } from "react";
 import {
   useReactTable,
   getCoreRowModel,
@@ -6,69 +6,47 @@ import {
   getPaginationRowModel,
   getFilteredRowModel,
 } from "@tanstack/react-table";
-import serverAPI from "../../helper/axios";
-import LoadingPage from "../../components/LoadingPage/LoadingPage";
 import ProductFilters from "../../components/shop/Admin/ProductList/ProductFilters";
 import ProductActionButtons from "../../components/shop/Admin/ProductList/ProductActionButtons";
 import { IProduct } from "../../types/Types";
 import { getFullImageUrl } from "../../helper/imageHelper";
 import TitleComponent from "../../components/shop/Admin/TitleComponent";
 import DataTable from "../../components/HistoryTable/DataTable";
+import { useProducts } from "../../hooks/useProducts";
 
 const ProductList = () => {
-  const [products, setProducts] = useState<IProduct[]>([]);
-  const [loading, setLoading] = useState(true);
   const [globalFilter, setGlobalFilter] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [statusFilter, setStatusFilter] = useState<string>("All");
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const params = new URLSearchParams();
-        if (selectedCategories.length > 0) {
-          params.append("categories", selectedCategories.join(","));
-        }
-        if (statusFilter !== "All") {
-          params.append(
-            "status",
-            statusFilter === "Available" ? "available" : "archived"
-          );
-        }
-        const response = await serverAPI.get(
-          `/product/list?${params.toString()}`,
-          { withCredentials: true }
-        );
-        setProducts(response.data.data);
-      } catch (error) {
-        console.error("Error fetching products:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
 
-    fetchProducts();
-  }, [selectedCategories, statusFilter]);
+  const {
+    products,
+    isLoading,
+    error,
+    deleteProduct,
+    archiveProduct,
+    recoverProduct,
+  } = useProducts(selectedCategories, statusFilter);
+  console.log(products);
+  const handleDeleteProduct = useCallback(
+    async (productId: string) => {
+      await deleteProduct(productId);
+    },
+    [deleteProduct]
+  );
+  const handleArchiveProduct = useCallback(
+    async (productId: string) => {
+      await archiveProduct(productId);
+    },
+    [archiveProduct]
+  );
 
-  const handleDeleteProduct = useCallback((productId: string) => {
-    //include products that is not the productId from the argument
-    setProducts((prevProducts) =>
-      prevProducts.filter((p) => p._id !== productId)
-    );
-  }, []);
-  const handleArchiveProduct = useCallback((productId: string) => {
-    setProducts((prevProducts) =>
-      prevProducts.map((p) =>
-        p._id === productId ? { ...p, isArchived: true } : p
-      )
-    );
-  }, []);
-  const handleRecoverProduct = useCallback((productId: string) => {
-    setProducts((prevProducts) =>
-      prevProducts.map((p) =>
-        p._id === productId ? { ...p, isArchived: false } : p
-      )
-    );
-  }, []);
+  const handleRecoverProduct = useCallback(
+    async (productId: string) => {
+      await recoverProduct(productId);
+    },
+    [recoverProduct]
+  );
 
   const columns = useMemo<ColumnDef<IProduct>[]>(
     () => [
@@ -132,7 +110,7 @@ const ProductList = () => {
   );
 
   const table = useReactTable({
-    data: products,
+    data: products ?? [],
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -143,8 +121,7 @@ const ProductList = () => {
     onGlobalFilterChange: setGlobalFilter,
   });
 
-  if (loading) return <LoadingPage fadeOut={false} />;
-
+  if (error) return <div>Error loading products</div>;
   return (
     <div className="relative font-primary text-amber-950">
       <TitleComponent text="Product List" />
@@ -158,7 +135,7 @@ const ProductList = () => {
           setStatusFilter={setStatusFilter}
           table={table}
         />
-        <DataTable table={table} style="!p-0" />
+        <DataTable table={table} isLoading={isLoading} style="!p-0" />
       </div>
     </div>
   );

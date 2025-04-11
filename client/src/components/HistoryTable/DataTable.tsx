@@ -1,11 +1,13 @@
 import { flexRender, Table } from "@tanstack/react-table";
+import { LoaderCircle } from "lucide-react";
 
 interface IDataTable<T> {
   table: Table<T>;
+  isLoading?: boolean;
   style?: string;
 }
 
-const DataTable = <T,>({ table, style }: IDataTable<T>) => {
+const DataTable = <T,>({ table, isLoading, style }: IDataTable<T>) => {
   return (
     <div className={`sm:px-[6%] ${style}`}>
       <div className="overflow-x-auto mt-4 rounded-md border border-orange-300 shadow-md">
@@ -28,18 +30,43 @@ const DataTable = <T,>({ table, style }: IDataTable<T>) => {
             ))}
           </thead>
           <tbody>
-            {table.getRowModel().rows.map((row) => (
-              <tr key={row.id} className="even:bg-orange-50 odd:bg-white">
-                {row.getVisibleCells().map((cell) => (
-                  <td
-                    key={cell.id}
-                    className="p-3 border-orange-300 text-center"
-                  >
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </td>
-                ))}
+            {isLoading ? (
+              <tr>
+                <td
+                  colSpan={table.getHeaderGroups()[0]?.headers.length || 1}
+                  className="p-4 text-center"
+                >
+                  <div className="flex justify-center items-center text-orange-500 animate-spin">
+                    <LoaderCircle />
+                  </div>
+                </td>
               </tr>
-            ))}
+            ) : table.getRowModel().rows.length === 0 ? (
+              <tr>
+                <td
+                  colSpan={table.getHeaderGroups()[0]?.headers.length || 1}
+                  className="p-4 text-center text-gray-500"
+                >
+                  No data available.
+                </td>
+              </tr>
+            ) : (
+              table.getRowModel().rows.map((row) => (
+                <tr key={row.id} className="even:bg-orange-50 odd:bg-white">
+                  {row.getVisibleCells().map((cell) => (
+                    <td
+                      key={cell.id}
+                      className="p-3 border-orange-300 text-center"
+                    >
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </td>
+                  ))}
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
@@ -66,5 +93,4 @@ const DataTable = <T,>({ table, style }: IDataTable<T>) => {
     </div>
   );
 };
-
 export default DataTable;

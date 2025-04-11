@@ -23,20 +23,20 @@ const queryClient = new QueryClient({
 const persister = createSyncStoragePersister({ storage: window.localStorage });
 
 createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <BrowserRouter>
-      <AuthProvider>
-        <CartProvider>
-          <FavoritesProvider>
-            <PersistQueryClientProvider
-              client={queryClient}
-              persistOptions={{ persister }}
-            >
-              <App />
-            </PersistQueryClientProvider>
-          </FavoritesProvider>
-        </CartProvider>
-      </AuthProvider>
-    </BrowserRouter>
-  </StrictMode>
+  //<StrictMode>
+  <BrowserRouter>
+    <AuthProvider>
+      <CartProvider>
+        <FavoritesProvider>
+          <PersistQueryClientProvider
+            client={queryClient}
+            persistOptions={{ persister }}
+          >
+            <App />
+          </PersistQueryClientProvider>
+        </FavoritesProvider>
+      </CartProvider>
+    </AuthProvider>
+  </BrowserRouter>
+  //</StrictMode>
 );

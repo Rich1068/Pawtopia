@@ -3,7 +3,6 @@ import { Link } from "react-router";
 import type { IProduct } from "../../../../types/Types";
 import { useState } from "react";
 import WarningModal from "../../../WarningModal";
-import serverAPI from "../../../../helper/axios";
 import toast from "react-hot-toast";
 
 const ProductActionButtons = ({
@@ -35,9 +34,6 @@ const ProductActionButtons = ({
   };
   const handleDelete = async () => {
     try {
-      await serverAPI.delete(`/product/${product._id}`, {
-        withCredentials: true,
-      });
       onDelete(product._id);
       setIsModalOpen(false);
       toast.success("Product Successfully Deleted");
@@ -49,13 +45,6 @@ const ProductActionButtons = ({
 
   const handleArchive = async () => {
     try {
-      await serverAPI.patch(
-        `/product/${product._id}/soft-delete`,
-        {},
-        {
-          withCredentials: true,
-        }
-      );
       onArchive(product._id);
       setIsModalOpen(false);
       toast.success("Product archived successfully");
@@ -71,13 +60,6 @@ const ProductActionButtons = ({
 
   const handleRecover = async () => {
     try {
-      await serverAPI.patch(
-        `/product/${product._id}/recover`,
-        {},
-        {
-          withCredentials: true,
-        }
-      );
       onRecover(product._id);
       setIsModalOpen(false);
       toast.success("Product recovered successfully");

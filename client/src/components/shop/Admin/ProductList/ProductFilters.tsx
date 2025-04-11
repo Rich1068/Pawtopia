@@ -40,7 +40,7 @@ const ProductFilters: FC<IProductFilters> = ({
         </select>
 
         <select
-          className="p-2 border border-orange-400 rounded font-primary text-amber-950 w-full sm:w-auto"
+          className="p-2 border flex-grow border-orange-400 rounded font-primary text-amber-950 w-full sm:w-auto"
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
         >
