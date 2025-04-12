@@ -18,13 +18,28 @@ export const uploadImage = async (
   req: Request,
   res: Response
 ): Promise<void> => {
-  const imagePaths = (req.files as Express.Multer.File[]).map(
-    (file) => file.path
+  const productId = req.params.id;
+  const imagePaths = (req.files as Express.Multer.File[]).map((file) =>
+    file.path.replace(/^src/, "")
   );
-  const sanitizedImages =
-    imagePaths?.map((img: string) => img.replace(/^src/, "")) || [];
 
-  res.status(200).json({ message: "Images uploaded", images: sanitizedImages });
+  try {
+    const product = await Product.findById(productId);
+    if (!product) {
+      res.status(404).json({ error: "Product not found" });
+      return;
+    }
+
+    product.images.push(...imagePaths);
+    await product.save();
+
+    res
+      .status(200)
+      .json({ message: "Images uploaded", images: product.images });
+  } catch (error) {
+    console.error("Upload failed:", error);
+    res.status(500).json({ error: "Failed to upload images" });
+  }
 };
 
 export const addProduct = async (

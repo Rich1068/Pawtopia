@@ -72,22 +72,8 @@ const AddProduct = ({
         .map((img) => img.preview);
 
       if (productToEdit) {
-        // ✅ Updating an existing product
-        if (newImages.length > 0) {
-          const formData = new FormData();
-          newImages.forEach((file) => formData.append("images", file));
-          const uploadRes = await serverAPI.post(
-            `/product/${productToEdit._id}/upload-images`,
-            formData,
-            {
-              withCredentials: true,
-              headers: { "Content-Type": "multipart/form-data" },
-            }
-          );
-          finalImagePaths.push(...uploadRes.data.images);
-        }
-
-        await serverAPI.put(
+        // Step 1: Update product with only existing images
+        const updateRes = await serverAPI.put(
           `/product/${productToEdit._id}`,
           {
             ...product,
@@ -96,8 +82,25 @@ const AddProduct = ({
           },
           { withCredentials: true }
         );
-        toast.success("Product updated successfully!");
-        onRefresh?.();
+
+        if (updateRes.status === 200) {
+          if (newImages.length > 0) {
+            const formData = new FormData();
+            newImages.forEach((file) => formData.append("images", file));
+
+            await serverAPI.post(
+              `/product/${productToEdit._id}/upload-images`,
+              formData,
+              {
+                withCredentials: true,
+                headers: { "Content-Type": "multipart/form-data" },
+              }
+            );
+          }
+
+          toast.success("Product updated successfully!");
+          onRefresh?.();
+        }
       } else {
         // ✅ Adding new product — no images yet
         const createRes = await serverAPI.post(
@@ -113,7 +116,7 @@ const AddProduct = ({
           newImages.forEach((file) => formData.append("images", file));
           formData.append("productId", newProduct._id);
 
-          const uploadRes = await serverAPI.post(
+          await serverAPI.post(
             `/product/${newProduct._id}/upload-images`,
             formData,
             {
@@ -133,6 +136,7 @@ const AddProduct = ({
         });
         setProductImages([]);
       }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error("Error saving product:", error);
       toast.error(error.response?.data?.error || "Error saving product.");
