@@ -8,6 +8,7 @@ import {
   sanitizeProductData,
   validateProductData,
 } from "../helpers/productValidation";
+import Cart from "../models/Cart";
 
 export const getCategory = async (req: Request, res: Response) => {
   const categories = await Product.distinct("category"); // Fetch unique categories
@@ -236,6 +237,11 @@ export const deleteProduct = async (req: Request, res: Response) => {
         });
       });
     }
+
+    await Cart.updateMany(
+      { "products.productId": productId },
+      { $pull: { products: { productId } } }
+    );
 
     await Product.findByIdAndDelete(productId).exec();
     res.status(200).json({ message: "Product successfully deleted" });
