@@ -8,6 +8,8 @@ import {
   sanitizeProductData,
   validateProductData,
 } from "../helpers/productValidation";
+import Cart from "../models/Cart";
+import Order from "../models/Order";
 
 export const getCategory = async (req: Request, res: Response) => {
   const categories = await Product.distinct("category"); // Fetch unique categories
@@ -96,14 +98,11 @@ export const editProduct = async (req: Request, res: Response) => {
       return;
     }
 
-    // Save old images before overwriting
     const oldImages = [...product.images];
 
-    // Update the product
     Object.assign(product, productData);
     await product.save();
 
-    // ✅ Now safely delete removed images after update success
     deleteRemovedImages(oldImages, productData.images);
 
     res.status(200).json({ message: "Product updated successfully", product });
@@ -128,7 +127,7 @@ export const getList = async (req: Request, res: Response) => {
       filter.category = { $in: categoryArray };
     }
 
-    const products = await Product.find(filter);
+    const products = await Product.find(filter).sort({ isArchived: 1 });
     res.status(200).json({ data: products });
     return;
   } catch (error) {
@@ -138,7 +137,7 @@ export const getList = async (req: Request, res: Response) => {
 };
 export const getAllProduct = async (req: Request, res: Response) => {
   try {
-    const products = await Product.find().exec();
+    const products = await Product.find().sort({ isArchived: 1 }).exec();
     res.status(200).json({ data: products });
   } catch (error) {
     console.error("Error retrieving product", error);
@@ -237,6 +236,19 @@ export const deleteProduct = async (req: Request, res: Response) => {
       });
     }
 
+    await Cart.updateMany(
+      { "products.productId": productId },
+      { $set: { "products.$[elem].productId": null } },
+      { arrayFilters: [{ "elem.productId": productId }] }
+    );
+
+    await Order.updateMany(
+      { "products.productId": productId },
+      { $set: { "products.$[elem].productId": null } },
+      {
+        arrayFilters: [{ "elem.productId": productId }],
+      }
+    );
     await Product.findByIdAndDelete(productId).exec();
     res.status(200).json({ message: "Product successfully deleted" });
     return;

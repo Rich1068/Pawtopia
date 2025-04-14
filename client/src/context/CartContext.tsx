@@ -85,34 +85,37 @@ export const CartProvider: FC<{ children: ReactNode }> = ({ children }) => {
   });
 
   // Mutations for cart actions
-  const { mutate: addToCartMutate, isPending: isAddingToCart } = useMutation({
-    mutationFn: addToCartMutation,
-    onSuccess: (data) => {
-      toast.success(data.message);
-      queryClient.invalidateQueries({ queryKey: ["cart"] });
-    },
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    onError: (error: any) => {
-      toast.error(error.response?.data?.error || "Failed to add to cart");
-    },
-  });
-
-  const { mutate: decreaseFromCartMutate, isPending: isDecreasingFromCart } =
+  const { mutateAsync: addToCartMutate, isPending: isAddingToCart } =
     useMutation({
-      mutationFn: decreaseFromCartMutation,
+      mutationFn: addToCartMutation,
       onSuccess: (data) => {
         toast.success(data.message);
         queryClient.invalidateQueries({ queryKey: ["cart"] });
       },
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       onError: (error: any) => {
-        toast.error(
-          error.response?.data?.error || "Failed to decrease cart quantity"
-        );
+        toast.error(error.response?.data?.error || "Failed to add to cart");
       },
     });
 
-  const { mutate: removeFromCartMutate, isPending: isRemovingFromCart } =
+  const {
+    mutateAsync: decreaseFromCartMutate,
+    isPending: isDecreasingFromCart,
+  } = useMutation({
+    mutationFn: decreaseFromCartMutation,
+    onSuccess: (data) => {
+      toast.success(data.message);
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
+    },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    onError: (error: any) => {
+      toast.error(
+        error.response?.data?.error || "Failed to decrease cart quantity"
+      );
+    },
+  });
+
+  const { mutateAsync: removeFromCartMutate, isPending: isRemovingFromCart } =
     useMutation({
       mutationFn: removeFromCartMutation,
       onSuccess: (data) => {
@@ -128,16 +131,16 @@ export const CartProvider: FC<{ children: ReactNode }> = ({ children }) => {
     });
 
   // Create wrapper functions with the correct parameter signature
-  const addToCart = (productId: string, quantity: number) => {
-    addToCartMutate({ productId, quantity });
+  const addToCart = async (productId: string, quantity: number) => {
+    return addToCartMutate({ productId, quantity });
   };
 
-  const decreaseFromCart = (productId: string, quantity: number) => {
-    decreaseFromCartMutate({ productId, quantity });
+  const decreaseFromCart = async (productId: string, quantity: number) => {
+    return decreaseFromCartMutate({ productId, quantity });
   };
 
-  const removeFromCart = (cartItemId: string) => {
-    removeFromCartMutate(cartItemId);
+  const removeFromCart = async (cartItemId: string) => {
+    return removeFromCartMutate(cartItemId);
   };
 
   return (

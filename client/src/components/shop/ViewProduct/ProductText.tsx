@@ -42,7 +42,7 @@ const ProductText: FC<IProductText> = ({
       >
         {/* Product Name */}
         <h2 className="text-4xl font-semibold mb-4 text-orange-600 font-primary">
-          {name}
+          {name} {productData.isArchived && "(Not Available)"}
         </h2>
 
         {/* Product Details */}

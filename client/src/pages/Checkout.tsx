@@ -6,19 +6,57 @@ import PageHeader from "../components/PageHeader";
 import { LoaderCircle, Minus, Plus } from "lucide-react";
 import { getFullImageUrl } from "../helper/imageHelper";
 import toast from "react-hot-toast";
+import { useQueryClient } from "@tanstack/react-query";
 
 const Checkout = () => {
   const { cart, addToCart, decreaseFromCart, removeFromCart } = useCart();
+  const [updatingProductId, setUpdatingProductId] = useState<string | null>(
+    null
+  );
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
   const cartLength = cart?.products.length || 0;
+  const queryClient = useQueryClient();
+
+  const hasInvalidItems =
+    cart?.products.some(
+      (item) => !item.productId || item.productId.isArchived
+    ) ?? false;
+  const handleAdd = async (productId: string) => {
+    setUpdatingProductId(productId);
+    try {
+      await addToCart(productId, 1);
+    } finally {
+      setUpdatingProductId(null);
+    }
+  };
+
+  const handleDecrease = async (productId: string) => {
+    setUpdatingProductId(productId);
+    try {
+      decreaseFromCart(productId, 1);
+    } finally {
+      setUpdatingProductId(null);
+    }
+  };
+  useEffect(() => {
+    queryClient.invalidateQueries({ queryKey: ["cart"] });
+  }, [queryClient]);
 
   useEffect(() => {
     const totalPrice =
-      cart?.products.reduce(
-        (sum, item) => sum + parseFloat(item.productId.price) * item.quantity,
-        0
-      ) ?? 0;
+      cart?.products
+        ?.filter(
+          (
+            prod
+          ): prod is typeof prod & {
+            productId: { price: number };
+          } => !!prod.productId
+        )
+        .reduce(
+          (sum, item) => sum + parseFloat(item.productId.price) * item.quantity,
+          0
+        ) ?? 0;
     setTotal(totalPrice);
   }, [cart]);
 
@@ -54,81 +92,112 @@ const Checkout = () => {
           </h2>
           {cartLength > 0 ? (
             <div className="border-b pb-4 space-y-4 font-secondary">
-              {cart?.products.map((item) => (
-                <div
-                  key={item.productId._id}
-                  className="grid grid-cols-[1fr_auto_auto] sm:grid-cols-[auto_1fr_auto_auto] gap-4 items-center bg-gray-50 p-4 rounded-md shadow-sm"
-                  data-testid="cart-item"
-                >
-                  <img
-                    src={getFullImageUrl(item.productId.images[0])}
-                    alt={item.productId.name}
-                    className="w-16 h-16 object-cover rounded-md max-sm:hidden"
-                    data-testid={`product-image-${item.productId._id}`}
-                  />
+              {cart?.products.map((item) => {
+                const product = item.productId;
+                const productId = product?._id;
+                const isPermanentlyDeleted = !product;
+                const isArchived = product?.isArchived;
+                const productName = isPermanentlyDeleted
+                  ? "Product not available"
+                  : product.name;
 
-                  <div>
-                    <Link
-                      to={`/shop/product/${item.productId._id}`}
-                      data-testid="product-link"
-                    >
-                      <h3
-                        className="text-lg font-semibold text-gray-800"
-                        data-testid={`product-name-${item.productId._id}`}
-                      >
-                        {item.productId.name}
-                      </h3>
-                    </Link>
-                    <p
-                      className="text-sm text-gray-500"
-                      data-testid={`product-price-${item.productId._id}`}
-                    >
-                      ${parseFloat(item.productId.price).toFixed(2)}
-                    </p>
-                  </div>
+                const productPrice = isPermanentlyDeleted
+                  ? 0
+                  : parseFloat(product.price);
 
-                  <div className="flex items-center space-x-2">
-                    <button
-                      onClick={() => decreaseFromCart(item.productId._id, 1)}
-                      className="p-1 bg-gray-200 hover:bg-gray-300 rounded"
-                      disabled={item.quantity <= 1}
-                      data-testid={`decrease-quantity-${item.productId._id}`}
-                    >
-                      <Minus size={16} />
-                    </button>
-                    <input
-                      type="text"
-                      value={item.quantity}
-                      readOnly
-                      className="w-8 text-center border border-gray-300 rounded"
-                      data-testid={`quantity-input-${item.productId._id}`}
-                    />
-                    <button
-                      onClick={() => addToCart(item.productId._id, 1)}
-                      className="p-1 bg-orange-500 hover:bg-orange-600 text-white rounded"
-                      disabled={item.quantity >= 99}
-                      data-testid={`increase-quantity-${item.productId._id}`}
-                    >
-                      <Plus size={16} />
-                    </button>
-                  </div>
-                  <div className="text-md font-semibold text-gray-700 text-right w-20 sm:w-25">
-                    <div data-testid={`item-subtotal-${item.productId._id}`}>
-                      $
-                      {(
-                        parseFloat(item.productId.price) * item.quantity
-                      ).toFixed(2)}
+                return (
+                  <div
+                    key={product?._id || Math.random()}
+                    className={`grid grid-cols-[1fr_auto_auto] sm:grid-cols-[auto_1fr_auto_auto] gap-4 items-center overflow-hidden bg-gray-50 p-4 rounded-md shadow-sm ${
+                      isPermanentlyDeleted ? "opacity-60" : ""
+                    }`}
+                  >
+                    <div className="flex items-center">
+                      <div className="relative w-16 h-16 ">
+                        <img
+                          src={
+                            isPermanentlyDeleted
+                              ? "/assets/img/deleted-placeholder.jpg"
+                              : getFullImageUrl(product.images[0])
+                          }
+                          alt={productName}
+                          className="w-full h-full object-cover rounded-md"
+                        />
+                        {isArchived && (
+                          <div className="absolute -top-2 -right-0 bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-md uppercase z-10">
+                            Unavailable
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    <button
-                      onClick={() => removeFromCart(item.productId._id)}
-                      className="text-red-500 text-sm hover:text-red-700 cursor-pointer"
-                      data-testid={`remove-item-${item.productId._id}`}
-                    >
-                      Remove
-                    </button>
+                    <div>
+                      {product && (
+                        <Link to={`/shop/product/${product._id}`}>
+                          <h3 className="text-lg font-semibold text-gray-800">
+                            {productName}
+                          </h3>
+                        </Link>
+                      )}
+                      {!product && (
+                        <h3 className="text-lg font-semibold text-gray-800">
+                          {productName}
+                        </h3>
+                      )}
+                      <p className="text-sm text-gray-500">
+                        {isPermanentlyDeleted
+                          ? "Unavailable"
+                          : `$${productPrice.toFixed(2)}`}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={() => handleDecrease(productId!)}
+                        className="p-1 bg-gray-200 rounded"
+                        disabled={
+                          isPermanentlyDeleted ||
+                          item.quantity <= 1 ||
+                          updatingProductId === product._id
+                        }
+                      >
+                        <Minus size={16} />
+                      </button>
+                      <input
+                        type="text"
+                        value={item.quantity}
+                        readOnly
+                        className="w-8 text-center border border-gray-300 rounded"
+                      />
+                      <button
+                        onClick={() => handleAdd(productId!)}
+                        className={`p-1 rounded ${
+                          isPermanentlyDeleted || isArchived
+                            ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                            : "bg-orange-500 hover:bg-orange-600 text-white"
+                        }`}
+                        disabled={
+                          isPermanentlyDeleted ||
+                          isArchived ||
+                          item.quantity >= 99 ||
+                          updatingProductId === product._id
+                        }
+                      >
+                        <Plus size={16} />
+                      </button>
+                    </div>
+
+                    <div className="text-md font-semibold text-gray-700 text-right w-20 sm:w-25">
+                      <div>${(productPrice * item.quantity).toFixed(2)}</div>
+                      <button
+                        onClick={() => removeFromCart(item._id!)}
+                        className="text-red-500 text-sm hover:text-red-700"
+                      >
+                        Remove
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <p
@@ -148,20 +217,25 @@ const Checkout = () => {
 
           <button
             onClick={handleCheckout}
-            className="w-full font-secondary mt-6 bg-orange-500 text-white py-3 rounded-md font-semibold hover:bg-orange-600 transition flex items-center justify-center gap-2"
-            disabled={loading}
-            data-testid="checkout-button"
+            className={`w-full font-secondary mt-6 py-3 rounded-md font-semibold flex items-center justify-center gap-2 ${
+              hasInvalidItems
+                ? "bg-gray-400 text-gray-200 cursor-not-allowed"
+                : "bg-orange-500 text-white hover:bg-orange-600 transition"
+            }`}
+            disabled={loading || hasInvalidItems}
           >
             {loading ? (
-              <LoaderCircle
-                size={20}
-                className="animate-spin"
-                data-testid="loading-spinner"
-              />
+              <LoaderCircle size={20} className="animate-spin" />
             ) : (
               "Proceed to Payment"
             )}
           </button>
+
+          {hasInvalidItems && (
+            <p className="mt-2 text-red-500 text-sm text-center">
+              Please remove unavailable products before checkout.
+            </p>
+          )}
 
           <Link
             to="/shop"

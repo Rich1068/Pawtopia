@@ -1,7 +1,7 @@
 import { Response, Request } from "express";
 import Cart from "../models/Cart";
 import Product from "../models/Product";
-import { AuthRequest, ICartProduct } from "../Types/Types";
+import { AuthRequest, ICartProduct, IProduct } from "../Types/Types";
 import mongoose from "mongoose";
 import Stripe from "stripe";
 import { checkIfImageExists } from "../helpers/image";
@@ -16,7 +16,9 @@ export const addToCart = async (req: AuthRequest, res: Response) => {
       res.status(401).json({ error: "Unauthorized" });
       return;
     }
+
     const { productId, quantity } = req.body;
+    const safeQuantity = Math.max(1, Math.min(Number(quantity), 99));
 
     const product = await Product.findById(productId);
     if (!product) {
@@ -29,7 +31,7 @@ export const addToCart = async (req: AuthRequest, res: Response) => {
     if (!cart) {
       cart = new Cart({
         userId,
-        products: [{ productId, quantity }],
+        products: [{ productId, quantity: safeQuantity }],
       });
     } else {
       const productIndex = cart.products.findIndex((p) =>
@@ -37,21 +39,20 @@ export const addToCart = async (req: AuthRequest, res: Response) => {
       );
 
       if (productIndex > -1) {
-        cart.products[productIndex].quantity += quantity;
-        res.status(200).json({ message: "Cart Updated", cart });
-        await cart.save();
-        return;
+        cart.products[productIndex].quantity = Math.min(
+          cart.products[productIndex].quantity + safeQuantity,
+          99
+        );
       } else {
-        cart.products.push({ productId, quantity });
+        cart.products.push({ productId, quantity: safeQuantity });
       }
     }
 
     await cart.save();
-    res.status(200).json({ message: "Item Added", cart });
+    res.status(200).json({ message: "Cart Updated", cart });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.status(500).json({ error: "Server error" });
-    return;
   }
 };
 
@@ -90,16 +91,14 @@ export const removeCartItem = async (req: AuthRequest, res: Response) => {
     console.log("product id " + cartItemId);
     const cart = await Cart.findOneAndUpdate(
       { userId },
-      { $pull: { products: { productId: productObjectId } } },
+      { $pull: { products: { _id: productObjectId } } },
       { new: true }
     ).populate("products.productId");
-    console.log("cart", cart);
     if (!cart) {
       res.status(404).json({ error: "Cart not found" });
       return;
     }
 
-    // If cart is empty after removal, delete it
     if (cart.products.length === 0) {
       await Cart.deleteOne({ userId });
       res.status(200).json({ message: "Cart is now empty" });
@@ -119,9 +118,10 @@ export const decreaseFromCart = async (req: AuthRequest, res: Response) => {
       res.status(401).json({ error: "Unauthorized" });
       return;
     }
+
     const { productId } = req.body;
 
-    let cart = await Cart.findOne({ userId });
+    const cart = await Cart.findOne({ userId });
     if (!cart) {
       res.status(404).json({ error: "Cart not found" });
       return;
@@ -131,23 +131,23 @@ export const decreaseFromCart = async (req: AuthRequest, res: Response) => {
       p.productId.equals(productId)
     );
 
-    if (productIndex > -1) {
-      cart.products[productIndex].quantity -= 1;
-
-      if (cart.products[productIndex].quantity <= 0) {
-        cart.products.splice(productIndex, 1);
-      }
-    } else {
+    if (productIndex === -1) {
       res.status(404).json({ error: "Product not in cart" });
+      return;
+    }
+
+    // Only decrease if quantity is more than 1
+    if (cart.products[productIndex].quantity > 1) {
+      cart.products[productIndex].quantity -= 1;
+    } else {
       return;
     }
 
     await cart.save();
     res.status(200).json({ message: "Cart updated", cart });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.status(500).json({ error: "Server error" });
-    return;
   }
 };
 
@@ -159,6 +159,19 @@ export const cartCheckout = async (req: AuthRequest, res: Response) => {
       res.status(403).json({ error: "Please Login to Checkout" });
       return;
     }
+    const invalidProducts = products.filter(
+      (prod: ICartProduct) =>
+        !prod.productId ||
+        (typeof prod.productId === "object" &&
+          prod.productId !== null &&
+          "isArchived" in prod.productId &&
+          prod.productId.isArchived)
+    );
+    if (invalidProducts.length > 0) {
+      res.status(400).json({ error: "Some products are no longer available" });
+      return;
+    }
+
     // Format line items for Stripe
     const lineItems = await Promise.all(
       products.map(async (item: ICartProduct) => {

@@ -96,14 +96,24 @@ const UserButtons: FC<IUserButtons> = ({ product }) => {
       </div>
       <div className="mt-4 space-x-2">
         <button
-          className="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-md cursor-pointer"
+          className={`px-4 py-2 text-white rounded-md ${
+            product.isArchived
+              ? "bg-orange-300 cursor-default"
+              : "bg-orange-600 hover:bg-orange-700 cursor-pointer"
+          }`}
           onClick={handleBuyNow}
+          disabled={product.isArchived}
         >
           Buy Now
         </button>
         <button
-          className="px-4 py-2 bg-orange-400 hover:bg-orange-500 text-white rounded-md cursor-pointer"
+          className={`px-4 py-2 text-white rounded-md  ${
+            product.isArchived
+              ? "bg-orange-300 cursor-default"
+              : "bg-orange-400 hover:bg-orange-500 cursor-pointer"
+          }`}
           onClick={handleAddToCart}
+          disabled={product.isArchived}
         >
           Add to Cart
         </button>

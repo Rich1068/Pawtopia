@@ -35,7 +35,14 @@ const ShopCards: FC<ICards> = ({ products, header, text }) => {
                         style=" max-[955px]:!h-60 !h-70 !object-contain"
                       />
                     </Link>
-                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300">
+                    {prod.isArchived && (
+                      <div className="absolute top-0 left-0 right-0 bottom-0 flex items-center justify-center z-10 bg-black/40">
+                        <span className="text-white font-semibold text-3xl md:text-4xl transform rotate-35 px-4 py-2 text-center">
+                          Product Not Available
+                        </span>
+                      </div>
+                    )}
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300 z-50">
                       <Link
                         to={`/shop/product/${prod._id}`}
                         className="absolute inset-0 flex items-center justify-center bg-black/20 text-white text-lg font-semibold opacity-0 md:hover:opacity-100 transition-opacity duration-300"

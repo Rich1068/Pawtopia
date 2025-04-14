@@ -25,18 +25,18 @@ const persister = createSyncStoragePersister({ storage: window.localStorage });
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>
-      <AuthProvider>
-        <CartProvider>
-          <FavoritesProvider>
-            <PersistQueryClientProvider
-              client={queryClient}
-              persistOptions={{ persister }}
-            >
+      <PersistQueryClientProvider
+        client={queryClient}
+        persistOptions={{ persister }}
+      >
+        <AuthProvider>
+          <CartProvider>
+            <FavoritesProvider>
               <App />
-            </PersistQueryClientProvider>
-          </FavoritesProvider>
-        </CartProvider>
-      </AuthProvider>
+            </FavoritesProvider>
+          </CartProvider>
+        </AuthProvider>
+      </PersistQueryClientProvider>
     </BrowserRouter>
   </StrictMode>
 );

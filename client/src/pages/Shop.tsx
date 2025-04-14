@@ -23,7 +23,8 @@ const Shop = () => {
     queryFn: fetchProducts,
     staleTime: 5 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
-    refetchOnWindowFocus: false,
+    refetchOnWindowFocus: true,
+    refetchOnMount: "always",
   });
   if (isLoading) return <LoadingPage fadeOut={false} />;
 

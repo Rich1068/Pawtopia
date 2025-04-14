@@ -1,5 +1,3 @@
-import { Key } from "react";
-
 interface Category {
   id: number;
   name: string;
@@ -119,8 +117,8 @@ export type ProductCounts = {
 };
 
 export interface ICartProduct {
-  _id: Key | null | undefined;
-  productId: IProduct;
+  _id: string | null | undefined;
+  productId: IProduct | null;
   quantity: number;
 }
 
@@ -133,7 +131,7 @@ export interface ICart {
 }
 
 export interface IOrderProduct {
-  productId: string;
+  productId: string | null;
   name: string;
   price: number;
   quantity: number;

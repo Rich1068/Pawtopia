@@ -3,12 +3,42 @@ import { Link } from "react-router";
 import { ShoppingCart, Plus, Minus } from "lucide-react";
 import { getFullImageUrl } from "../../../../helper/imageHelper";
 import { useState, useRef, useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
 const CartDropdown = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [updatingProductId, setUpdatingProductId] = useState<string | null>(
+    null
+  );
   const { cart, addToCart, decreaseFromCart, removeFromCart } = useCart();
   const cartDropdownRef = useRef<HTMLDivElement>(null);
   const cartProductCount = cart?.products?.length ?? 0;
+  const queryClient = useQueryClient();
+
+  const toggleCart = () => {
+    // If we're opening the cart, refetch the latest data
+    if (!isCartOpen) {
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
+    }
+    setIsCartOpen(!isCartOpen);
+  };
+  const handleAdd = async (productId: string) => {
+    setUpdatingProductId(productId);
+    try {
+      await addToCart(productId, 1);
+    } finally {
+      setUpdatingProductId(null);
+    }
+  };
+
+  const handleDecrease = async (productId: string) => {
+    setUpdatingProductId(productId);
+    try {
+      await decreaseFromCart(productId, 1);
+    } finally {
+      setUpdatingProductId(null);
+    }
+  };
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -27,7 +57,7 @@ const CartDropdown = () => {
     <div className="relative max-sm:hidden" ref={cartDropdownRef}>
       <button
         className="relative p-2 text-orange-500 items-center mt-1"
-        onClick={() => setIsCartOpen(!isCartOpen)}
+        onClick={toggleCart}
       >
         <ShoppingCart size={28} />
 
@@ -48,48 +78,70 @@ const CartDropdown = () => {
           <ul className="max-h-80 overflow-y-auto divide-y divide-gray-300 px-3 text-amber-950">
             {cart && cartProductCount > 0 ? (
               cart.products.map((prod) => {
-                const productImage =
-                  getFullImageUrl(prod.productId.images?.[0]) ||
-                  "/assets/img/Logo1.jpg";
-                const productName = prod.productId.name;
-                const productPrice = parseFloat(prod.productId.price) || 0;
+                const product = prod.productId;
+                const productId = product?._id;
+                const isPermanentlyDeleted = !product;
+                const isSoftDeleted = product?.isArchived;
+
+                const productImage = isPermanentlyDeleted
+                  ? "/assets/img/deleted-placeholder.jpg"
+                  : getFullImageUrl(product.images?.[0]) ||
+                    "/assets/img/Logo1.jpg";
+
+                const productName = isPermanentlyDeleted
+                  ? "Product not available"
+                  : product.name;
+
+                const productPrice = isPermanentlyDeleted
+                  ? 0
+                  : parseFloat(product.price) || 0;
+
                 const totalPrice = (productPrice * prod.quantity).toFixed(2);
 
                 return (
                   <li
-                    key={prod._id || prod.productId._id}
-                    className="grid grid-cols-[auto_1fr_auto_auto] items-center gap-4 py-3"
+                    key={prod._id || product?._id || Math.random()}
+                    className={`grid grid-cols-[auto_1fr_auto_auto] items-center gap-4 py-3 ${
+                      isPermanentlyDeleted ? "opacity-50" : ""
+                    }`}
                   >
                     {/* Product Image */}
-                    <Link
-                      to={`/shop/product/${prod.productId._id}`}
-                      className="flex items-center"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setIsCartOpen(false);
-                      }}
-                    >
+                    <div className="flex items-center relative">
                       <img
                         src={productImage}
                         alt={productName}
-                        className="w-16 h-16 rounded-lg border border-gray-300 object-cover"
+                        className="w-16 h-16 rounded-lg border text-sm border-gray-300 object-cover"
                       />
-                    </Link>
+                      {isSoftDeleted && (
+                        <div className="absolute -top-2 -right-2 bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-md uppercase z-10">
+                          Unavailable
+                        </div>
+                      )}
+                    </div>
 
                     {/* Product Info */}
                     <div>
-                      <h3 className="text-sm font-semibold">{productName}</h3>
+                      <Link to={`/shop/product/${product?._id}`}>
+                        <h3 className="text-sm font-semibold">{productName}</h3>
+                      </Link>
                       <p className="text-xs text-gray-500">
-                        ${productPrice.toFixed(2)}
+                        {isPermanentlyDeleted
+                          ? "Unavailable"
+                          : `$${productPrice.toFixed(2)}`}
                       </p>
                     </div>
 
                     {/* Quantity Controls */}
                     <div className="flex items-center space-x-2">
                       <button
-                        className="w-7 h-7 flex items-center justify-center bg-gray-200 hover:bg-gray-300 rounded transition"
-                        onClick={() => decreaseFromCart(prod.productId._id, 1)}
-                        disabled={prod.quantity <= 1}
+                        className="w-7 h-7 flex items-center justify-center bg-gray-200 rounded"
+                        onClick={() => handleDecrease(productId!)}
+                        disabled={
+                          isPermanentlyDeleted ||
+                          prod.quantity <= 1 ||
+                          isSoftDeleted ||
+                          updatingProductId === product._id
+                        }
                       >
                         <Minus size={12} />
                       </button>
@@ -100,22 +152,30 @@ const CartDropdown = () => {
                         className="w-8 text-center border border-gray-300 rounded"
                       />
                       <button
-                        className="w-7 h-7 flex items-center justify-center bg-gray-200 hover:bg-gray-300 rounded transition"
-                        onClick={() => addToCart(prod.productId._id, 1)}
-                        disabled={prod.quantity >= 99}
+                        className="w-7 h-7 flex items-center justify-center bg-gray-200 rounded"
+                        onClick={() => handleAdd(productId!)}
+                        disabled={
+                          isPermanentlyDeleted ||
+                          prod.quantity >= 99 ||
+                          isSoftDeleted ||
+                          updatingProductId === product._id
+                        }
                       >
                         <Plus size={12} />
                       </button>
                     </div>
-
                     {/* Total Price & Remove Button */}
                     <div className="w-20 text-right">
-                      <span className="block text-sm font-semibold">
+                      <span
+                        className={`block text-sm font-semibold ${
+                          isPermanentlyDeleted ? "opacity-50" : ""
+                        }`}
+                      >
                         ${totalPrice}
                       </span>
                       <button
-                        className="text-xs text-red-500 hover:text-red-700 transition"
-                        onClick={() => removeFromCart(prod.productId._id)}
+                        className="text-xs text-red-500 hover:text-red-700 transition relative !opacity-100"
+                        onClick={() => removeFromCart(prod._id!)}
                       >
                         Remove
                       </button>
@@ -138,6 +198,13 @@ const CartDropdown = () => {
                 <span>
                   $
                   {cart?.products
+                    ?.filter(
+                      (
+                        prod
+                      ): prod is typeof prod & {
+                        productId: { price: number };
+                      } => !!prod.productId
+                    )
                     .reduce(
                       (sum, prod) =>
                         sum + parseFloat(prod.productId.price) * prod.quantity,
