@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import {
   useReactTable,
   getCoreRowModel,
@@ -7,37 +7,19 @@ import {
   getFilteredRowModel,
   getSortedRowModel,
 } from "@tanstack/react-table";
-import serverAPI from "../helper/axios";
-import LoadingPage from "../components/LoadingPage/LoadingPage";
 import type { IOrder } from "../types/Types";
 import PageHeader from "../components/PageHeader";
 import OrderDetailsModal from "../components/OrderHistory/OrderDetailModal";
 import TableFilters from "../components/HistoryTable/TableFilters";
 import DataTable from "../components/HistoryTable/DataTable";
+import { useOrderHistory } from "../hooks/useOrderHistory";
 
 const OrderHistory = () => {
-  const [orders, setOrders] = useState<IOrder[]>([]);
-  const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<IOrder | null>(null);
   const [globalFilter, setGlobalFilter] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
 
-  useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        const response = await serverAPI.get("/order/history", {
-          withCredentials: true,
-        });
-        setOrders(response.data);
-      } catch (error) {
-        console.error("Error fetching orders:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchOrders();
-  }, []);
+  const { data: orders = [], isLoading } = useOrderHistory();
 
   const filteredOrders = useMemo(() => {
     if (!selectedDate) return orders;
@@ -104,8 +86,6 @@ const OrderHistory = () => {
     onGlobalFilterChange: setGlobalFilter,
   });
 
-  if (loading) return <LoadingPage fadeOut={false} />;
-
   return (
     <div className="relative font-primary text-amber-950">
       <PageHeader text="Order History" />
@@ -119,7 +99,7 @@ const OrderHistory = () => {
             table={table}
           />
         </div>
-        <DataTable table={table} />
+        <DataTable table={table} isLoading={isLoading} />
       </div>
       <OrderDetailsModal
         isOpen={!!selectedOrder}

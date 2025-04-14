@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import {
   useReactTable,
   getCoreRowModel,
@@ -7,42 +7,23 @@ import {
   getFilteredRowModel,
   getSortedRowModel,
 } from "@tanstack/react-table";
-import serverAPI from "../helper/axios";
-import LoadingPage from "../components/LoadingPage/LoadingPage";
+
 import type { IAdoptRequest } from "../types/Types";
 import PageHeader from "../components/PageHeader";
 import { Eye } from "lucide-react";
 import AdoptRequestModal from "../components/AdoptRequest/AdoptRequestModal";
 import DataTable from "../components/HistoryTable/DataTable";
 import TableFilters from "../components/HistoryTable/TableFilters";
+import { useAdoptRequestHistory } from "../hooks/useAdoptRequests";
 
 const RequestHistory = () => {
-  const [requests, setRequests] = useState<IAdoptRequest[]>([]);
-  const [loading, setLoading] = useState(true);
-
+  const { data: requests = [], isLoading } = useAdoptRequestHistory();
   const [globalFilter, setGlobalFilter] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedRequest, setSelectedRequest] = useState<IAdoptRequest | null>(
     null
   );
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  useEffect(() => {
-    const fetchRequests = async () => {
-      try {
-        const response = await serverAPI.get("/adopt/history", {
-          withCredentials: true,
-        });
-        setRequests(response.data);
-      } catch (error) {
-        console.error("Error fetching requests:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchRequests();
-  }, []);
 
   const openModal = (request: IAdoptRequest) => {
     setSelectedRequest(request);
@@ -136,8 +117,6 @@ const RequestHistory = () => {
     onGlobalFilterChange: setGlobalFilter,
   });
 
-  if (loading) return <LoadingPage fadeOut={false} />;
-
   return (
     <div className="relative font-primary text-amber-950">
       <PageHeader text="Request History" />
@@ -151,7 +130,7 @@ const RequestHistory = () => {
             table={table}
           />
         </div>
-        <DataTable table={table} />
+        <DataTable isLoading={isLoading} table={table} />
       </div>
       <AdoptRequestModal
         isOpen={isModalOpen}

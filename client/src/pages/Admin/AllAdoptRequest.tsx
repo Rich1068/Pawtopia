@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   useReactTable,
   getCoreRowModel,
@@ -7,25 +7,25 @@ import {
   getFilteredRowModel,
 } from "@tanstack/react-table";
 import { Eye, Check, X } from "lucide-react";
-import serverAPI from "../../helper/axios";
 import AdoptRequestModal from "../../components/AdoptRequest/AdoptRequestModal";
 import AdoptRequestFilters from "../../components/AdoptRequest/AdoptRequestFilters";
 import TitleComponent from "../../components/shop/Admin/TitleComponent";
 import { IAdoptRequest } from "../../types/Types";
 import WarningModal from "../../components/WarningModal";
-import toast from "react-hot-toast";
 import DataTable from "../../components/HistoryTable/DataTable";
-import { LoaderCircle } from "lucide-react";
+import {
+  useAdoptRequestAction,
+  useAllAdoptRequests,
+} from "../../hooks/useAdoptRequests";
 
 const AllAdoptRequests = () => {
-  const [requests, setRequests] = useState<IAdoptRequest[]>([]);
-  const [loading, setLoading] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState<IAdoptRequest | null>(
     null
   );
   const [warningAction, setWarningAction] = useState<
     "approve" | "reject" | null
   >(null);
+
   const [isWarningModalOpen, setIsWarningModalOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [globalFilter, setGlobalFilter] = useState("");
@@ -33,25 +33,8 @@ const AllAdoptRequests = () => {
     "pending" | "approved" | "rejected"
   >("pending");
 
-  useEffect(() => {
-    fetchAdoptRequests();
-  }, [statusFilter]);
-
-  const fetchAdoptRequests = async () => {
-    try {
-      setLoading(true);
-      const { data } = await serverAPI.get("/adopt/requests", {
-        params: { status: statusFilter },
-        withCredentials: true,
-      });
-      console.log("Fetched Adoption Requests:", data);
-      setRequests(data);
-    } catch (error) {
-      console.error("Error fetching adoption requests:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { data: requests = [], isLoading } = useAllAdoptRequests(statusFilter);
+  const adoptRequestActionMutation = useAdoptRequestAction();
 
   const openModal = (request: IAdoptRequest) => {
     setSelectedRequest(request);
@@ -63,33 +46,15 @@ const AllAdoptRequests = () => {
     setIsModalOpen(false);
   };
 
-  const confirmAction = async () => {
+  const confirmAction = () => {
     if (!selectedRequest || !warningAction) return;
 
-    try {
-      if (warningAction === "approve") {
-        await serverAPI.put(
-          `/adopt/${selectedRequest._id}/approve`,
-          {},
-          { withCredentials: true }
-        );
-        toast.success("Adopt Request Approved");
-      } else if (warningAction === "reject") {
-        await serverAPI.put(
-          `/adopt/${selectedRequest._id}/reject`,
-          {},
-          { withCredentials: true }
-        );
-        toast.success("Adopt Request Rejected");
-      }
-      fetchAdoptRequests();
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      console.error(`Failed to ${warningAction} request`);
-      toast.error(error.response.data.error);
-    } finally {
-      setIsWarningModalOpen(false);
-    }
+    adoptRequestActionMutation.mutate({
+      id: selectedRequest._id,
+      action: warningAction,
+    });
+
+    setIsWarningModalOpen(false);
   };
 
   const columns: ColumnDef<IAdoptRequest>[] = [
@@ -212,13 +177,7 @@ const AllAdoptRequests = () => {
           setGlobalFilter={setGlobalFilter}
           table={table}
         />
-        {loading ? (
-          <div className="flex justify-center items-center h-full">
-            <LoaderCircle className="animate-spin text-orange-500" size={40} />
-          </div>
-        ) : (
-          <DataTable table={table} style="!p-0" />
-        )}
+        <DataTable table={table} isLoading={isLoading} style="!p-0" />
       </div>
       <AdoptRequestModal
         isOpen={isModalOpen}

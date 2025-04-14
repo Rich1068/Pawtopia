@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import {
   useReactTable,
   getCoreRowModel,
@@ -7,38 +7,20 @@ import {
   getFilteredRowModel,
   getSortedRowModel,
 } from "@tanstack/react-table";
-import serverAPI from "../../helper/axios";
-import LoadingPage from "../../components/LoadingPage/LoadingPage";
 import OrderDetailsModal from "../../components/OrderHistory/OrderDetailModal";
 import type { IOrder } from "../../types/Types";
 import TitleComponent from "../../components/shop/Admin/TitleComponent";
 import OrderFilters from "../../components/HistoryTable/TableFilters";
 import DataTable from "../../components/HistoryTable/DataTable";
+import { useAdminOrderHistory } from "../../hooks/useOrderHistory";
 
 const AdminOrderHistory = () => {
-  const [orders, setOrders] = useState<IOrder[]>([]);
-  const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<IOrder | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [globalFilter, setGlobalFilter] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
 
-  useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        const response = await serverAPI.get("/order/all", {
-          withCredentials: true,
-        });
-        setOrders(response.data);
-      } catch (error) {
-        console.error("Error fetching orders:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchOrders();
-  }, [selectedDate]);
+  const { data: orders = [], isLoading } = useAdminOrderHistory();
 
   const filteredOrders = useMemo(() => {
     if (!selectedDate) return orders;
@@ -117,8 +99,6 @@ const AdminOrderHistory = () => {
     onGlobalFilterChange: setGlobalFilter,
   });
 
-  if (loading) return <LoadingPage fadeOut={false} />;
-
   return (
     <div className="relative font-primary text-amber-950">
       <TitleComponent text={"Order History"} />
@@ -130,7 +110,7 @@ const AdminOrderHistory = () => {
           setGlobalFilter={setGlobalFilter}
           table={table}
         />
-        <DataTable table={table} style="!p-0" />
+        <DataTable table={table} isLoading={isLoading} style="!p-0" />
       </div>
       <OrderDetailsModal
         isOpen={isModalOpen}
