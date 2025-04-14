@@ -41,12 +41,14 @@ const ViewProduct = () => {
   }
   if (!product) {
     return (
-      <WarningContainer
-        header="Product Not Found"
-        text="The product you're looking for doesn't exist"
-        confirmText="Back"
-        onConfirm={() => navigate(-1)}
-      />
+      <div className="min-h-screen">
+        <WarningContainer
+          header="Product Not Found"
+          text="The product you're looking for doesn't exist"
+          confirmText="Back"
+          onConfirm={() => navigate(-1)}
+        />
+      </div>
     );
   }
 
@@ -58,7 +60,7 @@ const ViewProduct = () => {
         <PageHeader text="Product Details" />
       )}
       <div className={`${!isAdminView ? "bg-orange-600" : null}`}>
-        <div className="sm:p-4 h-full w-full bg-fixed bg-center bg-cover bg-no-repeat bg-[url(/assets/img/wallpaper.jpg)] rounded-t-xl">
+        <div className="sm:p-4 h-full min-h-screen w-full bg-fixed bg-center bg-cover bg-no-repeat bg-[url(/assets/img/wallpaper.jpg)] rounded-t-xl">
           <div className="relative mx-auto rounded-t-xl p-4 w-full flex max-lg:flex-col gap-x-4 items-stretch">
             <div className="flex-1 min-w-[50%] flex flex-col">
               <ProductCarousel productData={product} />

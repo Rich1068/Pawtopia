@@ -61,7 +61,8 @@ export const ProductCarousel: FC<IProductCarousel> = ({ productData }) => {
         >
           {hasPictures ? (
             pictures.map((img, i) => (
-              <SwiperSlide key={i} className="max-h-auto m-auto">
+              <SwiperSlide key={i} className="max-h-auto m-auto relative">
+                {/* Image wrapper */}
                 <img
                   src={getFullImageUrl(img)}
                   onClick={() => handleImageClick(getFullImageUrl(img))}
@@ -71,15 +72,31 @@ export const ProductCarousel: FC<IProductCarousel> = ({ productData }) => {
                   alt="Pet"
                   className="border m-auto rounded-xl border-orange-500 object-contain !h-auto !w-100 !min-w-auto !max-h-100"
                 />
+
+                {/* Overlay for "Product not available" */}
+                {productData?.isArchived && (
+                  <div className="absolute top-0 left-0 right-0 bottom-0 flex items-center justify-center z-10">
+                    <span className="text-white font-primary font-semibold text-2xl sm:text-3xl md:text-4xl transform rotate-45 px-4 py-2 bg-black/50">
+                      Product Not Available
+                    </span>
+                  </div>
+                )}
               </SwiperSlide>
             ))
           ) : (
-            <SwiperSlide className="!w-full">
+            <SwiperSlide className="!w-full relative">
               <img
                 src="/assets/img/Logo1.png"
                 alt="Placeholder Logo"
                 className="border m-auto rounded-xl border-orange-500 object-contain !h-auto w-full !max-h-100"
               />
+              {productData?.isArchived && (
+                <div className="absolute top-0 left-0 right-0 bottom-0 flex items-center justify-center z-10">
+                  <span className="text-white font-primary font-semibold text-2xl sm:text-3xl md:text-4xl transform rotate-45 px-4 py-2 bg-black/50">
+                    Product Not Available
+                  </span>
+                </div>
+              )}
             </SwiperSlide>
           )}
         </Swiper>

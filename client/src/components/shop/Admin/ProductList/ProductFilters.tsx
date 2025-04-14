@@ -49,7 +49,7 @@ const ProductFilters: FC<IProductFilters> = ({
           <option value="Archived">Archived</option>
         </select>
 
-        <div className="relative w-8/1 md:min-w-60 flex-grow">
+        <div className="relative w-8/1 md:min-w-50 flex-grow">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-orange-500" />
 
           <input
@@ -63,7 +63,7 @@ const ProductFilters: FC<IProductFilters> = ({
       </div>
 
       <div className="flex-grow relative w-full flex max-sm:flex-col gap-3">
-        <div className="w-auto flex-1">
+        <div className="w-auto flex-1 content-center">
           <CategoryFilter
             selectedCategories={selectedCategories}
             setSelectedCategories={setSelectedCategories}
