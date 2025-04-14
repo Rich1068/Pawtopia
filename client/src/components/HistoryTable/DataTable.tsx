@@ -1,5 +1,5 @@
 import { flexRender, Table } from "@tanstack/react-table";
-import { LoaderCircle } from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown, LoaderCircle } from "lucide-react";
 
 interface IDataTable<T> {
   table: Table<T>;
@@ -20,10 +20,26 @@ const DataTable = <T,>({ table, isLoading, style }: IDataTable<T>) => {
                     key={header.id}
                     className="p-2 sm:p-3 text-center font-semibold"
                   >
-                    {flexRender(
-                      header.column.columnDef.header,
-                      header.getContext()
-                    )}
+                    <div className="flex items-center justify-center gap-2">
+                      {flexRender(
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
+                      {header.column.getCanSort() && (
+                        <div
+                          onClick={header.column.getToggleSortingHandler()}
+                          className="cursor-pointer"
+                        >
+                          {header.column.getIsSorted() === "desc" ? (
+                            <ArrowUp className="w-5 h-5" />
+                          ) : header.column.getIsSorted() === "asc" ? (
+                            <ArrowDown className="w-5 h-5" />
+                          ) : (
+                            <ArrowUpDown className="w-5 h-5 opacity-50" />
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </th>
                 ))}
               </tr>

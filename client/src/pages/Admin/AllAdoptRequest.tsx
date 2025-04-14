@@ -96,6 +96,7 @@ const AllAdoptRequests = () => {
     {
       accessorKey: "petName",
       header: "Pet Name",
+      enableSorting: true,
     },
     {
       accessorKey: "name",
@@ -103,11 +104,13 @@ const AllAdoptRequests = () => {
       cell: ({ row }) => {
         return <span>{row.original.name}</span>;
       },
+      enableSorting: true,
     },
     {
       accessorKey: "createdAt",
       header: "Date",
       cell: ({ getValue }) => new Date(getValue<string>()).toLocaleDateString(),
+      enableSorting: true,
     },
     {
       accessorKey: "status",
@@ -128,6 +131,7 @@ const AllAdoptRequests = () => {
           </span>
         );
       },
+      enableSorting: true,
     },
     {
       id: "actions",
@@ -190,6 +194,7 @@ const AllAdoptRequests = () => {
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    getSortedRowModel: getFilteredRowModel(),
     state: {
       globalFilter,
     },

@@ -5,6 +5,7 @@ import {
   ColumnDef,
   getPaginationRowModel,
   getFilteredRowModel,
+  getSortedRowModel,
 } from "@tanstack/react-table";
 import serverAPI from "../../helper/axios";
 import LoadingPage from "../../components/LoadingPage/LoadingPage";
@@ -21,14 +22,13 @@ const AdminOrderHistory = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [globalFilter, setGlobalFilter] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
-  console.log(selectedDate);
+
   useEffect(() => {
     const fetchOrders = async () => {
       try {
         const response = await serverAPI.get("/order/all", {
           withCredentials: true,
         });
-        console.log("Fetched Orders:", response.data);
         setOrders(response.data);
       } catch (error) {
         console.error("Error fetching orders:", error);
@@ -73,6 +73,7 @@ const AdminOrderHistory = () => {
           </span>
         );
       },
+      enableSorting: true,
     },
     {
       accessorKey: "userId",
@@ -81,11 +82,13 @@ const AdminOrderHistory = () => {
         const user = row.original.userId;
         return typeof user === "string" ? "Unknown" : user.name;
       },
+      enableSorting: true,
     },
     {
       accessorKey: "createdAt",
       header: "Date",
       cell: ({ getValue }) => new Date(getValue<string>()).toLocaleDateString(),
+      enableSorting: true,
     },
     {
       id: "actions",
@@ -107,6 +110,7 @@ const AdminOrderHistory = () => {
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    getSortedRowModel: getSortedRowModel(),
     state: {
       globalFilter,
     },

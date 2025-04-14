@@ -88,24 +88,16 @@ export const getMostSoldProducts = async (req: Request, res: Response) => {
         $group: {
           _id: "$products.productId",
           totalSold: { $sum: "$products.quantity" },
+          name: { $first: "$products.name" },
         },
       },
-      {
-        $lookup: {
-          from: "products",
-          localField: "_id",
-          foreignField: "_id",
-          as: "productDetails",
-        },
-      },
-      { $unwind: "$productDetails" },
       { $sort: { totalSold: -1 } },
       { $limit: 5 },
       {
         $project: {
           _id: 1,
           totalSold: 1,
-          name: "$productDetails.name",
+          name: "$name",
         },
       },
     ]);

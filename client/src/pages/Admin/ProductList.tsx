@@ -5,6 +5,7 @@ import {
   ColumnDef,
   getPaginationRowModel,
   getFilteredRowModel,
+  getSortedRowModel,
 } from "@tanstack/react-table";
 import ProductFilters from "../../components/shop/Admin/ProductList/ProductFilters";
 import ProductActionButtons from "../../components/shop/Admin/ProductList/ProductActionButtons";
@@ -69,6 +70,7 @@ const ProductList = () => {
         accessorKey: "price",
         header: "Price",
         cell: ({ row }) => `$${row.original.price}`,
+        enableSorting: true,
       },
       {
         accessorKey: "category",
@@ -77,6 +79,7 @@ const ProductList = () => {
           row.original.category?.length
             ? row.original.category.join(", ")
             : "No Category",
+        enableSorting: true,
       },
       {
         accessorKey: "isArchived",
@@ -92,6 +95,7 @@ const ProductList = () => {
             </span>
           );
         },
+        enableSorting: true,
       },
       {
         accessorKey: "actions",
@@ -115,6 +119,7 @@ const ProductList = () => {
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    getSortedRowModel: getSortedRowModel(),
     state: {
       globalFilter,
     },

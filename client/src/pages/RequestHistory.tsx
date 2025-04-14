@@ -5,6 +5,7 @@ import {
   ColumnDef,
   getPaginationRowModel,
   getFilteredRowModel,
+  getSortedRowModel,
 } from "@tanstack/react-table";
 import serverAPI from "../helper/axios";
 import LoadingPage from "../components/LoadingPage/LoadingPage";
@@ -68,6 +69,7 @@ const RequestHistory = () => {
     {
       accessorKey: "petName",
       header: "Pet Name",
+      enableSorting: true,
     },
     {
       accessorKey: "status",
@@ -88,11 +90,13 @@ const RequestHistory = () => {
           </span>
         );
       },
+      enableSorting: true,
     },
     {
       accessorKey: "createdAt",
       header: "Date",
       cell: ({ getValue }) => new Date(getValue<Date>()).toLocaleDateString(),
+      enableSorting: true,
     },
 
     {
@@ -125,6 +129,7 @@ const RequestHistory = () => {
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    getSortedRowModel: getSortedRowModel(),
     state: {
       globalFilter,
     },
