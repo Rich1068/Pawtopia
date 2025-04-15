@@ -1,18 +1,15 @@
-import {
-  createContext,
-  useState,
-  useContext,
-  ReactNode,
-  useEffect,
-} from "react";
+import { createContext, useContext, ReactNode } from "react";
 import { petType } from "../types/pet";
 import { useAuth } from "./AuthContext";
 import serverAPI from "../helper/axios";
 import { FavoritePets } from "../types/Types";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 interface IFavoritesContextType {
   favorites: FavoritePets[];
-  toggleFavorite: (pet: petType) => Promise<void>; // Now returns a promise
+  toggleFavorite: (pet: petType) => void;
+  isLoading: boolean;
+  refetchFavorites: () => void;
 }
 
 const FavoritesContext = createContext<IFavoritesContextType | undefined>(
@@ -20,41 +17,30 @@ const FavoritesContext = createContext<IFavoritesContextType | undefined>(
 );
 
 export const FavoritesProvider = ({ children }: { children: ReactNode }) => {
-  const [favorites, setFavorites] = useState<FavoritePets[]>([]);
   const { user, isAuthenticated } = useAuth();
   const userId = user?._id;
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    if (!isAuthenticated || !userId) return;
+  const {
+    data: favorites = [],
+    isLoading,
+    refetch,
+  } = useQuery<FavoritePets[]>({
+    queryKey: ["favorites", userId],
+    queryFn: async () => {
+      const res = await serverAPI.get(`/user/favorites`, {
+        withCredentials: true,
+      });
+      return res.data;
+    },
+    enabled: !!userId && isAuthenticated,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+  });
 
-    serverAPI
-      .get(`/user/favorites`, { withCredentials: true })
-      .then((res) => {
-        return setFavorites(res.data);
-      })
-      .catch((error) => console.error("Failed to fetch favorites", error));
-  }, [isAuthenticated, userId]);
-
-  const toggleFavorite = async (pet: petType) => {
-    if (!userId) return;
-    setFavorites((prev) => {
-      const isFavorite = prev.some((fav) => fav.petId === pet.id);
-
-      return isFavorite
-        ? prev.filter((fav) => fav.petId !== pet.id) // Remove if exists
-        : [
-            ...prev,
-            {
-              userId,
-              petId: pet.id,
-              petName: pet.attributes.name,
-              petImage: pet.attributes.pictureThumbnailUrl,
-            } as FavoritePets,
-          ];
-    });
-
-    try {
-      const { data } = await serverAPI.post(
+  const mutation = useMutation({
+    mutationFn: async (pet: petType) => {
+      return await serverAPI.post(
         "/user/favorites",
         {
           userId,
@@ -64,18 +50,81 @@ export const FavoritesProvider = ({ children }: { children: ReactNode }) => {
         },
         { withCredentials: true }
       );
+    },
 
-      if (data.favorites) {
-        console.log(data.favorites);
-        setFavorites(data.favorites); // Use the updated list from the backend
+    onMutate: async (pet) => {
+      await queryClient.cancelQueries({ queryKey: ["favorites", userId] });
+
+      const previousFavorites =
+        queryClient.getQueryData<FavoritePets[]>(["favorites", userId]) || [];
+
+      const previousFavoritePets =
+        queryClient.getQueryData<petType[]>([
+          "favoritePets",
+          previousFavorites.map((f) => f.petId),
+        ]) || [];
+
+      const isAlreadyFavorited = previousFavorites.some(
+        (fav) => fav.petId === pet.id
+      );
+
+      let newFavorites: FavoritePets[];
+      let newFavoritePets: petType[];
+
+      if (isAlreadyFavorited) {
+        newFavorites = previousFavorites.filter((fav) => fav.petId !== pet.id);
+        newFavoritePets = previousFavoritePets.filter((p) => p.id !== pet.id);
+      } else {
+        newFavorites = [
+          ...previousFavorites,
+          {
+            petId: pet.id,
+            petName: pet.attributes.name,
+            petImage: pet.attributes.pictureThumbnailUrl as string,
+            userId: userId as string,
+          },
+        ];
+        newFavoritePets = [...previousFavoritePets, pet];
       }
-    } catch (error) {
-      console.error("Error updating favorites:", error);
-    }
+
+      queryClient.setQueryData(["favorites", userId], newFavorites);
+      queryClient.setQueryData(
+        ["favoritePets", newFavorites.map((f) => f.petId)],
+        newFavoritePets
+      );
+
+      return { previousFavorites, previousFavoritePets };
+    },
+
+    onError: (err, _pet, context) => {
+      if (context?.previousFavorites) {
+        queryClient.setQueryData(
+          ["favorites", userId],
+          context.previousFavorites
+        );
+      }
+      console.error("Favorite update failed:", err);
+    },
+
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["favorites", userId] });
+    },
+  });
+
+  const toggleFavorite = (pet: petType) => {
+    if (!userId) return;
+    mutation.mutate(pet);
   };
 
   return (
-    <FavoritesContext.Provider value={{ favorites, toggleFavorite }}>
+    <FavoritesContext.Provider
+      value={{
+        favorites,
+        toggleFavorite,
+        isLoading,
+        refetchFavorites: refetch,
+      }}
+    >
       {children}
     </FavoritesContext.Provider>
   );

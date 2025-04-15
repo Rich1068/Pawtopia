@@ -1,43 +1,20 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+// src/pages/Favorite.tsx
 import { useEffect, useState } from "react";
-import AdoptCards from "../components/Adopt/AdoptCards";
 import PageHeader from "../components/PageHeader";
-import { useFavorites } from "../context/FavoritesContext";
-import serverAPI from "../helper/axios";
-import { petType } from "../types/pet";
+import AdoptCards from "../components/Adopt/AdoptCards";
 import LoadingPage from "../components/LoadingPage/LoadingPage";
+import { petType } from "../types/pet";
+import { useFavoritePets } from "../hooks/useFavoritePets";
 
 const Favorite = () => {
-  const { favorites } = useFavorites();
+  const { data: favPetsData, isLoading } = useFavoritePets();
   const [favPets, setFavPets] = useState<petType[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+
   useEffect(() => {
-    const fetchFavoritePets = async () => {
-      if (favorites.length === 0) {
-        setIsLoading(false);
-        return;
-      }
-      try {
-        const petIds = favorites.map((fav) => fav.petId);
-        const response = await serverAPI.post(
-          "/pet/get-favPets",
-          {
-            petIds,
-          },
-          { withCredentials: true }
-        );
-        setFavPets(response.data.pets);
-      } catch (error) {
-        console.error("Failed to fetch favorite pets", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    if (favPetsData) setFavPets(favPetsData);
+  }, [favPetsData]);
 
-    fetchFavoritePets();
-  }, [favorites]);
-
-  if (isLoading === true) {
+  if (isLoading && favPets.length === 0) {
     return <LoadingPage fadeOut={false} />;
   }
 
