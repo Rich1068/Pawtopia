@@ -17,6 +17,7 @@ export const useProducts = ({
 
   const fetchProducts = async (): Promise<IProduct[]> => {
     const params = new URLSearchParams();
+
     if (selectedCategories.length > 0) {
       params.append("categories", selectedCategories.join(","));
     }
@@ -26,7 +27,7 @@ export const useProducts = ({
         statusFilter === "Available" ? "available" : "archived"
       );
     }
-
+    console.log("Fetching products", selectedCategories, statusFilter);
     const response = await serverAPI.get(`/product/list?${params.toString()}`, {
       withCredentials: true,
     });
@@ -39,10 +40,8 @@ export const useProducts = ({
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["products", selectedCategories, statusFilter],
+    queryKey: ["products", selectedCategories.join(","), statusFilter],
     queryFn: fetchProducts,
-    refetchOnMount: "always",
-    refetchOnWindowFocus: true,
   });
 
   // DELETE product
@@ -54,6 +53,7 @@ export const useProducts = ({
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["products"] });
+      queryClient.invalidateQueries({ queryKey: ["categories"] });
     },
     onError: () => {
       toast.error("Failed to delete product.");
@@ -202,11 +202,12 @@ export const useAddEditMutation = () => {
       }
 
       toast.success("Product added successfully!");
-      return newProduct.images;
+      return;
     },
     onSuccess: (updatedProduct, variables) => {
       queryClient.invalidateQueries({ queryKey: ["products"] });
       variables.onSuccess?.(updatedProduct as string[]);
+      queryClient.invalidateQueries({ queryKey: ["categories"] });
     },
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onError: (error: any) => {

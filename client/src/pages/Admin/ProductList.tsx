@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   useReactTable,
   getCoreRowModel,
@@ -19,6 +19,12 @@ const ProductList = () => {
   const [globalFilter, setGlobalFilter] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [statusFilter, setStatusFilter] = useState<string>("All");
+  const [data, setData] = useState<IProduct[]>([]);
+  const memoizedSelectedCategories = useMemo(
+    () => selectedCategories,
+    [selectedCategories]
+  );
+  const memoizedStatusFilter = useMemo(() => statusFilter, [statusFilter]);
 
   const {
     products,
@@ -28,31 +34,24 @@ const ProductList = () => {
     archiveProduct,
     recoverProduct,
   } = useProducts({
-    selectedCategories,
-    statusFilter,
+    selectedCategories: memoizedSelectedCategories,
+    statusFilter: memoizedStatusFilter,
   });
+  const memoProducts = useMemo(() => products ?? [], [products]);
+  useEffect(() => {
+    setData(memoProducts);
+  }, [memoProducts]);
+  const handleDeleteProduct = useCallback(async (productId: string) => {
+    deleteProduct(productId);
+  }, []);
+  const handleArchiveProduct = useCallback(async (productId: string) => {
+    archiveProduct(productId);
+  }, []);
 
-  console.log(products);
-  const handleDeleteProduct = useCallback(
-    async (productId: string) => {
-      deleteProduct(productId);
-    },
-    [deleteProduct]
-  );
-  const handleArchiveProduct = useCallback(
-    async (productId: string) => {
-      archiveProduct(productId);
-    },
-    [archiveProduct]
-  );
-
-  const handleRecoverProduct = useCallback(
-    async (productId: string) => {
-      recoverProduct(productId);
-    },
-    [recoverProduct]
-  );
-
+  const handleRecoverProduct = useCallback(async (productId: string) => {
+    recoverProduct(productId);
+  }, []);
+  console.log("ProductList rendered", products.length);
   const columns = useMemo<ColumnDef<IProduct>[]>(
     () => [
       {
@@ -118,7 +117,7 @@ const ProductList = () => {
   );
 
   const table = useReactTable({
-    data: products ?? [],
+    data: data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),

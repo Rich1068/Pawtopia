@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
-import serverAPI from "../../../../helper/axios";
 import { X, ChevronDown } from "lucide-react";
+import { useCategories } from "../../../../hooks/useCategories";
 
 interface CategoryFilterProps {
   selectedCategories: string[];
@@ -11,24 +11,10 @@ const CategoryFilter: React.FC<CategoryFilterProps> = ({
   selectedCategories,
   setSelectedCategories,
 }) => {
-  const [categories, setCategories] = useState<string[]>([]);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await serverAPI.get("/product/get-categories", {
-          withCredentials: true,
-        });
-        setCategories(response.data);
-      } catch (error) {
-        console.error("Failed to fetch categories:", error);
-      }
-    };
-
-    fetchCategories();
-  }, []);
+  const { categories } = useCategories();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

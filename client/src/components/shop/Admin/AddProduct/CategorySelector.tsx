@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useCategories } from "../../../../hooks/useCategories";
 
 interface CategorySelectorProps {
@@ -10,10 +10,15 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({
   selectedCategories,
   setSelectedCategories,
 }) => {
-  const { categories, setCategories, loading, error } = useCategories();
+  const { categories: fetchedCategories, loading, error } = useCategories();
+  const [categories, setCategories] = useState<string[]>([]);
   const [newCategory, setNewCategory] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setCategories(fetchedCategories); // sync once when loaded
+  }, [fetchedCategories]);
 
   const handleCategorySelect = (category: string) => {
     if (!selectedCategories.includes(category)) {
@@ -25,10 +30,19 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({
     setSelectedCategories(selectedCategories.filter((cat) => cat !== category));
   };
 
+  const capitalize = (str: string) =>
+    str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+
   const handleAddCategory = () => {
-    if (newCategory && !categories.includes(newCategory)) {
-      setCategories([...categories, newCategory]); // Add new category to existing list
-      handleCategorySelect(newCategory);
+    const normalizedNewCat = newCategory.trim().toLowerCase();
+    const isDuplicate = categories.some(
+      (cat) => cat.toLowerCase() === normalizedNewCat
+    );
+
+    if (newCategory && !isDuplicate) {
+      const formattedCategory = capitalize(normalizedNewCat);
+      setCategories([...categories, formattedCategory]);
+      handleCategorySelect(formattedCategory);
       setNewCategory("");
     }
   };

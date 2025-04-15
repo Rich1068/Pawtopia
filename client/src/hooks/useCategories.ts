@@ -1,26 +1,28 @@
-import { useEffect, useState } from "react";
+// hooks/useCategories.ts
+import { useQuery } from "@tanstack/react-query";
 import serverAPI from "../helper/axios";
 
+const fetchCategories = async (): Promise<string[]> => {
+  const { data } = await serverAPI.get("/product/get-categories");
+  return data;
+};
+
 export const useCategories = () => {
-  const [categories, setCategories] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const {
+    data: categories = [],
+    isLoading: loading,
+    isError,
+    refetch,
+  } = useQuery<string[], Error>({
+    queryKey: ["categories"],
+    queryFn: fetchCategories,
+    staleTime: 1000 * 60 * 5,
+  });
 
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await serverAPI.get("/product/get-categories");
-        setCategories(response.data);
-      } catch (error) {
-        setError("Failed to fetch categories");
-        console.error("Failed to fetch categories:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCategories();
-  }, []);
-
-  return { categories, setCategories, loading, error };
+  return {
+    categories,
+    loading,
+    error: isError ? "Failed to fetch categories" : null,
+    refetch,
+  };
 };
