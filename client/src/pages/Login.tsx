@@ -1,13 +1,12 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { useNavigate, Link } from "react-router";
+import { Link } from "react-router";
 import { useAuth } from "../context/AuthContext";
-import serverAPI from "../helper/axios";
 import PageHeader from "../components/PageHeader";
 import { LoaderCircle } from "lucide-react";
+import { useLoginMutation } from "../hooks/useAuthQueries";
 
 const Login = () => {
-  const navigate = useNavigate();
   const { login } = useAuth();
   const [data, setData] = useState({
     email: "",
@@ -15,7 +14,7 @@ const Login = () => {
     rememberMe: false,
   });
   const [loading, setLoading] = useState(false);
-
+  const loginMutation = useLoginMutation(login);
   const loginUser = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const { email, password, rememberMe } = data;
@@ -32,28 +31,7 @@ const Login = () => {
     }
 
     setLoading(true);
-    try {
-      const { data } = await serverAPI.post(
-        "/login",
-        { email, password, rememberMe },
-        { withCredentials: true }
-      );
-      await login(rememberMe);
-      setData({ email: "", password: "", rememberMe: false });
-
-      if (data.message === "Please Verify Email") {
-        localStorage.setItem("unverifiedEmail", data.email);
-        navigate("/verify-email");
-        return;
-      } else {
-        navigate("/");
-      }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      toast.error(error.response?.data?.error || "Something went wrong");
-    } finally {
-      setLoading(false);
-    }
+    loginMutation.mutate({ email, password, rememberMe });
   };
 
   return (

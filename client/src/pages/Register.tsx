@@ -1,14 +1,11 @@
 import { useState } from "react";
-import serverAPI from "../helper/axios";
-import toast from "react-hot-toast";
-import { useNavigate, Link } from "react-router";
+import { Link } from "react-router";
 import validate from "../helper/validation";
 import { LoaderCircle } from "lucide-react";
 import PageHeader from "../components/PageHeader";
+import { useRegisterMutation } from "../hooks/useAuthQueries";
 
 export const Register = () => {
-  const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
   const [data, setData] = useState({
     name: "",
     email: "",
@@ -17,7 +14,9 @@ export const Register = () => {
     confirmPassword: "",
   });
 
-  const registerUser = async (e: React.FormEvent<HTMLFormElement>) => {
+  const { mutate: registerUser, isPending } = useRegisterMutation();
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const { name, email, phoneNumber, password, confirmPassword } = data;
 
@@ -25,35 +24,17 @@ export const Register = () => {
       return;
     }
 
-    setLoading(true);
-    try {
-      const { data } = await serverAPI.post("/register", {
-        name,
-        email,
-        phoneNumber,
-        password,
-        confirmPassword,
-      });
-
-      setData({
-        name: "",
-        email: "",
-        phoneNumber: "",
-        password: "",
-        confirmPassword: "",
-      });
-
-      toast.success("Registered Successfully, Please Verify Your Email");
-      localStorage.setItem("unverifiedEmail", data.email);
-      navigate("/verify-email");
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      toast.error(
-        error.response?.data?.error || "Something went wrong, please try again."
-      );
-    } finally {
-      setLoading(false);
-    }
+    registerUser(data, {
+      onSuccess: () => {
+        setData({
+          name: "",
+          email: "",
+          phoneNumber: "",
+          password: "",
+          confirmPassword: "",
+        });
+      },
+    });
   };
 
   return (
@@ -62,7 +43,7 @@ export const Register = () => {
       <div className="min-h-screen -mt-20 sm:-mt-30 relative z-111">
         <form
           data-testid="register-form"
-          onSubmit={registerUser}
+          onSubmit={handleSubmit}
           className="bg-white max-w-xl w-full mx-auto shadow-lg p-8 sm:p-10 rounded-2xl border border-gray-200"
         >
           <h3 className="text-orange-600 text-4xl text-center font-semibold mb-6 font-primary">
@@ -108,13 +89,13 @@ export const Register = () => {
 
           <button
             type="submit"
-            disabled={loading}
-            className={`w-full flex items-center justify-center py-3 px-4 text-sm font-semibold tracking-wider rounded-lg text-white bg-orange-600 hover:bg-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-400 transition-all ${
-              loading ? "opacity-75 cursor-not-allowed" : ""
+            disabled={isPending}
+            className={`w-full flex items-center justify-center py-3 px-4 text-md font-semibold font-secondary tracking-wider rounded-lg text-white bg-orange-600 hover:bg-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-400 transition-all ${
+              isPending ? "opacity-75 cursor-not-allowed" : ""
             }`}
           >
-            {loading ? (
-              <LoaderCircle className="animate-spin w-5 h-5 mr-2" />
+            {isPending ? (
+              <LoaderCircle className="animate-spin w-5 h-5 mr-2" size={18} />
             ) : (
               "Sign Up"
             )}
