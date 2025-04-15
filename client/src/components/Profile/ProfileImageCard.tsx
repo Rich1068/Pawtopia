@@ -2,32 +2,19 @@ import { UserRound, Pencil } from "lucide-react";
 import { FC, useState } from "react";
 import { User } from "../../types/Types";
 import ProfileImageUpload from "./ProfileImageUpload";
-import { useAuth } from "../../context/AuthContext";
-import serverAPI from "../../helper/axios";
+import { useUploadProfileImage } from "../../hooks/useProfile";
 
 const ProfileImageCard: FC<{ user: User }> = ({ user }) => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
-  const { verifyToken } = useAuth();
-  const handleImageSave = async (image: File | null) => {
-    //console.log(profileImage)
-    const formData = new FormData();
-    if (image) {
-      formData.append("image", image);
-      formData.append("userId", user!._id); // Send userId
-      try {
-        const { data } = await serverAPI.post("/user/upload-image", formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-          withCredentials: true,
-        });
-        console.log(data);
-        verifyToken();
-      } catch (error) {
-        console.log("Error here ", error);
-      }
-    }
+  const uploadMutation = useUploadProfileImage();
 
-    setModalIsOpen(false); // Close modal
+  const handleImageSave = (image: File | null) => {
+    if (image) {
+      uploadMutation.mutate({ userId: user._id, image });
+    }
+    setModalIsOpen(false);
   };
+
   return (
     <>
       <ProfileImageUpload

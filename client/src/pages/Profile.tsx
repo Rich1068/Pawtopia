@@ -1,11 +1,10 @@
-import { useContext } from "react";
-import { AuthContext } from "../context/AuthContext";
+import { useAuth } from "../context/AuthContext";
 import ProfileCard from "../components/Profile/ProfileCard";
 import ProfileImageCard from "../components/Profile/ProfileImageCard";
 import PageHeader from "../components/PageHeader";
 
 const Profile = () => {
-  const { user } = useContext(AuthContext)!;
+  const { user } = useAuth();
 
   return (
     <>

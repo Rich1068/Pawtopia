@@ -2,10 +2,8 @@ import { useState } from "react";
 import ProfileField from "./ProfileField";
 import { FC } from "react";
 import { User } from "../../types/Types";
-import serverAPI from "../../helper/axios";
 import validate, { validatePassword } from "../../helper/validation";
-import toast from "react-hot-toast";
-import { useAuth } from "../../context/AuthContext";
+import { useUpdatePassword, useUpdateProfile } from "../../hooks/useProfile";
 
 const ProfileCard: FC<{ user: User }> = ({ user }) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -19,7 +17,8 @@ const ProfileCard: FC<{ user: User }> = ({ user }) => {
     newPassword: "",
     confirmPassword: "",
   });
-  const { verifyToken } = useAuth();
+  const { mutate: updateProfile } = useUpdateProfile();
+  const { mutate: updatePassword } = useUpdatePassword();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -37,79 +36,31 @@ const ProfileCard: FC<{ user: User }> = ({ user }) => {
       phoneNumber: user?.phoneNumber || "",
     });
   };
+
   const handleSave = async () => {
     const { name, email, phoneNumber } = formData;
     if (!validate(name, email, phoneNumber)) {
       return;
     }
-    try {
-      const { data } = await serverAPI.post(
-        "/user/edit",
-        {
-          name: name,
-          email: email,
-          phoneNumber: phoneNumber,
-        },
-        {
-          withCredentials: true,
-        }
-      );
-      if (data.user) {
-        console.log(data.message);
-        toast.success(data.message);
-      }
-
-      verifyToken();
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      if (error.response) {
-        toast.error(error.response.data.error);
-      } else {
-        toast.error("Something went wrong, please try again.");
-      }
-    }
-    console.log("Updated Data:", formData);
+    updateProfile({ name, email, phoneNumber });
     setIsEditing(false);
   };
+
   const handlePasswordSave = async () => {
     const { newPassword, confirmPassword } = passwordData;
     if (!validatePassword(newPassword, confirmPassword)) {
       return;
     }
-    try {
-      const { data } = await serverAPI.post(
-        "/user/edit-password",
-        {
-          password: newPassword,
-          confirmPassword: confirmPassword,
-        },
-        {
-          withCredentials: true,
-        }
-      );
-      console.log(data);
-      if (data.message) {
-        console.log(data.message);
-        toast.success(data.message);
-      }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      if (error.response) {
-        toast.error(error.response.data.error);
-      } else {
-        toast.error("Something went wrong, please try again.");
-      }
-    }
-    setPasswordData({
-      newPassword: "",
-      confirmPassword: "",
-    });
+    updatePassword({ password: newPassword, confirmPassword });
+    setPasswordData({ newPassword: "", confirmPassword: "" });
   };
+
   const profileOnClick = () => {
     setActiveTab("profile");
     setIsEditing(false);
   };
-  const passwordOnclick = () => {
+
+  const passwordOnClick = () => {
     setActiveTab("password");
     setIsEditing(true);
   };
@@ -133,7 +84,7 @@ const ProfileCard: FC<{ user: User }> = ({ user }) => {
               ? "border-b-2 border-orange-500 text-orange-500"
               : "text-gray-500"
           }`}
-          onClick={() => passwordOnclick()}
+          onClick={() => passwordOnClick()}
         >
           Change Password
         </button>
