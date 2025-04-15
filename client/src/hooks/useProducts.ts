@@ -1,137 +1,240 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState, useEffect } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import serverAPI from "../helper/axios";
-import { IProduct } from "../types/Types";
+import { IAddProduct, IProduct, IProductImage } from "../types/Types";
+import toast from "react-hot-toast";
+import { useEffect } from "react";
 
-export const useProducts = (
-  selectedCategories: string[] = [],
-  statusFilter: string = "All"
-) => {
-  const [products, setProducts] = useState<IProduct[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+interface UseProductsParams {
+  selectedCategories?: string[];
+  statusFilter?: string;
+}
+// ProductList.tsx
+export const useProducts = ({
+  selectedCategories = [],
+  statusFilter = "All",
+}: UseProductsParams) => {
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      setIsLoading(true);
-      setError(null);
+  const fetchProducts = async (): Promise<IProduct[]> => {
+    const params = new URLSearchParams();
+    if (selectedCategories.length > 0) {
+      params.append("categories", selectedCategories.join(","));
+    }
+    if (statusFilter !== "All") {
+      params.append(
+        "status",
+        statusFilter === "Available" ? "available" : "archived"
+      );
+    }
 
-      try {
-        const params = new URLSearchParams();
+    const response = await serverAPI.get(`/product/list?${params.toString()}`, {
+      withCredentials: true,
+    });
 
-        if (selectedCategories.length > 0) {
-          params.append("categories", selectedCategories.join(","));
-        }
+    return response.data.data;
+  };
 
-        if (statusFilter !== "All") {
-          params.append(
-            "status",
-            statusFilter === "Available" ? "available" : "archived"
-          );
-        }
+  const {
+    data: products = [],
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["products", selectedCategories, statusFilter],
+    queryFn: fetchProducts,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
+  });
 
-        console.log("Fetching products with filters:", {
-          selectedCategories,
-          statusFilter,
-        });
-
-        const response = await serverAPI.get(
-          `/product/list?${params.toString()}`,
-          { withCredentials: true }
-        );
-
-        console.log("Server response:", response.data.data);
-        setProducts(response.data.data);
-      } catch (err: any) {
-        console.error("Error fetching products:", err);
-        setError(err.message || "An error occurred");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchProducts();
-  }, [selectedCategories, statusFilter]);
-
-  const deleteProduct = async (productId: string) => {
-    try {
-      setIsLoading(true);
+  // DELETE product
+  const deleteMutation = useMutation({
+    mutationFn: async (productId: string) => {
       await serverAPI.delete(`/product/${productId}`, {
         withCredentials: true,
       });
-      console.log(`Product ${productId} deleted successfully.`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+    },
+    onError: () => {
+      toast.error("Failed to delete product.");
+    },
+  });
 
-      setProducts((prevProducts) =>
-        prevProducts.filter((product) => product._id !== productId)
-      );
-    } catch (err: any) {
-      console.error(`Error deleting product ${productId}:`, err);
-      setError(err.message || "An error occurred while deleting the product.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const archiveProduct = async (productId: string) => {
-    try {
-      setIsLoading(true);
+  // ARCHIVE product
+  const archiveMutation = useMutation({
+    mutationFn: async (productId: string) => {
       await serverAPI.patch(
         `/product/${productId}/soft-delete`,
         {},
-        {
-          withCredentials: true,
-        }
+        { withCredentials: true }
       );
-      console.log(`Product ${productId} archived successfully.`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+    },
+    onError: () => {
+      toast.error("Failed to archive product.");
+    },
+  });
 
-      setProducts((prevProducts) =>
-        prevProducts.map((product) =>
-          product._id === productId ? { ...product, isArchived: true } : product
-        )
-      );
-    } catch (err: any) {
-      console.error(`Error archiving product ${productId}:`, err);
-      setError(err.message || "An error occurred while archiving the product.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const recoverProduct = async (productId: string) => {
-    try {
-      setIsLoading(true);
+  // RECOVER product
+  const recoverMutation = useMutation({
+    mutationFn: async (productId: string) => {
       await serverAPI.patch(
         `/product/${productId}/recover`,
         {},
-        {
-          withCredentials: true,
-        }
+        { withCredentials: true }
       );
-      console.log(`Product ${productId} recovered successfully.`);
-
-      setProducts((prevProducts) =>
-        prevProducts.map((product) =>
-          product._id === productId
-            ? { ...product, isArchived: false }
-            : product
-        )
-      );
-    } catch (err: any) {
-      console.error(`Error recovering product ${productId}:`, err);
-      setError(
-        err.message || "An error occurred while recovering the product."
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+    },
+    onError: () => {
+      toast.error("Failed to recover product.");
+    },
+  });
 
   return {
     products,
     isLoading,
-    error,
-    deleteProduct,
-    archiveProduct,
-    recoverProduct,
+    error: error ? (error as Error).message : null,
+    deleteProduct: deleteMutation.mutate,
+    archiveProduct: archiveMutation.mutate,
+    recoverProduct: recoverMutation.mutate,
+  };
+};
+
+//ViewProduct.tsx
+export const useProduct = (id?: string) => {
+  const query = useQuery<IProduct>({
+    queryKey: ["product", id],
+    queryFn: async () => {
+      if (!id) throw new Error("No product ID provided");
+      const res = await serverAPI.get(`/product/${id}`);
+      return res.data.data;
+    },
+    enabled: !!id,
+  });
+
+  return {
+    ...query,
+    refetch: query.refetch,
+  };
+};
+
+//Add and EditProduct.tsx
+interface ProductMutationArgs {
+  product: IAddProduct;
+  productImages: IProductImage[];
+  productToEdit?: IAddProduct;
+  onSuccess?: (updatedProduct?: string[]) => void;
+}
+
+export const useAddEditMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      product,
+      productImages,
+      productToEdit,
+    }: ProductMutationArgs) => {
+      const newImages = productImages
+        .filter((img) => img.isNew && img.file)
+        .map((img) => img.file as File);
+
+      const finalImagePaths = productImages
+        .filter((img) => !img.isNew)
+        .map((img) => img.preview);
+
+      if (productToEdit) {
+        const updateRes = await serverAPI.put(
+          `/product/${productToEdit._id}`,
+          {
+            ...product,
+            images: finalImagePaths,
+            oldImages: productToEdit.images,
+          },
+          { withCredentials: true }
+        );
+
+        if (newImages.length > 0) {
+          const formData = new FormData();
+          newImages.forEach((file) => formData.append("images", file));
+          const updateImages = await serverAPI.post(
+            `/product/${productToEdit._id}/upload-images`,
+            formData,
+            {
+              withCredentials: true,
+              headers: { "Content-Type": "multipart/form-data" },
+            }
+          );
+          toast.success("Product updated successfully!");
+          console.log(updateImages.data.images);
+          return updateImages.data.images;
+        }
+
+        toast.success("Product updated successfully!");
+        return updateRes.data.product.images;
+      }
+
+      const createRes = await serverAPI.post(
+        "/product/add-product",
+        { ...product, images: [] },
+        { withCredentials: true }
+      );
+
+      const newProduct = createRes.data.product;
+
+      if (newImages.length > 0) {
+        const formData = new FormData();
+        newImages.forEach((file) => formData.append("images", file));
+        formData.append("productId", newProduct._id);
+
+        await serverAPI.post(
+          `/product/${newProduct._id}/upload-images`,
+          formData,
+          {
+            withCredentials: true,
+            headers: { "Content-Type": "multipart/form-data" },
+          }
+        );
+      }
+
+      toast.success("Product added successfully!");
+      return newProduct.images;
+    },
+    onSuccess: (updatedProduct, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+      variables.onSuccess?.(updatedProduct as string[]);
+    },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    onError: (error: any) => {
+      console.error("Product mutation failed:", error);
+      toast.error(error.response?.data?.error || "Something went wrong.");
+    },
+  });
+};
+
+//Shop.tsx
+export const useShopList = () => {
+  const query = useQuery({
+    queryKey: ["products"],
+    queryFn: async () => {
+      const { data } = await serverAPI.get("/product/get-products");
+      return data.data as IProduct[];
+    },
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+    refetchOnWindowFocus: true,
+    refetchOnMount: "always",
+  });
+  useEffect(() => {
+    if (query.isError) {
+      toast.error("An error occurred while fetching products.");
+    }
+  }, [query.isError]);
+  return {
+    ...query,
   };
 };

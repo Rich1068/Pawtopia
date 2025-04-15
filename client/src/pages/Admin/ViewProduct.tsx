@@ -1,6 +1,3 @@
-import { useEffect, useState } from "react";
-import serverAPI from "../../helper/axios";
-import { IProduct } from "../../types/Types";
 import { useParams, useNavigate } from "react-router";
 import ProductCarousel from "../../components/shop/ViewProduct/ProductCarousel";
 import LoadingPage from "../../components/LoadingPage/LoadingPage";
@@ -10,6 +7,7 @@ import TitleComponent from "../../components/shop/Admin/TitleComponent";
 import { useAuth } from "../../context/AuthContext";
 import { useLocation } from "react-router";
 import PageHeader from "../../components/PageHeader";
+import { useProduct } from "../../hooks/useProducts";
 
 const ViewProduct = () => {
   const { id } = useParams();
@@ -17,29 +15,15 @@ const ViewProduct = () => {
   const location = useLocation();
   const isAdmin = user?.role === "admin";
   const isAdminView = location.pathname.startsWith("/admin");
-  const [product, setProduct] = useState<IProduct | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
   const navigate = useNavigate();
 
-  const fetchProduct = async () => {
-    setLoading(true);
-    try {
-      const res = await serverAPI.get(`/product/${id}`);
-      setProduct(res.data.data);
-    } catch (error) {
-      console.error("Failed to fetch product:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { data: product, isLoading, isError } = useProduct(id);
 
-  useEffect(() => {
-    fetchProduct();
-  }, [id]);
-  if (loading) {
+  if (isLoading) {
     return <LoadingPage fadeOut={false} />;
   }
-  if (!product) {
+
+  if (isError || !product) {
     return (
       <div className="min-h-screen">
         <WarningContainer

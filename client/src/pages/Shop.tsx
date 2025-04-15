@@ -1,31 +1,10 @@
-import { useQuery } from "@tanstack/react-query";
 import PageHeader from "../components/PageHeader";
-import serverAPI from "../helper/axios";
-import type { IProduct } from "../types/Types";
 import LoadingPage from "../components/LoadingPage/LoadingPage";
 import ShopContainer from "../components/shop/ShopPage/ShopContainer";
-import toast from "react-hot-toast";
-
-export const fetchProducts = async () => {
-  try {
-    const { data } = await serverAPI.get("/product/get-products");
-    return data.data as IProduct[];
-  } catch (error) {
-    console.log("Fetch Products error: ", error);
-    toast.error("Fetch Products error. Please try again later!");
-    throw error;
-  }
-};
+import { useShopList } from "../hooks/useProducts";
 
 const Shop = () => {
-  const { data: allProducts = [], isLoading } = useQuery({
-    queryKey: ["products"],
-    queryFn: fetchProducts,
-    staleTime: 5 * 60 * 1000,
-    gcTime: 30 * 60 * 1000,
-    refetchOnWindowFocus: true,
-    refetchOnMount: "always",
-  });
+  const { data: allProducts = [], isLoading } = useShopList();
   if (isLoading) return <LoadingPage fadeOut={false} />;
 
   return (

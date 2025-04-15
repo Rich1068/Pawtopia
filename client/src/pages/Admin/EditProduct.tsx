@@ -1,29 +1,30 @@
-import { useEffect, useState } from "react";
-import { useParams } from "react-router";
-import serverAPI from "../../helper/axios";
+import { useParams, useNavigate } from "react-router";
 import AddProduct from "./AddProducts";
-import type { IAddProduct } from "../../types/Types";
+import { useProduct } from "../../hooks/useProducts";
+import LoadingPage from "../../components/LoadingPage/LoadingPage";
+import WarningContainer from "../../components/WarningContainer";
 
 const EditProduct = () => {
   const { id } = useParams();
-  const [product, setProduct] = useState<IAddProduct | null>(null);
+  const { data: product, isLoading, isError, refetch } = useProduct(id);
+  const navigate = useNavigate();
+  if (isLoading) {
+    return <LoadingPage fadeOut={false} />;
+  }
 
-  const fetchProduct = async () => {
-    try {
-      const res = await serverAPI.get(`/product/${id}`);
-      setProduct(res.data.data);
-    } catch (error) {
-      console.error("Failed to fetch product:", error);
-    }
-  };
-
-  useEffect(() => {
-    fetchProduct();
-  }, [id]);
-
-  if (!product) return <p>Loading...</p>;
-
-  return <AddProduct productToEdit={product} onRefresh={fetchProduct} />;
+  if (isError || !product) {
+    return (
+      <div className="min-h-screen">
+        <WarningContainer
+          header="Product Not Found"
+          text="The product you're looking for doesn't exist"
+          confirmText="Back"
+          onConfirm={() => navigate(-1)}
+        />
+      </div>
+    );
+  }
+  return <AddProduct productToEdit={product} onRefresh={refetch} />;
 };
 
 export default EditProduct;

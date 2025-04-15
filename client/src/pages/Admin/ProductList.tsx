@@ -27,24 +27,28 @@ const ProductList = () => {
     deleteProduct,
     archiveProduct,
     recoverProduct,
-  } = useProducts(selectedCategories, statusFilter);
+  } = useProducts({
+    selectedCategories,
+    statusFilter,
+  });
+
   console.log(products);
   const handleDeleteProduct = useCallback(
     async (productId: string) => {
-      await deleteProduct(productId);
+      deleteProduct(productId);
     },
     [deleteProduct]
   );
   const handleArchiveProduct = useCallback(
     async (productId: string) => {
-      await archiveProduct(productId);
+      archiveProduct(productId);
     },
     [archiveProduct]
   );
 
   const handleRecoverProduct = useCallback(
     async (productId: string) => {
-      await recoverProduct(productId);
+      recoverProduct(productId);
     },
     [recoverProduct]
   );

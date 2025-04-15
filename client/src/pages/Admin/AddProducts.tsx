@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import serverAPI from "../../helper/axios";
 import InputField from "../../components/shop/Admin/AddProduct/InputField";
 import TextareaField from "../../components/shop/Admin/AddProduct/TextareaField";
 import CategorySelector from "../../components/shop/Admin/AddProduct/CategorySelector";
@@ -7,6 +6,7 @@ import ProductImageUpload from "../../components/shop/Admin/AddProduct/ProductIm
 import toast from "react-hot-toast";
 import type { IAddProduct, IProductImage } from "../../types/Types";
 import TitleComponent from "../../components/shop/Admin/TitleComponent";
+import { useAddEditMutation } from "../../hooks/useProducts";
 
 const AddProduct = ({
   productToEdit,
@@ -22,22 +22,25 @@ const AddProduct = ({
     price: productToEdit?.price || "",
     images: productToEdit?.images || [],
   });
-  const [loading, setLoading] = useState(false);
   const [productImages, setProductImages] = useState<IProductImage[]>([]);
+  const { mutate: addOrEditProduct, isPending } = useAddEditMutation();
+
+  const updateProductImagesPreview = (images: string[]) => {
+    const existing = images.map((img) => ({
+      preview: img,
+      isNew: false,
+    }));
+    setProductImages(existing);
+  };
 
   useEffect(() => {
     if (product.images && product.images.length > 0) {
-      const existing = product.images.map((img) => ({
-        preview: img,
-        isNew: false,
-      }));
-      setProductImages(existing);
+      updateProductImagesPreview(product.images);
     }
   }, [product.images]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
 
     const requiredFields = [
       { field: product.name, message: "Product name is required." },
@@ -48,101 +51,36 @@ const AddProduct = ({
         message: "At least one image is required.",
       },
     ];
-
     for (const { field, message } of requiredFields) {
       if (!field) {
         toast.error(message);
-        setLoading(false);
         return;
       }
     }
-
     if (isNaN(Number(product.price)) || Number(product.price) <= 0) {
       toast.error("Please enter a valid price.");
-      setLoading(false);
       return;
     }
-
-    try {
-      const newImages = productImages
-        .filter((img) => img.isNew && img.file)
-        .map((img) => img.file as File);
-      const finalImagePaths = productImages
-        .filter((img) => !img.isNew)
-        .map((img) => img.preview);
-
-      if (productToEdit) {
-        // Step 1: Update product with only existing images
-        const updateRes = await serverAPI.put(
-          `/product/${productToEdit._id}`,
-          {
-            ...product,
-            images: finalImagePaths,
-            oldImages: productToEdit.images,
-          },
-          { withCredentials: true }
-        );
-
-        if (updateRes.status === 200) {
-          if (newImages.length > 0) {
-            const formData = new FormData();
-            newImages.forEach((file) => formData.append("images", file));
-
-            await serverAPI.post(
-              `/product/${productToEdit._id}/upload-images`,
-              formData,
-              {
-                withCredentials: true,
-                headers: { "Content-Type": "multipart/form-data" },
-              }
-            );
-          }
-
-          toast.success("Product updated successfully!");
-          onRefresh?.();
+    addOrEditProduct({
+      product,
+      productImages,
+      productToEdit,
+      onSuccess: (updatedProduct) => {
+        if (updatedProduct) {
+          updateProductImagesPreview(updatedProduct);
+        } else {
+          setProduct({
+            name: "",
+            category: [],
+            description: "",
+            price: "",
+            images: [],
+          });
+          setProductImages([]);
         }
-      } else {
-        // ✅ Adding new product — no images yet
-        const createRes = await serverAPI.post(
-          "/product/add-product",
-          { ...product, images: [] },
-          { withCredentials: true }
-        );
-
-        const newProduct = createRes.data.product;
-
-        if (newImages.length > 0) {
-          const formData = new FormData();
-          newImages.forEach((file) => formData.append("images", file));
-          formData.append("productId", newProduct._id);
-
-          await serverAPI.post(
-            `/product/${newProduct._id}/upload-images`,
-            formData,
-            {
-              withCredentials: true,
-              headers: { "Content-Type": "multipart/form-data" },
-            }
-          );
-        }
-
-        toast.success("Product added successfully!");
-        setProduct({
-          name: "",
-          category: [],
-          description: "",
-          price: "",
-          images: [],
-        });
-        setProductImages([]);
-      }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      console.error("Error saving product:", error);
-      toast.error(error.response?.data?.error || "Error saving product.");
-    } finally {
-      setLoading(false);
-    }
+        onRefresh?.();
+      },
+    });
   };
 
   return (
@@ -192,9 +130,9 @@ const AddProduct = ({
             <button
               type="submit"
               className="w-full p-2 mt-4 bg-orange-500 text-white rounded cursor-pointer hover:bg-orange-400"
-              disabled={loading}
+              disabled={isPending}
             >
-              {loading
+              {isPending
                 ? "Saving..."
                 : productToEdit
                 ? "Update Product"
