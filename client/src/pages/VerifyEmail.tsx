@@ -1,58 +1,39 @@
-import { useState, useEffect } from "react";
-import { useSearchParams, useNavigate } from "react-router"; // Ensure correct import
-import serverAPI from "../helper/axios";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useSearchParams, useNavigate } from "react-router";
+import { useState } from "react";
+import {
+  useResendVerificationMutation,
+  useVerifyEmailQuery,
+} from "../hooks/useVerifyEmail";
 
 const VerifyEmail = () => {
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");
-  const [message, setMessage] = useState("Please verify your email.");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [resendSuccess, setResendSuccess] = useState("");
-  const [verified, setVerified] = useState(false);
   const navigate = useNavigate();
 
-  // Automatically verify email when token is present
-  useEffect(() => {
-    if (!token) return;
+  const [resendSuccess, setResendSuccess] = useState("");
 
-    const verifyEmail = async () => {
-      setLoading(true);
-      setError("");
-      try {
-        const response = await serverAPI.get(
-          `/api/verify-email?token=${token}`
-        );
-        setMessage(response.data.message);
-        localStorage.removeItem("unverifiedEmail");
-        setVerified(true);
-        setError("");
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
-      } catch (error: any) {
-        setError(error.response.data.error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const {
+    data,
+    isLoading: verifying,
+    isError,
+    error,
+    isSuccess,
+  } = useVerifyEmailQuery(token);
 
-    verifyEmail();
-  }, [token]);
+  const {
+    mutate: resendEmail,
+    isPending: resending,
+    error: resendError,
+  } = useResendVerificationMutation();
 
-  // Resend verification email
-  const handleResend = async () => {
-    setLoading(true);
-    setError("");
-    try {
-      const response = await serverAPI.post("/api/resend-verification", {
-        email: localStorage.getItem("unverifiedEmail"),
-      });
-      setResendSuccess(response.data.message);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      setError(error.response.data.error);
-    } finally {
-      setLoading(false);
-    }
+  const handleResend = () => {
+    const email = localStorage.getItem("unverifiedEmail");
+    resendEmail(email, {
+      onSuccess: (data) => {
+        setResendSuccess(data.message);
+      },
+    });
   };
 
   return (
@@ -60,35 +41,54 @@ const VerifyEmail = () => {
       <div className="bg-white shadow-md rounded-lg p-6 max-w-md w-full text-center">
         <h2
           className="text-xl font-bold text-gray-700"
-          dangerouslySetInnerHTML={{ __html: message }}
-        ></h2>
+          dangerouslySetInnerHTML={{
+            __html:
+              isSuccess && data?.message
+                ? data.message
+                : "Please verify your email.",
+          }}
+        />
 
-        {verified ? (
-          <button
-            onClick={() => navigate("/login")}
-            className="mt-4 w-full px-4 py-2 bg-orange-500 text-white rounded-md"
-          >
-            Go to Login
-          </button>
-        ) : !token ? (
+        {isSuccess && (
+          <>
+            {localStorage.removeItem("unverifiedEmail")}
+            <button
+              onClick={() => navigate("/login")}
+              className="mt-4 w-full px-4 py-2 bg-orange-500 text-white rounded-md"
+            >
+              Go to Login
+            </button>
+          </>
+        )}
+
+        {!token && (
           <>
             <p className="text-gray-500 mt-4" data-testid="p-body">
               We’ve sent a verification email. Didn’t receive it?
             </p>
             <button
               onClick={handleResend}
-              disabled={loading}
+              disabled={resending}
               className="mt-4 w-full px-4 py-2 bg-orange-500 text-white rounded-md"
             >
-              {loading ? "Resending..." : "Resend Email"}
+              {resending ? "Resending..." : "Resend Email"}
             </button>
             {resendSuccess && (
               <p className="text-green-600 mt-2">{resendSuccess}</p>
             )}
           </>
-        ) : null}
+        )}
 
-        {error && <p className="text-red-500 mt-2">{error}</p>}
+        {verifying && (
+          <p className="text-gray-500 mt-4">Verifying your email...</p>
+        )}
+        {(isError || resendError) && (
+          <p className="text-red-500 mt-2">
+            {(error as any)?.response?.data?.error ||
+              (resendError as any)?.response?.data?.error ||
+              "Something went wrong."}
+          </p>
+        )}
       </div>
     </div>
   );
