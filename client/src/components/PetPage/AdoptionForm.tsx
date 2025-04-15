@@ -1,12 +1,5 @@
-import { useState } from "react";
-import serverAPI from "../../helper/axios";
 import { useAuth } from "../../context/AuthContext";
-import {
-  validateField,
-  validateForm,
-  ValidationErrors,
-} from "../../helper/validation";
-import toast from "react-hot-toast";
+import { useAdoptionForm } from "../../hooks/useAdoptionForm";
 
 interface AdoptionFormProps {
   petId: string;
@@ -16,102 +9,15 @@ interface AdoptionFormProps {
 const AdoptionForm: React.FC<AdoptionFormProps> = ({ petId, petName }) => {
   const { user } = useAuth();
 
-  const [formData, setFormData] = useState({
-    name: user?.name || "",
-    email: user?.email || "",
-    phone: user?.phoneNumber || "",
-    address: "",
-    livingSituation: "",
-    otherLivingSituation: "",
-    mode: "",
-    otherMode: "",
-    experience: "",
-    reason: "",
-  });
-
-  const [errors, setErrors] = useState<ValidationErrors>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-
-    setFormData((prev) => ({ ...prev, [name]: value }));
-
-    const validationError = validateField(name, value);
-    if (validationError) {
-      setErrors((prevErrors) => ({
-        ...prevErrors,
-        [name]: validationError,
-      }));
-    } else {
-      setErrors((prevErrors) => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { [name]: _, ...restErrors } = prevErrors;
-        return restErrors;
-      });
-    }
-    console.log(errors);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const validationErrors = validateForm(formData);
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
-    }
-
-    console.log("Form submitted");
-    setIsSubmitting(true);
-    try {
-      await serverAPI.post(
-        "/adopt/create-request",
-        {
-          ...formData,
-          petId,
-          petName,
-        },
-        { withCredentials: true }
-      );
-      setSuccessMessage(
-        "Your adoption request has been submitted!\nPlease Wait for a message on your mode of communication!"
-      );
-      setFormData({
-        name: "",
-        email: "",
-        phone: "",
-        address: "",
-        livingSituation: "",
-        otherLivingSituation: "",
-        mode: "",
-        otherMode: "",
-        experience: "",
-        reason: "",
-      });
-      setErrors({});
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      console.error("Error submitting adoption request:", error);
-      toast.error(error.response.data.error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleRadioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-      ...(value !== "Other" && {
-        [`other${name.charAt(0).toUpperCase() + name.slice(1)}`]: "",
-      }), // Reset other field if not "Other"
-    }));
-  };
+  const {
+    formData,
+    errors,
+    successMessage,
+    isSubmitting,
+    handleChange,
+    handleRadioChange,
+    handleSubmit,
+  } = useAdoptionForm({ petId, petName, user });
 
   return (
     <div className="my-6 p-6 border border-orange-300 bg-white rounded-lg shadow-lg">
