@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import serverAPI from "../helper/axios";
 import type { IOrder } from "../types/Types";
 
+//CheckoutSuccess.tsx
 const fetchOrderCheckout = async (sessionId: string): Promise<IOrder> => {
   const { data } = await serverAPI.get(`/order/success/${sessionId}`);
   return data;
