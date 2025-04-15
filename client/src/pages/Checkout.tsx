@@ -22,10 +22,11 @@ const Checkout = () => {
     cart?.products.some(
       (item) => !item.productId || item.productId.isArchived
     ) ?? false;
+
   const handleAdd = async (productId: string) => {
     setUpdatingProductId(productId);
     try {
-      await addToCart(productId, 1);
+      addToCart(productId, 1);
     } finally {
       setUpdatingProductId(null);
     }
@@ -218,11 +219,11 @@ const Checkout = () => {
           <button
             onClick={handleCheckout}
             className={`w-full font-secondary mt-6 py-3 rounded-md font-semibold flex items-center justify-center gap-2 ${
-              hasInvalidItems
+              hasInvalidItems || cartLength === 0
                 ? "bg-gray-400 text-gray-200 cursor-not-allowed"
                 : "bg-orange-500 text-white hover:bg-orange-600 transition"
             }`}
-            disabled={loading || hasInvalidItems}
+            disabled={loading || hasInvalidItems || cartLength === 0}
           >
             {loading ? (
               <LoaderCircle size={20} className="animate-spin" />

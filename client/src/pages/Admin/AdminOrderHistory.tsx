@@ -62,6 +62,8 @@ const AdminOrderHistory = () => {
       header: "Customer",
       cell: ({ row }) => {
         const user = row.original.userId;
+        console.log(row.original);
+        if (!user) return "Unknown User";
         return typeof user === "string" ? "Unknown" : user.name;
       },
       enableSorting: true,

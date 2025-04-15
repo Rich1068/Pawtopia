@@ -18,14 +18,12 @@ const AdminDashboard = () => {
         </h2>
 
         <div className="flex flex-wrap xl:flex-nowrap sm:px-4 gap-6">
-          {/* Left Side - Charts (Takes More Space) */}
           <div className="flex-1 flex flex-col gap-6 min-w-[300px] sm:min-w-[400px]">
             <AdoptionChart />
             <EarningsChart />
             <MostSoldChart />
           </div>
 
-          {/* Right Side - Tables (Takes Less Space) */}
           <div className="flex-1 flex flex-col gap-6 min-w-[300px] sm:min-w-[400px]">
             <PendingRequestsTable />
             <RecentOrdersTable />
