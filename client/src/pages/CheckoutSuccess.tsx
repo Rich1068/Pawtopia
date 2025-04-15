@@ -1,48 +1,23 @@
-import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router";
-import serverAPI from "../helper/axios";
-import { IOrder } from "../types/Types";
 import PageHeader from "../components/PageHeader";
+import { useOrderCheckout } from "../hooks/useOrderCheckout";
+import LoadingPage from "../components/LoadingPage/LoadingPage";
 
 const CheckoutSuccess = () => {
-  const [order, setOrder] = useState<IOrder | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
   const sessionId = searchParams.get("session_id");
 
-  useEffect(() => {
-    const fetchOrderDetails = async () => {
-      try {
-        if (!sessionId) {
-          setError("Invalid session.");
-          setLoading(false);
-          return;
-        }
+  const { data: order, isLoading, isError } = useOrderCheckout(sessionId);
 
-        const response = await serverAPI.get(`/order/success/${sessionId}`);
-        setOrder(response.data);
-      } catch (error) {
-        console.log(error);
-        setError("Failed to fetch order details.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchOrderDetails();
-  }, [sessionId]);
-
-  if (loading)
+  if (isLoading) return <LoadingPage fadeOut={false} />;
+  if (isError)
     return (
-      <div className="text-center mt-10 text-orange-500 font-semibold">
-        Loading...
+      <div className="text-center text-red-500 mt-10">
+        Something went wrong. Please try again later
       </div>
     );
-  if (error)
-    return <div className="text-center text-red-500 mt-10">{error}</div>;
 
   return (
     <>
