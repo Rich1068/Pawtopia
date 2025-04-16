@@ -4,7 +4,6 @@ import toast from "react-hot-toast";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import serverAPI from "../helper/axios";
 
-// API functions
 const verifyResetToken = async (token: string) => {
   return serverAPI.get(`/api/reset-password/${token}`);
 };
@@ -27,7 +26,15 @@ export const useResetPassword = (token: string | undefined) => {
   // Verify token query
   const tokenQuery = useQuery({
     queryKey: ["reset-token", token],
-    queryFn: () => verifyResetToken(token as string),
+    queryFn: async () => {
+      try {
+        const response = await verifyResetToken(token as string);
+        return response.data;
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      } catch (error) {
+        return null;
+      }
+    },
     enabled: !!token,
   });
 
@@ -40,6 +47,7 @@ export const useResetPassword = (token: string | undefined) => {
     },
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onError: (error: any) => {
+      console.error("Error in resetPasswordMutation:", error);
       toast.error(error.response?.data?.error || "Something went wrong");
     },
   });

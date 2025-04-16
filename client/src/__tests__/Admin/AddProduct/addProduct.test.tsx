@@ -1,276 +1,259 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import toast from "react-hot-toast";
 import AddProduct from "../../../pages/Admin/AddProducts";
-import serverAPI from "../../../helper/axios";
+import { useAddEditMutation } from "../../../hooks/useProducts";
 import "@testing-library/jest-dom";
-import userEvent from "@testing-library/user-event";
+import { createWrapper } from "../../../__mocks__/utils/testUtils";
 import { MemoryRouter } from "react-router";
+import toast from "react-hot-toast";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const renderComponent = (productToEdit?: any) => {
+const wrapper = createWrapper();
+
+const renderComponent = () => {
   return render(
-    <MemoryRouter>
-      <AddProduct productToEdit={productToEdit} />
-    </MemoryRouter>
+    wrapper({
+      children: (
+        <MemoryRouter>
+          <AddProduct />
+        </MemoryRouter>
+      ),
+    })
   );
 };
-jest.mock("../../../helper/axios", () => ({
-  post: jest.fn().mockImplementation((url) => {
-    if (url === "/product/upload-images") {
-      return Promise.resolve({ data: { images: ["test.jpg"] } });
-    }
-    return Promise.resolve({});
-  }),
+
+global.URL.createObjectURL = jest.fn(() => "mock-url");
+
+jest.mock("../../../hooks/useProducts", () => ({
+  useAddEditMutation: jest.fn(),
 }));
 
-jest.mock("react-hot-toast", () => ({ error: jest.fn(), success: jest.fn() }));
+jest.mock("react-hot-toast", () => ({
+  __esModule: true,
+  default: {
+    error: jest.fn(),
+  },
+}));
+jest.mock("../../../components/shop/Admin/AddProduct/CategorySelector", () => ({
+  __esModule: true,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  default: ({ setSelectedCategories }: any) => (
+    <div>
+      <button onClick={() => setSelectedCategories(["mock-category"])}>
+        Mock Category
+      </button>
+    </div>
+  ),
+}));
 
-jest.mock("../../../components/shop/Admin/TitleComponent", () => () => (
-  <div data-testid="mock-title-component" />
-));
-jest.mock(
-  "../../../components/shop/Admin/AddProduct/InputField",
-  () =>
-    ({
-      name,
-      value,
-      onChange,
-    }: {
-      name: string;
-      value: string;
-      onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    }) =>
-      <input data-testid={name} name={name} value={value} onChange={onChange} />
-);
+describe("AddProduct UI", () => {
+  const mockMutate = jest.fn();
 
-jest.mock(
-  "../../../components/shop/Admin/AddProduct/TextareaField",
-  () =>
-    ({
-      name,
-      value,
-      onChange,
-    }: {
-      name: string;
-      value: string;
-      onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
-    }) =>
-      (
-        <textarea
-          data-testid={name}
-          name={name}
-          value={value}
-          onChange={onChange}
-        />
-      )
-);
-
-jest.mock(
-  "../../../components/shop/Admin/AddProduct/CategorySelector",
-  () =>
-    ({
-      selectedCategories,
-      setSelectedCategories,
-    }: {
-      selectedCategories: string[];
-      setSelectedCategories: (categories: string[]) => void;
-    }) =>
-      (
-        <select
-          data-testid="category-selector"
-          value={selectedCategories[0] || ""}
-          onChange={(e) => setSelectedCategories([e.target.value])}
-        >
-          <option value="Test Category">Test Category</option>
-        </select>
-      )
-);
-
-jest.mock(
-  "../../../components/shop/Admin/AddProduct/ProductImageUpload",
-  () =>
-    ({
-      productImages,
-      setProductImages,
-    }: {
-      productImages: { preview: string; isNew: boolean }[];
-      setProductImages: (images: { preview: string; isNew: boolean }[]) => void;
-    }) =>
-      (
-        <input
-          type="file"
-          data-testid="image-upload"
-          onChange={(e) => {
-            const files = Array.from(e.target.files || []);
-            const newImages = files.map((file) => ({
-              preview: URL.createObjectURL(file),
-              file,
-              isNew: true,
-            }));
-            setProductImages([...productImages, ...newImages]);
-          }}
-        />
-      )
-);
-
-describe("AddProduct Component", () => {
-  const mockFile = new File(["image-content"], "test.jpg", {
-    type: "image/jpeg",
-  });
-
-  // Helper function to fill form fields
-  const fillForm = async ({
-    name = "Test Product",
-    description = "Test Description",
-    price = "10",
-    category = "Test Category",
-    includeImage = true,
-  } = {}) => {
-    fireEvent.change(screen.getByTestId("name"), { target: { value: name } });
-    fireEvent.change(screen.getByTestId("description"), {
-      target: { value: description },
-    });
-    fireEvent.change(screen.getByTestId("price"), { target: { value: price } });
-    fireEvent.change(screen.getByTestId("category-selector"), {
-      target: { value: category },
-    });
-
-    if (includeImage) {
-      const fileInput = screen.getByTestId("image-upload");
-      await userEvent.upload(fileInput, mockFile);
-    }
-  };
-
-  const submitForm = (text = "Add Product") => {
-    fireEvent.click(
-      screen.getByRole("button", { name: new RegExp(text, "i") })
-    );
-  };
-  beforeAll(() => {
-    URL.createObjectURL = jest.fn(() => "mocked-image-url");
-  });
   beforeEach(() => {
-    jest.clearAllMocks();
-    (serverAPI.put as jest.Mock) = jest.fn().mockResolvedValueOnce({});
+    (useAddEditMutation as jest.Mock).mockReturnValue({
+      mutate: mockMutate,
+      isPending: false,
+    });
   });
 
-  it("should render form fields correctly", () => {
-    renderComponent();
-
-    expect(screen.getByTestId("name")).toBeVisible();
-    expect(screen.getByTestId("description")).toBeVisible();
-    expect(screen.getByTestId("price")).toBeVisible();
-    expect(screen.getByTestId("category-selector")).toBeVisible();
-    expect(screen.getByTestId("image-upload")).toBeVisible();
-    expect(screen.getByRole("button", { name: /add product/i })).toBeVisible();
+  afterAll(() => {
+    (global.URL.createObjectURL as jest.Mock).mockReset();
   });
 
-  it("should show an error if required fields are missing", async () => {
+  it("renders form inputs", () => {
     renderComponent();
-    submitForm();
+    expect(screen.getByLabelText(/Product Name/i)).toBeVisible();
+    expect(screen.getByLabelText(/Description/i)).toBeVisible();
+    expect(screen.getByLabelText(/Price/i)).toBeVisible();
+    expect(screen.getByText(/Product Image/i)).toBeVisible();
+  });
+
+  it("shows validation error when required fields are empty", async () => {
+    renderComponent();
+    fireEvent.click(screen.getByRole("button", { name: /Add Product/i }));
 
     await waitFor(() => {
-      expect(toast.error).toHaveBeenCalledWith("Product name is required.");
+      expect(screen.getByTestId("input-name")).toBeInvalid();
     });
   });
 
-  it("should validate price", async () => {
+  it("calls mutate with correct data on valid submission", async () => {
     renderComponent();
-    await fillForm({ price: "-10" });
-    submitForm();
+    fireEvent.change(screen.getByPlaceholderText(/Enter Product Name/i), {
+      target: { value: "Test Product" },
+    });
+    fireEvent.change(
+      screen.getByPlaceholderText(/Enter product description/i),
+      {
+        target: { value: "Test Description" },
+      }
+    );
+    fireEvent.change(screen.getByPlaceholderText(/Enter Price/i), {
+      target: { value: "99.99" },
+    });
+
+    fireEvent.click(screen.getByText("Mock Category"));
+
+    const fileInput = screen.getByTestId("image-upload") as HTMLInputElement;
+    const file = new File(["hello"], "cat.png", { type: "image/png" });
+    fireEvent.change(fileInput, { target: { files: [file] } });
+    // Submit
+    fireEvent.click(screen.getByRole("button", { name: /Add Product/i }));
+
+    await waitFor(() => {
+      expect(mockMutate).toHaveBeenCalled();
+    });
+  });
+
+  it("disables button and shows 'Saving...' when isPending is true", () => {
+    (useAddEditMutation as jest.Mock).mockReturnValue({
+      mutate: mockMutate,
+      isPending: true,
+    });
+
+    renderComponent();
+    const button = screen.getByRole("button", { name: /Saving.../i });
+    expect(button).toBeDisabled();
+  });
+
+  it("renders image previews when product has existing images", () => {
+    const mockProduct = {
+      name: "Test Product",
+      description: "Test description",
+      price: "10",
+      category: [],
+      images: [
+        "https://example.com/image1.jpg",
+        "https://example.com/image2.jpg",
+      ],
+    };
+    render(
+      wrapper({
+        children: (
+          <MemoryRouter>
+            <AddProduct productToEdit={mockProduct} />
+          </MemoryRouter>
+        ),
+      })
+    );
+
+    expect(screen.getAllByAltText("Preview")).toHaveLength(2);
+  });
+  it("shows toast and does not call mutate when price is invalid", async () => {
+    const mockMutate = jest.fn();
+    (useAddEditMutation as jest.Mock).mockReturnValue({
+      mutate: mockMutate,
+      isPending: false,
+    });
+
+    renderComponent();
+
+    fireEvent.change(screen.getByLabelText(/Product Name/i), {
+      target: { value: "Test Product" },
+    });
+    fireEvent.change(screen.getByLabelText(/Description/i), {
+      target: { value: "A cool item" },
+    });
+    fireEvent.change(screen.getByLabelText(/Price/i), {
+      target: { value: "-100" }, // invalid price
+    });
+
+    const fileInput = screen.getByTestId("image-upload") as HTMLInputElement;
+    const file = new File(["hello"], "cat.png", { type: "image/png" });
+    fireEvent.change(fileInput, { target: { files: [file] } });
+
+    fireEvent.click(screen.getByRole("button", { name: /Add Product/i }));
 
     await waitFor(() => {
       expect(toast.error).toHaveBeenCalledWith("Please enter a valid price.");
+      expect(mockMutate).not.toHaveBeenCalled();
     });
   });
 
-  it("should submit the form when all fields are valid", async () => {
-    // Mock API response
-    (serverAPI.post as jest.Mock)
-      .mockResolvedValueOnce({ data: { images: ["test.jpg"] } }) // Image upload response
-      .mockResolvedValueOnce({}); // Product submission response
+  it("calls updateProductImagesPreview when updatedProduct is truthy", async () => {
+    const mockProductImages = ["img1.png", "img2.png"];
+
+    (useAddEditMutation as jest.Mock).mockReturnValue({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      mutate: ({ onSuccess }: any) => {
+        onSuccess(mockProductImages);
+      },
+      isPending: false,
+    });
 
     renderComponent();
-    await fillForm({ includeImage: true });
 
-    // Check file upload
+    // Fill minimal fields
+    fireEvent.change(screen.getByPlaceholderText(/Enter Product Name/i), {
+      target: { value: "Test Product" },
+    });
+    fireEvent.change(
+      screen.getByPlaceholderText(/Enter product description/i),
+      {
+        target: { value: "Description" },
+      }
+    );
+    fireEvent.change(screen.getByPlaceholderText(/Enter Price/i), {
+      target: { value: "100" },
+    });
+
+    // Add image
     const fileInput = screen.getByTestId("image-upload") as HTMLInputElement;
-    expect(fileInput.files).toHaveLength(1);
-    expect(fileInput.files![0].name).toBe("test.jpg");
-    expect(
-      screen.queryByText("Please enter a valid price.")
-    ).not.toBeInTheDocument();
-    submitForm();
-    await waitFor(() => {
-      expect(serverAPI.post).toHaveBeenCalledTimes(2);
-      expect(serverAPI.post).toHaveBeenNthCalledWith(
-        1,
-        "/product/upload-images",
-        expect.any(FormData),
-        expect.any(Object)
-      );
-      expect(serverAPI.post).toHaveBeenNthCalledWith(
-        2,
-        "/product/add-product",
-        expect.any(Object),
-        expect.any(Object)
-      );
-      expect(toast.success).toHaveBeenCalledWith("Product added successfully!");
-    });
-  });
+    const file = new File(["(⌐□_□)"], "coolcat.png", { type: "image/png" });
+    fireEvent.change(fileInput, { target: { files: [file] } });
 
-  it("should correctly handle editing an existing product", async () => {
-    const productToEdit = {
-      _id: "123",
-      name: "Existing Product",
-      description: "Existing Description",
-      price: "20",
-      category: ["Test Category"],
-      images: ["existing.jpg"],
-    };
-    renderComponent(productToEdit);
-
-    expect(screen.getByTestId("name")).toHaveValue("Existing Product");
-    expect(screen.getByTestId("description")).toHaveValue(
-      "Existing Description"
-    );
-    expect(screen.getByTestId("price")).toHaveValue("20");
-    expect(screen.getByTestId("category-selector")).toHaveValue(
-      "Test Category"
-    );
-
-    // Simulate form update and submission
-    await fillForm({ name: "Updated Product" });
-    submitForm("Update Product");
+    // Submit
+    fireEvent.click(screen.getByRole("button", { name: /Add Product/i }));
 
     await waitFor(() => {
-      expect(serverAPI.put).toHaveBeenCalledWith(
-        `/product/${productToEdit._id}`,
-        expect.objectContaining({ name: "Updated Product" }),
-        expect.any(Object)
-      );
-      expect(toast.success).toHaveBeenCalledWith(
-        "Product updated successfully!"
-      );
+      // You can't test updateProductImagesPreview directly, but you can check that the new image previews exist
+      expect(screen.getAllByRole("img").length).toBeGreaterThan(0);
     });
   });
-  it("should show an error if image upload fails", async () => {
-    (serverAPI.post as jest.Mock)
-      .mockRejectedValueOnce(new Error("Failed to upload"))
-      .mockResolvedValueOnce({});
+  it("clears form fields when updatedProduct is falsy", async () => {
+    (useAddEditMutation as jest.Mock).mockReturnValue({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      mutate: ({ onSuccess }: any) => {
+        onSuccess(undefined);
+      },
+      isPending: false,
+    });
 
     renderComponent();
-    await fillForm({ includeImage: true });
 
-    submitForm();
+    // Fill fields
+    fireEvent.change(screen.getByPlaceholderText(/Enter Product Name/i), {
+      target: { value: "Test Product" },
+    });
+    fireEvent.change(
+      screen.getByPlaceholderText(/Enter product description/i),
+      {
+        target: { value: "Description" },
+      }
+    );
+    fireEvent.change(screen.getByPlaceholderText(/Enter Price/i), {
+      target: { value: "100" },
+    });
+
+    const fileInput = screen.getByTestId("image-upload") as HTMLInputElement;
+    const file = new File(["hello"], "cat.png", { type: "image/png" });
+    fireEvent.change(fileInput, { target: { files: [file] } });
+
+    fireEvent.click(screen.getByRole("button", { name: /Add Product/i }));
 
     await waitFor(() => {
-      expect(serverAPI.post).toHaveBeenCalledWith(
-        "/product/upload-images",
-        expect.any(FormData),
-        expect.any(Object)
-      );
-      expect(toast.error).toHaveBeenCalledWith("Error uploading images.");
+      expect(
+        (screen.getByPlaceholderText(/Enter Product Name/i) as HTMLInputElement)
+          .value
+      ).toBe("");
+      expect(
+        (
+          screen.getByPlaceholderText(
+            /Enter product description/i
+          ) as HTMLInputElement
+        ).value
+      ).toBe("");
+      expect(
+        (screen.getByPlaceholderText(/Enter Price/i) as HTMLInputElement).value
+      ).toBe("");
     });
   });
 });

@@ -122,7 +122,12 @@ const CartDropdown = () => {
                     {/* Product Info */}
                     <div>
                       <Link to={`/shop/product/${product?._id}`}>
-                        <h3 className="text-sm font-semibold">{productName}</h3>
+                        <h3
+                          className="text-sm font-semibold"
+                          onClick={() => setIsCartOpen(false)}
+                        >
+                          {productName}
+                        </h3>
                       </Link>
                       <p className="text-xs text-gray-500">
                         {isPermanentlyDeleted

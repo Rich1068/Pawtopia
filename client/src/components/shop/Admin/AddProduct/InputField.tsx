@@ -30,6 +30,7 @@ const InputField: FC<InputFieldProps> = ({
         placeholder={placeholder}
         className="w-full p-2 my-2 border border-gray-300 rounded-lg font-primary text-amber-950  placeholder-gray-400/70"
         required
+        data-testid={`input-${name}`}
       />
     </div>
   );

@@ -1,6 +1,7 @@
 import { renderHook, waitFor } from "@testing-library/react";
 import { useCategories } from "../../hooks/useCategories";
 import serverAPI from "../../helper/axios";
+import { createWrapper } from "../../__mocks__/utils/testUtils";
 
 jest.mock("../../helper/axios");
 
@@ -9,7 +10,9 @@ describe("useCategories Hook", () => {
     const mockCategories = ["Dog Supplies", "Cat Supplies"];
     (serverAPI.get as jest.Mock).mockResolvedValue({ data: mockCategories });
 
-    const { result } = renderHook(() => useCategories());
+    const { result } = renderHook(() => useCategories(), {
+      wrapper: createWrapper(),
+    });
 
     await waitFor(() => expect(result.current.loading).toBe(false));
     expect(result.current.categories).toEqual(mockCategories);
@@ -21,7 +24,9 @@ describe("useCategories Hook", () => {
       new Error("Failed to fetch")
     );
 
-    const { result } = renderHook(() => useCategories());
+    const { result } = renderHook(() => useCategories(), {
+      wrapper: createWrapper(),
+    });
 
     await waitFor(() => expect(result.current.loading).toBe(false));
     expect(result.current.categories).toEqual([]);

@@ -133,7 +133,6 @@ export const useProduct = (id?: string) => {
   const query = useQuery<IProduct>({
     queryKey: ["product", id],
     queryFn: async () => {
-      if (!id) throw new Error("No product ID provided");
       const res = await serverAPI.get(`/product/${id}`);
       return res.data.data;
     },
