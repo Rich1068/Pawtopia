@@ -85,5 +85,5 @@ export default { hashPassword, comparePassword, signToken, verifyToken };
 export const generateToken = async () => {
   const token = crypto.randomBytes(32).toString("hex");
   const hashedToken = await bcrypt.hash(token, 10);
-  return hashedToken;
+  return hashedToken.replace(/\//g, "_").replace(/\+/g, "-").replace(/=+$/, "");
 };

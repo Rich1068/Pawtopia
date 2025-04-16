@@ -1,36 +1,7 @@
-import { useState } from "react";
-import toast from "react-hot-toast";
-import serverAPI from "../../helper/axios";
+import useForgotPassword from "../../hooks/useForgotPassword";
 
 const ForgotPasswordSection = () => {
-  const [email, setEmail] = useState<string>("");
-  const [isloading, setIsLoading] = useState<boolean>(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const emailCheck = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email) {
-      toast.error("Please enter your email");
-      return;
-    }
-    if (email && !emailCheck.test(email)) {
-      toast.error("Invalid email format");
-      return;
-    }
-    setIsLoading(true);
-    try {
-      await serverAPI.post("/api/forgot-password", { email });
-      toast.success("Password reset link sent to your email");
-      setEmail("");
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      toast.error(
-        error.response?.data?.message || "Something went wrong, try again"
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const { email, setEmail, isLoading, handleSubmit } = useForgotPassword();
 
   return (
     <div className="max-w-md mx-auto p-6 bg-white shadow-lg -mt-20 rounded-xl">
@@ -53,10 +24,10 @@ const ForgotPasswordSection = () => {
         </label>
         <button
           type="submit"
-          className="w-full py-2 px-4 bg-orange-600 text-white font-semibold rounded hover:bg-orange-500 transition"
-          disabled={isloading}
+          className="w-full py-2 px-4 bg-orange-600 text-white font-semibold rounded hover:bg-orange-500 transition font-secondary"
+          disabled={isLoading}
         >
-          {isloading ? "Sending..." : "Send Reset Link"}
+          {isLoading ? "Sending..." : "Send Reset Link"}
         </button>
       </form>
     </div>

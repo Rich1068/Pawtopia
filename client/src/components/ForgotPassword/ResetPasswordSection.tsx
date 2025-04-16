@@ -1,61 +1,35 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
 import toast from "react-hot-toast";
-import serverAPI from "../../helper/axios";
+import { useResetPassword } from "../../hooks/useResetPassword";
 
 const ResetPasswordSection = () => {
   const { token } = useParams();
   const navigate = useNavigate();
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [isValidToken, setIsValidToken] = useState(false);
+  const {
+    password,
+    setPassword,
+    confirmPassword,
+    setConfirmPassword,
+    isVerifying,
+    isValidToken,
+    isLoading,
+    validatePasswordAndReset,
+  } = useResetPassword(token);
 
   useEffect(() => {
-    const verifyToken = async () => {
-      try {
-        await serverAPI.get(`/api/reset-password/${token}`);
+    if (!isValidToken && !isVerifying) {
+      toast.error("Invalid or expired token");
+      navigate("/forgot-password");
+    }
+  }, [isValidToken, isVerifying, navigate]);
 
-        setIsValidToken(true);
-
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } catch (error: any) {
-        console.log(error);
-
-        toast.error("Invalid or expired token");
-
-        navigate("/forgot-password");
-      }
-    };
-
-    verifyToken();
-  }, [token, navigate]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (password !== confirmPassword) {
-      toast.error("Passwords do not match");
-      return;
-    }
-    if (password.length < 1) {
-      toast.error("Password must be at least 1 characters");
-      return;
-    }
-
-    setIsLoading(true);
-
-    try {
-      await serverAPI.post(`/api/reset-password/${token}`, { password });
-      toast.success("Password reset successful! Please log in.");
-      navigate("/login");
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      toast.error(error.response?.data?.error || "Something went wrong");
-    } finally {
-      setIsLoading(false);
-    }
+    validatePasswordAndReset();
   };
 
+  if (isVerifying) return <div>Verifying token...</div>;
   if (!isValidToken) return null;
 
   return (
