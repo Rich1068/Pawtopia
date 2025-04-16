@@ -42,14 +42,14 @@ const ProductList = () => {
     setData(memoProducts);
   }, [memoProducts]);
   const handleDeleteProduct = useCallback(async (productId: string) => {
-    deleteProduct(productId);
+    deleteProduct.mutateAsync(productId);
   }, []);
   const handleArchiveProduct = useCallback(async (productId: string) => {
-    archiveProduct(productId);
+    archiveProduct.mutateAsync(productId);
   }, []);
 
   const handleRecoverProduct = useCallback(async (productId: string) => {
-    recoverProduct(productId);
+    recoverProduct.mutateAsync(productId);
   }, []);
   console.log("ProductList rendered", products.length);
   const columns = useMemo<ColumnDef<IProduct>[]>(

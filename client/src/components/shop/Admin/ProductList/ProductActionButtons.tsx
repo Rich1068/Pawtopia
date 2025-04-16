@@ -3,7 +3,6 @@ import { Link } from "react-router";
 import type { IProduct } from "../../../../types/Types";
 import { useState } from "react";
 import WarningModal from "../../../WarningModal";
-import toast from "react-hot-toast";
 
 const ProductActionButtons = ({
   product,
@@ -36,10 +35,8 @@ const ProductActionButtons = ({
     try {
       onDelete(product._id);
       setIsModalOpen(false);
-      toast.success("Product Successfully Deleted");
     } catch (error) {
       console.error("Failed to delete product:", error);
-      toast.error("Error deleting product. Please try again.");
     }
   };
 
@@ -47,14 +44,8 @@ const ProductActionButtons = ({
     try {
       onArchive(product._id);
       setIsModalOpen(false);
-      toast.success("Product archived successfully");
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      console.error("Failed to archive product:");
-      toast.error(
-        error.response.data?.error ||
-          "Error archiving product. Please try again."
-      );
+    } catch (error) {
+      console.error("Failed to archive product:", error);
     }
   };
 
@@ -62,14 +53,8 @@ const ProductActionButtons = ({
     try {
       onRecover(product._id);
       setIsModalOpen(false);
-      toast.success("Product recovered successfully");
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      console.error("Failed to recover product:");
-      toast.error(
-        error.response.data?.error ||
-          "Error recovering product. Please try again."
-      );
+    } catch (error) {
+      console.error("Failed to recover product: ", error);
     }
   };
   return (

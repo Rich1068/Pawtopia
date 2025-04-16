@@ -1,9 +1,5 @@
-import { FC, useState } from "react";
+import { FC } from "react";
 import type { IProduct } from "../../../types/Types";
-import { useNavigate } from "react-router";
-import serverAPI from "../../../helper/axios";
-import toast from "react-hot-toast";
-import WarningModal from "../../WarningModal";
 import AdminButtons from "./AdminButtons";
 import UserButtons from "./UserButtons";
 
@@ -18,21 +14,7 @@ const ProductText: FC<IProductText> = ({
   isAdminView,
 }) => {
   const { name, description, category, price } = productData;
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const navigate = useNavigate();
-  const handleDelete = async () => {
-    try {
-      await serverAPI.delete(`/product/${productData._id}`, {
-        withCredentials: true,
-      });
-      setIsModalOpen(false);
-      navigate("/admin/product-list");
-      toast.success("Product Successfully Deleted");
-    } catch (error) {
-      console.error("Failed to delete product:", error);
-      toast.error("Error deleting product. Please try again.");
-    }
-  };
+
   return (
     <>
       <div
@@ -76,7 +58,8 @@ const ProductText: FC<IProductText> = ({
           <div className="absolute bottom-5 flex gap-x-4 ">
             <AdminButtons
               productId={productData._id}
-              setIsModalOpen={setIsModalOpen}
+              isArchived={productData.isArchived!}
+              productName={productData.name}
             />
           </div>
         ) : (
@@ -85,14 +68,6 @@ const ProductText: FC<IProductText> = ({
           </div>
         )}
       </div>
-      <WarningModal
-        header="Confirm Deletion"
-        text={`Are you sure you want to delete "${productData.name}"?`}
-        isModalOpen={isModalOpen}
-        setIsModalOpen={setIsModalOpen}
-        confirmText="Delete"
-        onConfirm={handleDelete}
-      />
     </>
   );
 };

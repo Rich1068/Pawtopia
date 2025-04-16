@@ -8,13 +8,84 @@ interface UseProductsParams {
   selectedCategories?: string[];
   statusFilter?: string;
 }
+
+//Mutations for Product Buttons
+export const useProductMutations = () => {
+  const queryClient = useQueryClient();
+
+  const deleteProduct = useMutation({
+    mutationFn: async (productId: string) => {
+      await serverAPI.delete(`/product/${productId}`, {
+        withCredentials: true,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+      queryClient.invalidateQueries({ queryKey: ["product"] });
+      queryClient.invalidateQueries({ queryKey: ["categories"] });
+      toast.success("Product deleted successfully.");
+    },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    onError: (error: any) => {
+      toast.error(
+        error?.response?.data?.error || "Failed to delete the product"
+      );
+    },
+  });
+
+  const archiveProduct = useMutation({
+    mutationFn: async (productId: string) => {
+      await serverAPI.patch(
+        `/product/${productId}/soft-delete`,
+        {},
+        { withCredentials: true }
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+      queryClient.invalidateQueries({ queryKey: ["product"] });
+      toast.success("Product archived successfully.");
+    },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    onError: (error: any) => {
+      toast.error(
+        error?.response?.data?.error || "Failed to archive the product"
+      );
+    },
+  });
+
+  const recoverProduct = useMutation({
+    mutationFn: async (productId: string) => {
+      await serverAPI.patch(
+        `/product/${productId}/recover`,
+        {},
+        { withCredentials: true }
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+      queryClient.invalidateQueries({ queryKey: ["product"] });
+      toast.success("Product recovered successfully.");
+    },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    onError: (error: any) => {
+      toast.error(
+        error?.response?.data?.error || "Failed to recover the product"
+      );
+    },
+  });
+
+  return {
+    deleteProduct,
+    archiveProduct,
+    recoverProduct,
+  };
+};
 // ProductList.tsx
 export const useProducts = ({
   selectedCategories = [],
   statusFilter = "All",
 }: UseProductsParams) => {
-  const queryClient = useQueryClient();
-
   const fetchProducts = async (): Promise<IProduct[]> => {
     const params = new URLSearchParams();
 
@@ -44,63 +115,16 @@ export const useProducts = ({
     queryFn: fetchProducts,
   });
 
-  // DELETE product
-  const deleteMutation = useMutation({
-    mutationFn: async (productId: string) => {
-      await serverAPI.delete(`/product/${productId}`, {
-        withCredentials: true,
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["products"] });
-      queryClient.invalidateQueries({ queryKey: ["categories"] });
-    },
-    onError: () => {
-      toast.error("Failed to delete product.");
-    },
-  });
-
-  // ARCHIVE product
-  const archiveMutation = useMutation({
-    mutationFn: async (productId: string) => {
-      await serverAPI.patch(
-        `/product/${productId}/soft-delete`,
-        {},
-        { withCredentials: true }
-      );
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["products"] });
-    },
-    onError: () => {
-      toast.error("Failed to archive product.");
-    },
-  });
-
-  // RECOVER product
-  const recoverMutation = useMutation({
-    mutationFn: async (productId: string) => {
-      await serverAPI.patch(
-        `/product/${productId}/recover`,
-        {},
-        { withCredentials: true }
-      );
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["products"] });
-    },
-    onError: () => {
-      toast.error("Failed to recover product.");
-    },
-  });
+  const { deleteProduct, archiveProduct, recoverProduct } =
+    useProductMutations();
 
   return {
     products,
     isLoading,
     error: error ? (error as Error).message : null,
-    deleteProduct: deleteMutation.mutate,
-    archiveProduct: archiveMutation.mutate,
-    recoverProduct: recoverMutation.mutate,
+    deleteProduct,
+    archiveProduct,
+    recoverProduct,
   };
 };
 
