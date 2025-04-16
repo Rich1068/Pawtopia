@@ -25,7 +25,7 @@ const CartDropdown = () => {
   const handleAdd = async (productId: string) => {
     setUpdatingProductId(productId);
     try {
-      await addToCart(productId, 1);
+      addToCart(productId, 1);
     } finally {
       setUpdatingProductId(null);
     }
@@ -34,7 +34,7 @@ const CartDropdown = () => {
   const handleDecrease = async (productId: string) => {
     setUpdatingProductId(productId);
     try {
-      await decreaseFromCart(productId, 1);
+      decreaseFromCart(productId, 1);
     } finally {
       setUpdatingProductId(null);
     }

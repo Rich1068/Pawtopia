@@ -1,7 +1,6 @@
 import { Trash, Archive, Check } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 import { FC, useState } from "react";
-import toast from "react-hot-toast";
 import WarningModal from "../../WarningModal";
 import { useProduct, useProductMutations } from "../../../hooks/useProducts";
 

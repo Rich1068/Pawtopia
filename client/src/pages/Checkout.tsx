@@ -1,84 +1,22 @@
-import { useEffect, useState } from "react";
-import { useCart } from "../context/CartContext";
 import { Link } from "react-router";
-import serverAPI from "../helper/axios";
 import PageHeader from "../components/PageHeader";
 import { LoaderCircle, Minus, Plus } from "lucide-react";
 import { getFullImageUrl } from "../helper/imageHelper";
-import toast from "react-hot-toast";
-import { useQueryClient } from "@tanstack/react-query";
+import useCheckout from "../hooks/useCheckout";
 
 const Checkout = () => {
-  const { cart, addToCart, decreaseFromCart, removeFromCart } = useCart();
-  const [updatingProductId, setUpdatingProductId] = useState<string | null>(
-    null
-  );
-  const [total, setTotal] = useState(0);
-  const [loading, setLoading] = useState(false);
-  const cartLength = cart?.products.length || 0;
-  const queryClient = useQueryClient();
-
-  const hasInvalidItems =
-    cart?.products.some(
-      (item) => !item.productId || item.productId.isArchived
-    ) ?? false;
-
-  const handleAdd = async (productId: string) => {
-    setUpdatingProductId(productId);
-    try {
-      addToCart(productId, 1);
-    } finally {
-      setUpdatingProductId(null);
-    }
-  };
-
-  const handleDecrease = async (productId: string) => {
-    setUpdatingProductId(productId);
-    try {
-      decreaseFromCart(productId, 1);
-    } finally {
-      setUpdatingProductId(null);
-    }
-  };
-  useEffect(() => {
-    queryClient.invalidateQueries({ queryKey: ["cart"] });
-  }, [queryClient]);
-
-  useEffect(() => {
-    const totalPrice =
-      cart?.products
-        ?.filter(
-          (
-            prod
-          ): prod is typeof prod & {
-            productId: { price: number };
-          } => !!prod.productId
-        )
-        .reduce(
-          (sum, item) => sum + parseFloat(item.productId.price) * item.quantity,
-          0
-        ) ?? 0;
-    setTotal(totalPrice);
-  }, [cart]);
-
-  const handleCheckout = async () => {
-    setLoading(true);
-    try {
-      const { data } = await serverAPI.post(
-        "/cart/checkout",
-        { products: cart?.products },
-        { withCredentials: true }
-      );
-      if (data.url) {
-        window.location.href = data.url;
-      }
-    } catch (error) {
-      console.error("Checkout error", error);
-      toast.error("Failed to process checkout. Please try again later.");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const {
+    cart,
+    cartLength,
+    total,
+    loading,
+    hasInvalidItems,
+    handleAdd,
+    handleDecrease,
+    removeFromCart,
+    handleCheckout,
+    updatingProductId,
+  } = useCheckout();
 
   return (
     <>
