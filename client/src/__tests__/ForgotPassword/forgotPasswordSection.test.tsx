@@ -3,7 +3,17 @@ import ForgotPasswordSection from "../../components/ForgotPassword/ForgotPasswor
 import serverAPI from "../../helper/axios";
 import toast from "react-hot-toast";
 import "@testing-library/jest-dom";
+import { createWrapper } from "../../__mocks__/utils/testUtils";
 
+const wrapper = createWrapper();
+
+const renderComponent = () => {
+  return render(
+    wrapper({
+      children: <ForgotPasswordSection />,
+    })
+  );
+};
 // Mock dependencies
 jest.mock("../../helper/axios");
 jest.mock("react-hot-toast", () => ({
@@ -14,7 +24,7 @@ jest.mock("react-hot-toast", () => ({
 describe("ForgotPasswordSection Component", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    render(<ForgotPasswordSection />);
+    renderComponent();
   });
 
   // Helper function to fill email and submit form

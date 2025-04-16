@@ -10,7 +10,21 @@ import DataTable from "../../components/HistoryTable/DataTable";
 import { mockOrders } from "../../__mocks__/mockOrders";
 import "@testing-library/jest-dom";
 import { MemoryRouter } from "react-router";
+import { createWrapper } from "../../__mocks__/utils/testUtils";
 
+const wrapper = createWrapper();
+
+const renderComponent = () => {
+  return render(
+    wrapper({
+      children: (
+        <MemoryRouter>
+          <OrderHistory />
+        </MemoryRouter>
+      ),
+    })
+  );
+};
 // Mock dependencies
 jest.mock("@tanstack/react-table", () => ({
   ...jest.requireActual("@tanstack/react-table"),
@@ -22,14 +36,6 @@ jest.mock("../../components/PageHeader");
 jest.mock("../../components/OrderHistory/OrderDetailModal");
 jest.mock("../../components/HistoryTable/TableFilters");
 jest.mock("../../components/HistoryTable/DataTable");
-
-const renderComponent = () => {
-  return render(
-    <MemoryRouter>
-      <OrderHistory />
-    </MemoryRouter>
-  );
-};
 
 describe("OrderHistory Component", () => {
   const mockTableInstance = {

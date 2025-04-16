@@ -3,6 +3,17 @@ import { useParams } from "react-router";
 import serverAPI from "../../../helper/axios";
 import EditProduct from "../../../pages/Admin/EditProduct";
 import "@testing-library/jest-dom";
+import { createWrapper } from "../../../__mocks__/utils/testUtils";
+
+const wrapper = createWrapper();
+
+const renderComponent = () => {
+  return render(
+    wrapper({
+      children: <EditProduct />,
+    })
+  );
+};
 
 // Mock dependencies
 jest.mock("react-router", () => ({
@@ -11,6 +22,7 @@ jest.mock("react-router", () => ({
 }));
 
 jest.mock("../../../helper/axios");
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 jest.mock("../../../pages/Admin/AddProducts", () => (props: any) => (
   <div data-testid="add-product">
@@ -40,7 +52,7 @@ describe("EditProduct Component", () => {
     (serverAPI.get as jest.Mock).mockImplementation(
       () => new Promise(() => {})
     );
-    render(<EditProduct />);
+    renderComponent();
     expect(screen.getByText("Loading...")).toBeVisible();
   });
 
@@ -48,7 +60,7 @@ describe("EditProduct Component", () => {
     (serverAPI.get as jest.Mock).mockResolvedValue({
       data: { data: mockProduct },
     });
-    render(<EditProduct />);
+    renderComponent();
 
     await waitFor(() => {
       expect(serverAPI.get).toHaveBeenCalledWith("/product/123");
@@ -64,7 +76,7 @@ describe("EditProduct Component", () => {
       new Error("Failed to fetch")
     );
 
-    render(<EditProduct />);
+    renderComponent();
 
     await waitFor(() => {
       expect(consoleSpy).toHaveBeenCalledWith(
@@ -78,7 +90,7 @@ describe("EditProduct Component", () => {
     (serverAPI.get as jest.Mock).mockResolvedValue({
       data: { data: mockProduct },
     });
-    render(<EditProduct />);
+    renderComponent();
 
     await waitFor(() => {
       expect(screen.getByTestId("add-product")).toBeVisible();
@@ -87,14 +99,13 @@ describe("EditProduct Component", () => {
   });
 
   it("re-fetches when id changes", async () => {
-    const { rerender } = render(<EditProduct />);
-    (serverAPI.get as jest.Mock).mockResolvedValue({
+    const { render } = render(serverAPI.get as jest.Mock).mockResolvedValue({
       data: { data: mockProduct },
     });
 
     // Change the mock params
     (useParams as jest.Mock).mockReturnValue({ id: "456" });
-    rerender(<EditProduct />);
+    renderComponent();
 
     await waitFor(() => {
       expect(serverAPI.get).toHaveBeenCalledWith("/product/456");

@@ -24,11 +24,18 @@ jest.mock("../../../helper/axios", () => ({
 
 describe("ProductActionButtons Component", () => {
   const mockOnDelete = jest.fn();
+  const mockOnArchive = jest.fn();
+  const mockOnRecover = jest.fn();
 
   const renderComponent = () =>
     render(
       <MemoryRouter>
-        <ProductActionButtons product={mockProduct} onDelete={mockOnDelete} />
+        <ProductActionButtons
+          product={mockProduct}
+          onDelete={mockOnDelete}
+          onArchive={mockOnArchive}
+          onRecover={mockOnRecover}
+        />
       </MemoryRouter>
     );
 

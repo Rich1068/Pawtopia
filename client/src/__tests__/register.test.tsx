@@ -5,6 +5,21 @@ import serverAPI from "../helper/axios";
 import toast from "react-hot-toast";
 import Register from "../pages/Register";
 import "@testing-library/jest-dom";
+import { createWrapper } from "../__mocks__/utils/testUtils";
+
+const wrapper = createWrapper();
+
+const renderComponent = () => {
+  return render(
+    wrapper({
+      children: (
+        <MemoryRouter>
+          <Register />
+        </MemoryRouter>
+      ),
+    })
+  );
+};
 
 jest.mock("react-router", () => ({
   ...jest.requireActual("react-router"),
@@ -51,11 +66,7 @@ describe("Register Component", () => {
   };
 
   it("renders register form correctly", () => {
-    render(
-      <MemoryRouter>
-        <Register />
-      </MemoryRouter>
-    );
+    renderComponent();
 
     expect(screen.getByText("Create Account")).toBeVisible();
     expect(screen.getByPlaceholderText("Enter your full name")).toBeVisible();
@@ -69,22 +80,14 @@ describe("Register Component", () => {
   });
 
   it("validates empty fields", async () => {
-    render(
-      <MemoryRouter>
-        <Register />
-      </MemoryRouter>
-    );
+    renderComponent();
     const nameInput = screen.getByPlaceholderText("Enter your full name");
     fireEvent.click(screen.getByText("Sign Up"));
     expect(nameInput).toBeInvalid();
   });
 
   it("validates invalid email format", async () => {
-    render(
-      <MemoryRouter>
-        <Register />
-      </MemoryRouter>
-    );
+    renderComponent();
     const emailInput = screen.getByPlaceholderText("Enter your email");
     fillRegisterForm({
       name: "John Doe",
@@ -101,11 +104,7 @@ describe("Register Component", () => {
     (serverAPI.post as jest.Mock).mockResolvedValue({
       data: { email: "test@example.com" },
     });
-    render(
-      <MemoryRouter>
-        <Register />
-      </MemoryRouter>
-    );
+    renderComponent();
     fillRegisterForm({
       name: "John Doe",
       email: "test@example.com",
@@ -123,11 +122,7 @@ describe("Register Component", () => {
     });
   });
   test("triggers custom validation when form is submitted", async () => {
-    render(
-      <MemoryRouter>
-        <Register />
-      </MemoryRouter>
-    );
+    renderComponent();
     const form = screen.getByTestId("register-form");
     const submitButton = screen.getByText("Sign Up");
 
@@ -141,11 +136,7 @@ describe("Register Component", () => {
     (serverAPI.post as jest.Mock).mockRejectedValue({
       response: { data: { error: "Registration failed" } },
     });
-    render(
-      <MemoryRouter>
-        <Register />
-      </MemoryRouter>
-    );
+    renderComponent();
     fillRegisterForm({
       name: "John Doe",
       email: "test@example.com",
@@ -164,11 +155,7 @@ describe("Register Component", () => {
       () =>
         new Promise((resolve) => setTimeout(() => resolve({ data: {} }), 1000))
     );
-    render(
-      <MemoryRouter>
-        <Register />
-      </MemoryRouter>
-    );
+    renderComponent();
     fillRegisterForm({
       name: "John Doe",
       email: "test@example.com",

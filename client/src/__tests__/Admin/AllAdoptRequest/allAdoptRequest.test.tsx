@@ -10,7 +10,21 @@ import serverAPI from "../../../helper/axios";
 import "@testing-library/jest-dom";
 import { mockAdoptRequests } from "../../../__mocks__/mockAdoptRequests";
 import { MemoryRouter } from "react-router";
+import { createWrapper } from "../../../__mocks__/utils/testUtils";
 
+const wrapper = createWrapper();
+
+const renderComponent = () => {
+  return render(
+    wrapper({
+      children: (
+        <MemoryRouter>
+          <AllAdoptRequests />
+        </MemoryRouter>
+      ),
+    })
+  );
+};
 // Mock dependencies
 jest.mock("../../../helper/axios");
 jest.mock("react-hot-toast", () => ({
@@ -43,13 +57,6 @@ jest.mock(
 
 jest.mock("lucide-react");
 
-const renderComponent = () => {
-  return render(
-    <MemoryRouter>
-      <AllAdoptRequests />
-    </MemoryRouter>
-  );
-};
 describe("AllAdoptRequests", () => {
   beforeEach(() => {
     jest.clearAllMocks();

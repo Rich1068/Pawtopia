@@ -4,6 +4,13 @@ import { MemoryRouter, Route, Routes } from "react-router";
 import serverAPI from "../../helper/axios";
 import { mockPets } from "../../__mocks__/mockPets";
 import "@testing-library/jest-dom";
+import { createWrapper } from "../../__mocks__/utils/testUtils";
+
+const wrapper = createWrapper();
+
+const renderComponent = (ui: React.ReactElement) => {
+  return render(ui, { wrapper });
+};
 
 // Mock components used inside PetPage
 jest.mock("../../components/PetPage/PetCarousel", () => () => (
@@ -25,7 +32,7 @@ describe("PetPage", () => {
       data: { data: [mockPets[0]] },
     });
 
-    render(
+    renderComponent(
       <MemoryRouter initialEntries={["/adopt/pets/123"]}>
         <Routes>
           <Route path="/adopt/pets/:id" element={<PetPage />} />
@@ -47,7 +54,7 @@ describe("PetPage", () => {
   });
   it("handles API failure gracefully", async () => {
     (serverAPI.get as jest.Mock).mockRejectedValueOnce(new Error("API Error"));
-    render(
+    renderComponent(
       <MemoryRouter initialEntries={["/adopt/pets/404"]}>
         <Routes>
           <Route path="/adopt/pets/:id" element={<PetPage />} />

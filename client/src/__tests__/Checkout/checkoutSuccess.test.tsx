@@ -4,6 +4,17 @@ import serverAPI from "../../helper/axios";
 import CheckoutSuccess from "../../pages/CheckoutSuccess";
 import PageHeader from "../../components/PageHeader";
 import "@testing-library/jest-dom";
+import { createWrapper } from "../../__mocks__/utils/testUtils";
+
+const wrapper = createWrapper();
+
+const renderComponent = () => {
+  return render(
+    wrapper({
+      children: <CheckoutSuccess />,
+    })
+  );
+};
 
 jest.mock("react-router", () => ({
   useSearchParams: jest.fn(),
@@ -43,7 +54,7 @@ describe("CheckoutSuccess Component", () => {
   it("shows error when session_id is missing", async () => {
     (useSearchParams as jest.Mock).mockReturnValue([new URLSearchParams("")]);
 
-    render(<CheckoutSuccess />);
+    renderComponent();
 
     await waitFor(() => {
       expect(screen.getByText("Invalid session.")).toBeVisible();
@@ -56,8 +67,7 @@ describe("CheckoutSuccess Component", () => {
     ]);
     (serverAPI.get as jest.Mock).mockRejectedValue(new Error("API Error"));
 
-    render(<CheckoutSuccess />);
-
+    renderComponent();
     await waitFor(() => {
       expect(screen.getByText("Failed to fetch order details.")).toBeVisible();
     });
@@ -69,8 +79,7 @@ describe("CheckoutSuccess Component", () => {
     ]);
     (serverAPI.get as jest.Mock).mockResolvedValue({ data: mockOrder });
 
-    render(<CheckoutSuccess />);
-
+    renderComponent();
     await waitFor(() => {
       expect(screen.getByText("🎉 Success!")).toBeVisible();
       expect(screen.getByText("Thank you for your purchase.")).toBeVisible();
@@ -97,8 +106,7 @@ describe("CheckoutSuccess Component", () => {
     ]);
     (serverAPI.get as jest.Mock).mockResolvedValue({ data: mockOrder });
 
-    render(<CheckoutSuccess />);
-
+    renderComponent();
     await waitFor(() => {
       const button = screen.getByText("Continue Shopping");
       button.click();

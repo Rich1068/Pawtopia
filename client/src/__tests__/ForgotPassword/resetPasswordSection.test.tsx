@@ -4,30 +4,37 @@ import ResetPasswordSection from "../../components/ForgotPassword/ResetPasswordS
 import serverAPI from "../../helper/axios";
 import toast from "react-hot-toast";
 import "@testing-library/jest-dom";
+import { createWrapper } from "../../__mocks__/utils/testUtils";
+
+const wrapper = createWrapper();
+
+const renderComponent = (initialRoute: string) => {
+  return render(
+    wrapper({
+      children: (
+        <MemoryRouter initialEntries={[initialRoute]}>
+          <Routes>
+            <Route
+              path="/reset-password/:token"
+              element={<ResetPasswordSection />}
+            />
+            <Route
+              path="/forgot-password"
+              element={<div>Forgot Password Page</div>}
+            />
+            <Route path="/login" element={<div>Login Page</div>} />
+          </Routes>
+        </MemoryRouter>
+      ),
+    })
+  );
+};
 
 jest.mock("../../helper/axios");
 jest.mock("react-hot-toast", () => ({
   error: jest.fn(),
   success: jest.fn(),
 }));
-
-const renderWithRouter = (initialRoute: string) => {
-  return render(
-    <MemoryRouter initialEntries={[initialRoute]}>
-      <Routes>
-        <Route
-          path="/reset-password/:token"
-          element={<ResetPasswordSection />}
-        />
-        <Route
-          path="/forgot-password"
-          element={<div>Forgot Password Page</div>}
-        />
-        <Route path="/login" element={<div>Login Page</div>} />
-      </Routes>
-    </MemoryRouter>
-  );
-};
 
 describe("ResetPasswordSection Component", () => {
   const mockToken = "valid-reset-token";
@@ -47,7 +54,7 @@ describe("ResetPasswordSection Component", () => {
 
   it("validates reset token on mount", async () => {
     (serverAPI.get as jest.Mock).mockResolvedValueOnce({});
-    renderWithRouter(`/reset-password/${mockToken}`);
+    renderComponent(`/reset-password/${mockToken}`);
 
     await waitFor(() =>
       expect(serverAPI.get).toHaveBeenCalledWith(
@@ -61,7 +68,7 @@ describe("ResetPasswordSection Component", () => {
       response: { data: { error: "Invalid or expired token" } },
     });
 
-    renderWithRouter(`/reset-password/${mockToken}`);
+    renderComponent(`/reset-password/${mockToken}`);
 
     await waitFor(() => {
       expect(screen.getByText("Forgot Password Page")).toBeVisible();
@@ -71,7 +78,7 @@ describe("ResetPasswordSection Component", () => {
 
   it("renders form fields correctly", async () => {
     (serverAPI.get as jest.Mock).mockResolvedValueOnce({});
-    renderWithRouter(`/reset-password/${mockToken}`);
+    renderComponent(`/reset-password/${mockToken}`);
 
     const elements = await Promise.all([
       screen.findByTestId("password-input"),
@@ -84,7 +91,7 @@ describe("ResetPasswordSection Component", () => {
 
   it("validates mismatched passwords", async () => {
     (serverAPI.get as jest.Mock).mockResolvedValueOnce({});
-    renderWithRouter(`/reset-password/${mockToken}`);
+    renderComponent(`/reset-password/${mockToken}`);
 
     await fillInputs([
       { testId: "password-input", value: "password123" },
@@ -104,7 +111,7 @@ describe("ResetPasswordSection Component", () => {
     (serverAPI.get as jest.Mock).mockResolvedValueOnce({});
     (serverAPI.post as jest.Mock).mockResolvedValueOnce({});
 
-    renderWithRouter(`/reset-password/${mockToken}`);
+    renderComponent(`/reset-password/${mockToken}`);
 
     await fillInputs([
       { testId: "password-input", value: "securepassword" },
@@ -135,7 +142,7 @@ describe("ResetPasswordSection Component", () => {
       response: { data: { error: "Server error" } },
     });
 
-    renderWithRouter(`/reset-password/${mockToken}`);
+    renderComponent(`/reset-password/${mockToken}`);
 
     await fillInputs([
       { testId: "password-input", value: "securepassword" },

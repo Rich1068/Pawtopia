@@ -9,6 +9,13 @@ import CategoryFilter from "../../../components/shop/Admin/ProductList/CategoryF
 import serverAPI from "../../../helper/axios";
 import "@testing-library/jest-dom";
 import userEvent from "@testing-library/user-event";
+import { createWrapper } from "../../../__mocks__/utils/testUtils";
+
+const wrapper = createWrapper();
+
+const renderComponent = (ui: React.ReactElement) => {
+  return render(ui, { wrapper });
+};
 
 jest.mock("lucide-react", () => ({
   X: () => <div data-testid="icon-X" />,
@@ -42,7 +49,7 @@ describe("CategoryFilter on Product List Page", () => {
   it("fetches and displays pet-related categories", async () => {
     (serverAPI.get as jest.Mock).mockResolvedValue({ data: mockCategories });
 
-    render(
+    renderComponent(
       <CategoryFilter
         selectedCategories={[]}
         setSelectedCategories={mockSetSelectedCategories}
@@ -52,9 +59,7 @@ describe("CategoryFilter on Product List Page", () => {
     fireEvent.click(dropdownToggle);
 
     await waitFor(() => {
-      expect(serverAPI.get).toHaveBeenCalledWith("/product/get-categories", {
-        withCredentials: true,
-      });
+      expect(serverAPI.get).toHaveBeenCalledWith("/product/get-categories");
       expect(screen.getByText("Dog Food")).toBeVisible();
       expect(screen.getByText("Cat Food")).toBeVisible();
       expect(screen.getByText("Pet Toys")).toBeVisible();
@@ -66,7 +71,7 @@ describe("CategoryFilter on Product List Page", () => {
   it("opens and closes the dropdown on click", async () => {
     (serverAPI.get as jest.Mock).mockResolvedValue({ data: mockCategories });
 
-    render(
+    renderComponent(
       <CategoryFilter
         selectedCategories={[]}
         setSelectedCategories={mockSetSelectedCategories}
@@ -95,7 +100,7 @@ describe("CategoryFilter on Product List Page", () => {
       selectedCategories.push(...newCategories);
     });
 
-    render(
+    renderComponent(
       <CategoryFilter
         selectedCategories={selectedCategories}
         setSelectedCategories={mockSetSelectedCategories}
@@ -116,7 +121,7 @@ describe("CategoryFilter on Product List Page", () => {
   });
 
   it("displays selected categories with remove buttons", async () => {
-    render(
+    renderComponent(
       <CategoryFilter
         selectedCategories={["Cat Food"]}
         setSelectedCategories={mockSetSelectedCategories}
@@ -133,7 +138,7 @@ describe("CategoryFilter on Product List Page", () => {
   it("closes the dropdown when clicking outside", async () => {
     (serverAPI.get as jest.Mock).mockResolvedValue({ data: mockCategories });
 
-    render(
+    renderComponent(
       <CategoryFilter
         selectedCategories={[]}
         setSelectedCategories={mockSetSelectedCategories}
@@ -157,7 +162,7 @@ describe("CategoryFilter on Product List Page", () => {
       .spyOn(console, "error")
       .mockImplementation(() => {});
 
-    render(
+    renderComponent(
       <CategoryFilter
         selectedCategories={[]}
         setSelectedCategories={mockSetSelectedCategories}
@@ -165,9 +170,7 @@ describe("CategoryFilter on Product List Page", () => {
     );
 
     await waitFor(() => {
-      expect(serverAPI.get).toHaveBeenCalledWith("/product/get-categories", {
-        withCredentials: true,
-      });
+      expect(serverAPI.get).toHaveBeenCalledWith("/product/get-categories");
     });
 
     expect(consoleErrorSpy).toHaveBeenCalledWith(

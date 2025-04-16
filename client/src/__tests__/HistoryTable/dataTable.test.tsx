@@ -37,6 +37,7 @@ const mockTable = {
   getCanPreviousPage: jest.fn(),
   getCanNextPage: jest.fn(),
   previousPage: jest.fn(),
+  getCanSort: jest.fn(),
   nextPage: jest.fn(),
   getState: jest.fn(() => ({
     pagination: {

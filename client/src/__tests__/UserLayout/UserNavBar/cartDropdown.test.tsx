@@ -4,7 +4,21 @@ import { useCart } from "../../../context/CartContext";
 import { getFullImageUrl } from "../../../helper/imageHelper";
 import "@testing-library/jest-dom";
 import { MemoryRouter } from "react-router";
+import { createWrapper } from "../../../__mocks__/utils/testUtils";
 
+const wrapper = createWrapper();
+
+const renderComponent = () => {
+  return render(
+    wrapper({
+      children: (
+        <MemoryRouter>
+          <CartDropdown />
+        </MemoryRouter>
+      ),
+    })
+  );
+};
 jest.mock("../../../context/CartContext", () => ({
   useCart: jest.fn(),
 }));
@@ -44,14 +58,6 @@ describe("CartDropdown Component", () => {
         quantity: 1,
       },
     ],
-  };
-
-  const renderComponent = () => {
-    return render(
-      <MemoryRouter>
-        <CartDropdown />
-      </MemoryRouter>
-    );
   };
 
   beforeEach(() => {

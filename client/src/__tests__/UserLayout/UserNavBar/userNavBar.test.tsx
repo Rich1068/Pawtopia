@@ -5,7 +5,21 @@ import { useFavorites } from "../../../context/FavoritesContext";
 import { useCart } from "../../../context/CartContext";
 import "@testing-library/jest-dom";
 import { MemoryRouter } from "react-router";
+import { createWrapper } from "../../../__mocks__/utils/testUtils";
 
+const wrapper = createWrapper();
+
+const renderComponent = () => {
+  return render(
+    wrapper({
+      children: (
+        <MemoryRouter>
+          <UserNavBar />
+        </MemoryRouter>
+      ),
+    })
+  );
+};
 jest.mock("../../../context/AuthContext", () => ({
   useAuth: jest.fn(),
 }));
@@ -63,14 +77,6 @@ jest.mock(
     ),
   })
 );
-
-const renderComponent = () => {
-  return render(
-    <MemoryRouter>
-      <UserNavBar />
-    </MemoryRouter>
-  );
-};
 
 describe("UserNavBar Component", () => {
   const mockUseAuth = useAuth as jest.Mock;

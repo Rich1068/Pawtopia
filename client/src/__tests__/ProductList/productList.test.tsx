@@ -5,6 +5,21 @@ import LoadingPage from "../../components/LoadingPage/LoadingPage";
 import "@testing-library/jest-dom";
 import { mockProducts } from "../../__mocks__/mockProducts";
 import { MemoryRouter } from "react-router";
+import { createWrapper } from "../../__mocks__/utils/testUtils";
+
+const wrapper = createWrapper();
+
+const renderComponent = () => {
+  return render(
+    wrapper({
+      children: (
+        <MemoryRouter>
+          <ProductList />
+        </MemoryRouter>
+      ),
+    })
+  );
+};
 
 jest.mock("../../helper/axios");
 jest.mock("../../components/LoadingPage/LoadingPage");
@@ -24,13 +39,6 @@ jest.mock(
   })
 );
 
-const renderComponent = () => {
-  return render(
-    <MemoryRouter>
-      <ProductList />
-    </MemoryRouter>
-  );
-};
 describe("ProductList Component", () => {
   beforeEach(() => {
     (serverAPI.get as jest.Mock).mockImplementation(() => {

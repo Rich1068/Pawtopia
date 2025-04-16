@@ -10,6 +10,17 @@ import {
 } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { mockOrders } from "../../../__mocks__/mockOrders";
+import { createWrapper } from "../../../__mocks__/utils/testUtils";
+
+const wrapper = createWrapper();
+
+const renderComponent = () => {
+  return render(
+    wrapper({
+      children: <AdminOrderHistory />,
+    })
+  );
+};
 
 jest.mock("../../../helper/axios");
 jest.mock("../../../components/LoadingPage/LoadingPage", () => () => (
@@ -77,7 +88,7 @@ describe("AdminOrderHistory", () => {
   });
 
   it("renders loading spinner initially", () => {
-    render(<AdminOrderHistory />);
+    renderComponent();
     expect(screen.getByTestId("loading-spinner")).toBeVisible();
   });
 
@@ -85,7 +96,7 @@ describe("AdminOrderHistory", () => {
     (serverAPI.get as jest.Mock).mockResolvedValue({ data: mockOrders });
 
     await act(async () => {
-      render(<AdminOrderHistory />);
+      renderComponent();
     });
 
     await waitFor(() => {
@@ -104,7 +115,7 @@ describe("AdminOrderHistory", () => {
     (serverAPI.get as jest.Mock).mockResolvedValue({ data: mockOrders });
 
     await act(async () => {
-      render(<AdminOrderHistory />);
+      renderComponent();
     });
 
     fireEvent.change(screen.getByTestId("date-filter"), {
@@ -123,7 +134,7 @@ describe("AdminOrderHistory", () => {
     (serverAPI.get as jest.Mock).mockResolvedValue({ data: mockOrders });
 
     await act(async () => {
-      render(<AdminOrderHistory />);
+      renderComponent();
     });
 
     fireEvent.click(screen.getByText("View Details"));
@@ -144,7 +155,7 @@ describe("AdminOrderHistory", () => {
       .mockImplementation(() => {});
 
     await act(async () => {
-      render(<AdminOrderHistory />);
+      renderComponent();
     });
 
     await waitFor(() => {

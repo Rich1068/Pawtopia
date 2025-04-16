@@ -3,7 +3,17 @@ import { useSearchParams, useNavigate } from "react-router";
 import serverAPI from "../../helper/axios";
 import VerifyEmail from "../../pages/VerifyEmail";
 import "@testing-library/jest-dom";
+import { createWrapper } from "../../__mocks__/utils/testUtils";
 
+const wrapper = createWrapper();
+
+const renderComponent = () => {
+  return render(
+    wrapper({
+      children: <VerifyEmail />,
+    })
+  );
+};
 // Mock dependencies
 jest.mock("react-router", () => ({
   ...jest.requireActual("react-router"),
@@ -21,7 +31,7 @@ describe("VerifyEmail Component", () => {
     mockSearchParams = new URLSearchParams(params);
     (useSearchParams as jest.Mock).mockReturnValue([mockSearchParams]);
     (useNavigate as jest.Mock).mockReturnValue(mockNavigate);
-    return render(<VerifyEmail />);
+    return renderComponent();
   };
 
   beforeEach(() => {

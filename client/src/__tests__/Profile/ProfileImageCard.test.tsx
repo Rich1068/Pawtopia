@@ -4,7 +4,13 @@ import { User } from "../../types/Types";
 import serverAPI from "../../helper/axios";
 import { useAuth } from "../../context/AuthContext";
 import "@testing-library/jest-dom";
+import { createWrapper } from "../../__mocks__/utils/testUtils";
 
+const wrapper = createWrapper();
+
+const renderComponent = (ui: React.ReactElement) => {
+  return render(ui, { wrapper });
+};
 // Mock dependencies
 jest.mock("../../helper/axios");
 jest.mock("../../context/AuthContext", () => ({
@@ -64,7 +70,7 @@ describe("ProfileImageCard", () => {
   });
 
   it("renders user info correctly without profile image", () => {
-    render(<ProfileImageCard user={userWithoutImage} />);
+    renderComponent(<ProfileImageCard user={userWithoutImage} />);
 
     expect(screen.getByText("Jane Doe")).toBeVisible();
     expect(screen.getByText("user")).toBeVisible();
@@ -73,7 +79,7 @@ describe("ProfileImageCard", () => {
   });
 
   it("renders user info correctly with profile image", () => {
-    render(<ProfileImageCard user={userWithImage} />);
+    renderComponent(<ProfileImageCard user={userWithImage} />);
 
     expect(screen.getByText("Jane Doe")).toBeVisible();
     expect(screen.getByText("user")).toBeVisible();
@@ -86,7 +92,7 @@ describe("ProfileImageCard", () => {
   });
 
   it("shows edit button and opens modal on click", () => {
-    render(<ProfileImageCard user={userWithoutImage} />);
+    renderComponent(<ProfileImageCard user={userWithoutImage} />);
 
     const editButton = screen.getByTestId("edit-profileImage-button");
     expect(editButton).toBeVisible();
@@ -100,7 +106,7 @@ describe("ProfileImageCard", () => {
   });
 
   it("closes modal when close button is clicked", () => {
-    render(<ProfileImageCard user={userWithoutImage} />);
+    renderComponent(<ProfileImageCard user={userWithoutImage} />);
 
     fireEvent.click(screen.getByTestId("edit-profileImage-button"));
     expect(screen.getByTestId("mock-image-upload-modal")).toBeVisible();
@@ -117,7 +123,7 @@ describe("ProfileImageCard", () => {
       type: "image/png",
     });
 
-    render(<ProfileImageCard user={userWithoutImage} />);
+    renderComponent(<ProfileImageCard user={userWithoutImage} />);
 
     fireEvent.click(screen.getByTestId("edit-profileImage-button"));
 
@@ -152,7 +158,7 @@ describe("ProfileImageCard", () => {
     });
     const consoleLogSpy = jest.spyOn(console, "log").mockImplementation();
     mockServerPost.mockRejectedValueOnce(new Error("Upload failed"));
-    render(<ProfileImageCard user={userWithoutImage} />);
+    renderComponent(<ProfileImageCard user={userWithoutImage} />);
     fireEvent.click(screen.getByTestId("edit-profileImage-button"));
 
     const fileInput = screen.getByTestId("file-input");

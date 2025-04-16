@@ -5,18 +5,26 @@ import "@testing-library/jest-dom";
 import { AuthProvider } from "../../context/AuthContext";
 import { FavoritesProvider } from "../../context/FavoritesContext";
 import { BrowserRouter } from "react-router";
+import { createWrapper } from "../../__mocks__/utils/testUtils";
+
+const wrapper = createWrapper();
 
 const renderPageText = (pets = mockPets[0]) => {
   return render(
-    <BrowserRouter>
-      <AuthProvider>
-        <FavoritesProvider>
-          <PetPageText petData={pets} setIsFormOpen={jest.fn()} />
-        </FavoritesProvider>
-      </AuthProvider>
-    </BrowserRouter>
+    wrapper({
+      children: (
+        <BrowserRouter>
+          <AuthProvider>
+            <FavoritesProvider>
+              <PetPageText petData={pets} setIsFormOpen={jest.fn()} />
+            </FavoritesProvider>
+          </AuthProvider>
+        </BrowserRouter>
+      ),
+    })
   );
 };
+
 describe("PetPageText Component", () => {
   test("renders pet name", async () => {
     renderPageText();

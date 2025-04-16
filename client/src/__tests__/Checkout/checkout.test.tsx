@@ -6,7 +6,21 @@ import serverAPI from "../../helper/axios";
 import { getFullImageUrl } from "../../helper/imageHelper";
 import "@testing-library/jest-dom";
 import toast from "react-hot-toast";
+import { createWrapper } from "../../__mocks__/utils/testUtils";
 
+const wrapper = createWrapper();
+
+const renderComponent = () => {
+  return render(
+    wrapper({
+      children: (
+        <MemoryRouter>
+          <Checkout />
+        </MemoryRouter>
+      ),
+    })
+  );
+};
 // Mock dependencies
 jest.mock("../../context/CartContext");
 jest.mock("../../helper/axios");
@@ -62,14 +76,6 @@ describe("Checkout Component", () => {
   afterEach(() => {
     jest.clearAllMocks();
   });
-
-  const renderComponent = () => {
-    return render(
-      <MemoryRouter>
-        <Checkout />
-      </MemoryRouter>
-    );
-  };
 
   it("renders checkout page with correct title", () => {
     renderComponent();

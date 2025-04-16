@@ -5,7 +5,17 @@ import serverAPI from "../../helper/axios";
 import "@testing-library/jest-dom";
 import toast from "react-hot-toast";
 import { User } from "../../types/Types";
+import { createWrapper } from "../../__mocks__/utils/testUtils";
 
+const wrapper = createWrapper();
+
+const renderComponent = () => {
+  return render(
+    wrapper({
+      children: <ProfileCard user={mockUser} />,
+    })
+  );
+};
 jest.mock("react-hot-toast", () => ({
   success: jest.fn(),
   error: jest.fn(),
@@ -34,7 +44,7 @@ describe("ProfileCard Component", () => {
   });
 
   it("renders the ProfileCard with user data", () => {
-    render(<ProfileCard user={mockUser} />);
+    renderComponent();
 
     expect(screen.getByText("Profile Information")).toBeVisible();
     expect(screen.getByText("Jane Doe")).toBeVisible();
@@ -44,7 +54,7 @@ describe("ProfileCard Component", () => {
   });
 
   it("switch tabs", () => {
-    render(<ProfileCard user={mockUser} />);
+    renderComponent();
 
     fireEvent.click(screen.getByText("Change Password"));
     expect(screen.getAllByText("Change Password")[0]).toBeVisible();
@@ -61,7 +71,7 @@ describe("ProfileCard Component", () => {
       data: { message: "Profile updated successfully", user: mockUser },
     });
 
-    render(<ProfileCard user={mockUser} />);
+    renderComponent();
 
     fireEvent.click(screen.getByText("Edit"));
 
@@ -91,7 +101,7 @@ describe("ProfileCard Component", () => {
       response: { data: { error: "Failed to update profile" } },
     });
 
-    render(<ProfileCard user={mockUser} />);
+    renderComponent();
 
     fireEvent.click(screen.getByText("Edit"));
 
@@ -105,7 +115,7 @@ describe("ProfileCard Component", () => {
     });
   });
   it("resets the form and exits editing mode when 'Cancel' is clicked", () => {
-    render(<ProfileCard user={mockUser} />);
+    renderComponent();
 
     fireEvent.click(screen.getByText("Edit"));
 
@@ -133,7 +143,7 @@ describe("ProfileCard Component", () => {
       data: { message: "Password updated successfully" },
     });
 
-    render(<ProfileCard user={mockUser} />);
+    renderComponent();
 
     fireEvent.click(screen.getByText("Change Password"));
 
@@ -166,7 +176,7 @@ describe("ProfileCard Component", () => {
       response: { data: { error: "Failed to update password" } },
     });
 
-    render(<ProfileCard user={mockUser} />);
+    renderComponent();
 
     fireEvent.click(screen.getByText("Change Password"));
 

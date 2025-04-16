@@ -6,6 +6,17 @@ import AdoptCards from "../components/Adopt/AdoptCards";
 import PageHeader from "../components/PageHeader";
 import LoadingPage from "../components/LoadingPage/LoadingPage";
 import "@testing-library/jest-dom";
+import { createWrapper } from "../__mocks__/utils/testUtils";
+
+const wrapper = createWrapper();
+
+const renderComponent = () => {
+  return render(
+    wrapper({
+      children: <Favorite />,
+    })
+  );
+};
 
 jest.mock("../context/FavoritesContext");
 jest.mock("../helper/axios");
@@ -40,7 +51,7 @@ describe("Favorite Component", () => {
   });
 
   it("shows loading state initially", () => {
-    render(<Favorite />);
+    renderComponent();
     expect(screen.getByText("Loading...")).toBeVisible();
   });
 
@@ -49,7 +60,7 @@ describe("Favorite Component", () => {
       favorites: [],
     });
 
-    render(<Favorite />);
+    renderComponent();
 
     await waitFor(() => {
       expect(serverAPI.post).not.toHaveBeenCalled();
@@ -62,7 +73,7 @@ describe("Favorite Component", () => {
       data: { pets: mockPets },
     });
 
-    render(<Favorite />);
+    renderComponent();
 
     await waitFor(() => {
       expect(serverAPI.post).toHaveBeenCalledWith(
@@ -85,7 +96,7 @@ describe("Favorite Component", () => {
     (serverAPI.post as jest.Mock).mockRejectedValue(new Error("API Error"));
     console.error = jest.fn(); // Mock console.error
 
-    render(<Favorite />);
+    renderComponent();
 
     await waitFor(() => {
       expect(console.error).toHaveBeenCalledWith(
@@ -101,7 +112,7 @@ describe("Favorite Component", () => {
       data: { pets: mockPets },
     });
 
-    render(<Favorite />);
+    renderComponent();
 
     await waitFor(() => {
       expect(PageHeader).toHaveBeenCalledWith(

@@ -4,7 +4,17 @@ import RequestHistory from "../../pages/RequestHistory";
 import "@testing-library/jest-dom";
 import serverAPI from "../../helper/axios";
 import { mockAdoptRequests } from "../../__mocks__/mockAdoptRequests";
+import { createWrapper } from "../../__mocks__/utils/testUtils";
 
+const wrapper = createWrapper();
+
+const renderComponent = () => {
+  return render(
+    wrapper({
+      children: <RequestHistory />,
+    })
+  );
+};
 // Mock components
 jest.mock("../../components/LoadingPage/LoadingPage", () => () => (
   <div data-testid="mock-loading-page">Loading...</div>
@@ -48,12 +58,12 @@ describe("RequestHistory Page", () => {
   });
 
   it("renders loading page initially", () => {
-    render(<RequestHistory />);
+    renderComponent();
     expect(screen.getByTestId("mock-loading-page")).toBeVisible();
   });
 
   it("renders the main components after loading", async () => {
-    render(<RequestHistory />);
+    renderComponent();
     await waitFor(() =>
       expect(screen.queryByTestId("mock-loading-page")).not.toBeInTheDocument()
     );
@@ -65,7 +75,7 @@ describe("RequestHistory Page", () => {
   });
 
   it("fetches and displays requests", async () => {
-    render(<RequestHistory />);
+    renderComponent();
     await waitFor(() =>
       expect(screen.queryByTestId("mock-loading-page")).not.toBeInTheDocument()
     );
@@ -74,7 +84,7 @@ describe("RequestHistory Page", () => {
   });
 
   it("filters requests by date", async () => {
-    render(<RequestHistory />);
+    renderComponent();
     await waitFor(() =>
       expect(screen.queryByTestId("mock-loading-page")).not.toBeInTheDocument()
     );
@@ -84,7 +94,7 @@ describe("RequestHistory Page", () => {
   });
 
   it("filters requests by global filter", async () => {
-    render(<RequestHistory />);
+    renderComponent();
 
     await waitFor(() =>
       expect(screen.queryByTestId("mock-loading-page")).not.toBeInTheDocument()

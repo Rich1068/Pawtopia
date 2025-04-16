@@ -5,20 +5,27 @@ import { MemoryRouter } from "react-router";
 import { mockPets } from "../../__mocks__/mockPets";
 import { FavoritesProvider } from "../../context/FavoritesContext";
 import { AuthProvider } from "../../context/AuthContext";
+import { createWrapper } from "../../__mocks__/utils/testUtils";
+
+const wrapper = createWrapper();
 
 const renderCard = (pets = mockPets) => {
   return render(
-    <AuthProvider>
-      <FavoritesProvider>
-        <MemoryRouter>
-          <AdoptCards
-            pets={pets}
-            header={"No Pets Available"}
-            text={"Check back later or try selecting different filters."}
-          />
-        </MemoryRouter>
-      </FavoritesProvider>
-    </AuthProvider>
+    wrapper({
+      children: (
+        <AuthProvider>
+          <FavoritesProvider>
+            <MemoryRouter>
+              <AdoptCards
+                pets={pets}
+                header={"No Pets Available"}
+                text={"Check back later or try selecting different filters."}
+              />
+            </MemoryRouter>
+          </FavoritesProvider>
+        </AuthProvider>
+      ),
+    })
   );
 };
 

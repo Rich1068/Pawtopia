@@ -4,7 +4,17 @@ import { useAuth } from "../../context/AuthContext";
 import serverAPI from "../../helper/axios";
 import "@testing-library/jest-dom";
 import toast from "react-hot-toast";
+import { createWrapper } from "../../__mocks__/utils/testUtils";
 
+const wrapper = createWrapper();
+
+const renderComponent = () => {
+  return render(
+    wrapper({
+      children: <AdoptionForm petId="1" petName="Buddy" />,
+    })
+  );
+};
 jest.mock("../../context/AuthContext", () => ({
   useAuth: jest.fn(),
 }));
@@ -16,9 +26,6 @@ jest.mock("react-hot-toast", () => ({
 
 jest.mock("../../helper/axios");
 
-const renderComponent = () => {
-  return render(<AdoptionForm petId="1" petName="Buddy" />);
-};
 describe("AdoptionForm", () => {
   const mockUser = {
     name: "John Doe",

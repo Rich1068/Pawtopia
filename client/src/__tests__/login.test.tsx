@@ -6,7 +6,21 @@ import serverAPI from "../helper/axios";
 import Login from "../pages/Login";
 import toast from "react-hot-toast";
 import "@testing-library/jest-dom";
+import { createWrapper } from "../__mocks__/utils/testUtils";
 
+const wrapper = createWrapper();
+
+const renderComponent = () => {
+  return render(
+    wrapper({
+      children: (
+        <MemoryRouter>
+          <Login />
+        </MemoryRouter>
+      ),
+    })
+  );
+};
 jest.mock("../context/AuthContext", () => ({
   useAuth: jest.fn(),
 }));
@@ -51,11 +65,7 @@ describe("Login Component", () => {
   };
 
   it("renders login form correctly", () => {
-    render(
-      <MemoryRouter>
-        <Login />
-      </MemoryRouter>
-    );
+    renderComponent();
 
     expect(screen.getByText("Login")).toBeVisible();
     expect(screen.getByPlaceholderText("Enter email")).toBeVisible();
@@ -64,11 +74,7 @@ describe("Login Component", () => {
   });
 
   it("validates empty fields", async () => {
-    render(
-      <MemoryRouter>
-        <Login />
-      </MemoryRouter>
-    );
+    renderComponent();
     const emailInput = screen.getByPlaceholderText("Enter email");
     fireEvent.click(screen.getByText("Sign in"));
 
@@ -76,11 +82,7 @@ describe("Login Component", () => {
   });
 
   it("validates empty fields with custom validation", async () => {
-    render(
-      <MemoryRouter>
-        <Login />
-      </MemoryRouter>
-    );
+    renderComponent();
 
     const form = screen.getByTestId("login-form");
     form.setAttribute("noValidate", "true");
@@ -92,11 +94,7 @@ describe("Login Component", () => {
   });
 
   it("validates invalid email format", async () => {
-    render(
-      <MemoryRouter>
-        <Login />
-      </MemoryRouter>
-    );
+    renderComponent();
 
     fillLoginForm("invalid-email", "password123");
     fireEvent.click(screen.getByText("Sign in"));
@@ -109,11 +107,7 @@ describe("Login Component", () => {
   it("handles successful login", async () => {
     mockAPIResponse({ data: { message: "Login successful" } });
 
-    render(
-      <MemoryRouter>
-        <Login />
-      </MemoryRouter>
-    );
+    renderComponent();
 
     fillLoginForm("test@example.com", "password123");
     fireEvent.click(screen.getByText("Sign in"));
@@ -129,11 +123,7 @@ describe("Login Component", () => {
       data: { message: "Please Verify Email", email: "test@example.com" },
     });
 
-    render(
-      <MemoryRouter>
-        <Login />
-      </MemoryRouter>
-    );
+    renderComponent();
 
     fillLoginForm("test@example.com", "password123");
     fireEvent.click(screen.getByText("Sign in"));
@@ -150,11 +140,7 @@ describe("Login Component", () => {
       true
     );
 
-    render(
-      <MemoryRouter>
-        <Login />
-      </MemoryRouter>
-    );
+    renderComponent();
 
     fillLoginForm("wrong@example.com", "wrongpassword");
     fireEvent.click(screen.getByText("Sign in"));
@@ -167,11 +153,7 @@ describe("Login Component", () => {
   it("handles unknown API error", async () => {
     mockAPIResponse(new Error("Network Error"), true);
 
-    render(
-      <MemoryRouter>
-        <Login />
-      </MemoryRouter>
-    );
+    renderComponent();
 
     fillLoginForm("test@example.com", "password123");
     fireEvent.click(screen.getByText("Sign in"));
@@ -187,11 +169,7 @@ describe("Login Component", () => {
         new Promise((resolve) => setTimeout(() => resolve({ data: {} }), 1000))
     );
 
-    render(
-      <MemoryRouter>
-        <Login />
-      </MemoryRouter>
-    );
+    renderComponent();
 
     fillLoginForm("test@example.com", "password123");
     fireEvent.click(screen.getByText("Sign in"));
@@ -201,11 +179,7 @@ describe("Login Component", () => {
   });
 
   it("toggles rememberMe checkbox state", () => {
-    render(
-      <MemoryRouter>
-        <Login />
-      </MemoryRouter>
-    );
+    renderComponent();
 
     const rememberMeCheckbox = screen.getByRole("checkbox", {
       name: /remember me/i,

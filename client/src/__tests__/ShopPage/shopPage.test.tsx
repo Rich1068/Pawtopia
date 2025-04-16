@@ -2,7 +2,7 @@ import React from "react";
 import { render, screen, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import Shop, { fetchProducts } from "../../pages/Shop"; // Update path as needed
+import Shop from "../../pages/Shop"; // Update path as needed
 import serverAPI from "../../helper/axios";
 import { IProduct } from "../../types/Types";
 import { mockProducts } from "../../__mocks__/mockProducts";
