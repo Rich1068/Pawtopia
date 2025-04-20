@@ -4,7 +4,7 @@
   "main": "src/index.js",
   "scripts": {
     "build": "npx tsc",
-    "start": "npx tsc && node distro/index.js",
+    "start": "node distro/index.js",
     "dev": "nodemon"
   },
   "keywords": [],
