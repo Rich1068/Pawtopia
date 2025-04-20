@@ -20,6 +20,11 @@ db_connection();
 dotenv.config();
 const app = express();
 
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Credentials", "true");
+  next();
+});
+
 app.use(
   cors({
     origin: [process.env.CLIENT_URL!, "https://checkout.stripe.com"],
