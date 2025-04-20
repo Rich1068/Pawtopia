@@ -36,7 +36,28 @@ export const registerUser = async (
     await sendEmail(
       email,
       "Verify Your Email",
-      `Click the link to verify: <a href="${verifyUrl}">URL</a>`
+      `
+      <div style="font-family: Arial, sans-serif; color: #333;">
+        <h2 style="color: #f97316;">Welcome to Our Community!</h2>
+        <p>Please verify your email address to get started.</p>
+        <div style="margin: 20px 0;">
+          <a href="${verifyUrl}" 
+             style="
+               display: inline-block;
+               padding: 10px 20px;
+               background-color: #f97316;
+               color: white;
+               text-decoration: none;
+               border-radius: 6px;
+               font-weight: bold;
+             ">
+            Verify Email
+          </a>
+        </div>
+        <p>If you didn’t sign up, you can safely ignore this email.</p>
+        <p style="font-size: 14px; color: #888;">&mdash; Pawtopia</p>
+      </div>
+      `
     );
 
     res.status(200).json({

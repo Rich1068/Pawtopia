@@ -126,7 +126,29 @@ export const requestPasswordReset = async (
       await sendEmail(
         user.email!,
         "Reset Your Password",
-        `<p>Click <a href="${resetUrl}">here</a> to reset your password.</p>`
+        `
+        <div style="font-family: Arial, sans-serif; color: #333;">
+          <h2 style="color: #f97316;">Reset Your Password</h2>
+          <p>We received a request to reset your password. Click the button below to proceed:</p>
+          <div style="margin: 20px 0;">
+            <a href="${resetUrl}" 
+               style="
+                 display: inline-block;
+                 padding: 10px 20px;
+                 background-color: #f97316;
+                 color: white;
+                 text-decoration: none;
+                 border-radius: 6px;
+                 font-weight: bold;
+               ">
+              Reset Password
+            </a>
+          </div>
+          <p>If you didn’t request this, you can safely ignore this email.</p>
+          <p style="font-size: 14px; color: #888;">This link will expire in 1 hour.</p>
+          <p style="font-size: 14px; color: #888;">&mdash; The Support Team</p>
+        </div>
+        `
       );
     } catch (emailError) {
       console.error("Failed to send reset email:", emailError);
@@ -241,7 +263,28 @@ export const resendVerificationEmail = async (req: Request, res: Response) => {
     await sendEmail(
       email,
       "Verify Your Email",
-      `Click the link to verify your email: <a href="${verificationLink}">URL</a>`
+      `
+      <div style="font-family: Arial, sans-serif; color: #333;">
+        <h2 style="color: #f97316;">Welcome to Our Community!</h2>
+        <p>Please verify your email address to get started.</p>
+        <div style="margin: 20px 0;">
+          <a href="${verificationLink}" 
+             style="
+               display: inline-block;
+               padding: 10px 20px;
+               background-color: #f97316;
+               color: white;
+               text-decoration: none;
+               border-radius: 6px;
+               font-weight: bold;
+             ">
+            Verify Email
+          </a>
+        </div>
+        <p>If you didn’t sign up, you can safely ignore this email.</p>
+        <p style="font-size: 14px; color: #888;">&mdash; Pawtopia</p>
+      </div>
+      `
     );
 
     res.json({ message: "Verification email resent successfully." });
