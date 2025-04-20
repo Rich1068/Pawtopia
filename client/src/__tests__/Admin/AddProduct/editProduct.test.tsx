@@ -1,114 +1,123 @@
-import { render, screen, waitFor } from "@testing-library/react";
-import { useParams } from "react-router";
-import serverAPI from "../../../helper/axios";
+// EditProduct.test.tsx
+import { render, screen } from "@testing-library/react";
 import EditProduct from "../../../pages/Admin/EditProduct";
+import { useProduct } from "../../../hooks/useProducts";
+import { MemoryRouter, Route, Routes, useNavigate } from "react-router";
 import "@testing-library/jest-dom";
-import { createWrapper } from "../../../__mocks__/utils/testUtils";
+import userEvent from "@testing-library/user-event";
 
-const wrapper = createWrapper();
+// Mock the hook and components
+jest.mock("../../../hooks/useProducts");
 
-const renderComponent = () => {
-  return render(
-    wrapper({
-      children: <EditProduct />,
-    })
-  );
-};
-
-// Mock dependencies
-jest.mock("react-router", () => ({
-  ...jest.requireActual("react-router"),
-  useParams: jest.fn(),
-}));
-
-jest.mock("../../../helper/axios");
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-jest.mock("../../../pages/Admin/AddProducts", () => (props: any) => (
-  <div data-testid="add-product">
-    {props.productToEdit && (
-      <div data-testid="product-data">
-        {JSON.stringify(props.productToEdit)}
-      </div>
-    )}
-  </div>
-));
-
-describe("EditProduct Component", () => {
-  const mockProduct = {
-    _id: "123",
-    name: "Test Product",
-    price: 100,
-    description: "Test description",
-    // ... other product fields
+jest.mock("react-router", () => {
+  const actual = jest.requireActual("react-router");
+  return {
+    ...actual,
+    useParams: () => ({ id: "123" }),
+    useNavigate: jest.fn(),
   };
+});
 
-  beforeEach(() => {
-    jest.clearAllMocks();
-    (useParams as jest.Mock).mockReturnValue({ id: "123" });
-  });
+jest.mock("../../../pages/Admin/AddProducts", () =>
+  jest.fn(() => <div>AddProductComponent</div>)
+);
+jest.mock("../../../components/LoadingPage/LoadingPage", () => () => (
+  <div>Loading...</div>
+));
+jest.mock("../../../components/WarningContainer", () =>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ({ header, text, confirmText, onConfirm }: any) => (
+    <div>
+      <h2>{header}</h2>
+      <p>{text}</p>
+      <button onClick={onConfirm}>{confirmText}</button>
+    </div>
+  )
+);
 
-  it("shows loading state initially", () => {
-    (serverAPI.get as jest.Mock).mockImplementation(
-      () => new Promise(() => {})
+const mockedUseProduct = useProduct as jest.Mock;
+const mockNavigate = useNavigate as jest.Mock;
+
+describe("EditProduct UI", () => {
+  const renderWithRouter = () =>
+    render(
+      <MemoryRouter initialEntries={["/edit/123"]}>
+        <Routes>
+          <Route path="/edit/:id" element={<EditProduct />} />
+        </Routes>
+      </MemoryRouter>
     );
-    renderComponent();
+
+  it("shows loading state", () => {
+    mockedUseProduct.mockReturnValue({
+      isLoading: true,
+      isError: false,
+      data: null,
+      refetch: jest.fn(),
+    });
+
+    renderWithRouter();
+
     expect(screen.getByText("Loading...")).toBeVisible();
   });
 
-  it("fetches and displays product data", async () => {
-    (serverAPI.get as jest.Mock).mockResolvedValue({
-      data: { data: mockProduct },
+  it("shows error UI when product is not found", () => {
+    mockedUseProduct.mockReturnValue({
+      isLoading: false,
+      isError: true,
+      data: null,
+      refetch: jest.fn(),
     });
-    renderComponent();
 
-    await waitFor(() => {
-      expect(serverAPI.get).toHaveBeenCalledWith("/product/123");
-      expect(screen.getByTestId("product-data")).toHaveTextContent(
-        JSON.stringify(mockProduct)
-      );
-    });
+    renderWithRouter();
+
+    expect(screen.getByText("Product Not Found")).toBeVisible();
+    expect(screen.getByText(/doesn't exist/i)).toBeVisible();
+    expect(screen.getByRole("button", { name: /back/i })).toBeVisible();
   });
 
-  it("handles fetch errors", async () => {
-    const consoleSpy = jest.spyOn(console, "error");
-    (serverAPI.get as jest.Mock).mockRejectedValue(
-      new Error("Failed to fetch")
-    );
-
-    renderComponent();
-
-    await waitFor(() => {
-      expect(consoleSpy).toHaveBeenCalledWith(
-        "Failed to fetch product:",
-        expect.any(Error)
-      );
+  it("shows error UI when product is null", () => {
+    mockedUseProduct.mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: null,
+      refetch: jest.fn(),
     });
+
+    renderWithRouter();
+
+    expect(screen.getByText("Product Not Found")).toBeVisible();
   });
 
-  it("passes product data and refresh function to AddProduct", async () => {
-    (serverAPI.get as jest.Mock).mockResolvedValue({
-      data: { data: mockProduct },
+  it("renders AddProduct when product is available", () => {
+    mockedUseProduct.mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: { name: "Product A", id: "123" },
+      refetch: jest.fn(),
     });
-    renderComponent();
 
-    await waitFor(() => {
-      expect(screen.getByTestId("add-product")).toBeVisible();
-      expect(screen.getByTestId("product-data")).toBeVisible();
-    });
+    renderWithRouter();
+
+    expect(screen.getByText("AddProductComponent")).toBeVisible();
   });
 
-  it("re-fetches when id changes", async () => {
-    const { render } = render(serverAPI.get as jest.Mock).mockResolvedValue({
-      data: { data: mockProduct },
+  it("calls navigate(-1) when Back button is clicked", async () => {
+    const mockNavFn = jest.fn();
+    mockNavigate.mockReturnValue(mockNavFn);
+
+    mockedUseProduct.mockReturnValue({
+      isLoading: false,
+      isError: true,
+      data: null,
+      refetch: jest.fn(),
     });
 
-    // Change the mock params
-    (useParams as jest.Mock).mockReturnValue({ id: "456" });
-    renderComponent();
+    renderWithRouter();
 
-    await waitFor(() => {
-      expect(serverAPI.get).toHaveBeenCalledWith("/product/456");
-    });
+    const backBtn = screen.getByRole("button", { name: /back/i });
+    await userEvent.click(backBtn);
+
+    expect(mockNavFn).toHaveBeenCalledWith(-1);
   });
 });

@@ -1,104 +1,184 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import ProductActionButtons from "../../../components/shop/Admin/ProductList/ProductActionButtons";
-import serverAPI from "../../../helper/axios";
-import "@testing-library/jest-dom";
-import toast from "react-hot-toast";
-import { mockProduct } from "../../../__mocks__/mockProducts";
 import { MemoryRouter } from "react-router";
+import { mockProduct } from "../../../__mocks__/mockProducts";
+import "@testing-library/jest-dom";
 
 jest.mock("lucide-react");
-jest.mock("react-router", () => ({
-  ...jest.requireActual("react-router"),
-  Link: ({ to, children }: { to: string; children: React.ReactNode }) => (
-    <a href={to}>{children}</a>
-  ),
-}));
-jest.mock("react-hot-toast", () => ({
-  success: jest.fn(),
-  error: jest.fn(),
-}));
 
-jest.mock("../../../helper/axios", () => ({
-  delete: jest.fn(),
-}));
+const setup = (
+  isArchived = false,
+  overrides: Partial<{
+    onDelete: jest.Mock;
+    onArchive: jest.Mock;
+    onRecover: jest.Mock;
+  }> = {}
+) => {
+  const onDelete = overrides.onDelete ?? jest.fn();
+  const onArchive = overrides.onArchive ?? jest.fn();
+  const onRecover = overrides.onRecover ?? jest.fn();
 
-describe("ProductActionButtons Component", () => {
-  const mockOnDelete = jest.fn();
-  const mockOnArchive = jest.fn();
-  const mockOnRecover = jest.fn();
+  const product = { ...mockProduct, isArchived };
 
-  const renderComponent = () =>
-    render(
-      <MemoryRouter>
-        <ProductActionButtons
-          product={mockProduct}
-          onDelete={mockOnDelete}
-          onArchive={mockOnArchive}
-          onRecover={mockOnRecover}
-        />
-      </MemoryRouter>
-    );
+  render(
+    <MemoryRouter>
+      <ProductActionButtons
+        product={product}
+        onDelete={onDelete}
+        onArchive={onArchive}
+        onRecover={onRecover}
+      />
+    </MemoryRouter>
+  );
 
-  beforeEach(() => jest.clearAllMocks());
+  return { onDelete, onArchive, onRecover };
+};
 
-  it("renders all action buttons", () => {
-    renderComponent();
-
-    expect(screen.getByTestId("view-button")).toBeVisible();
-    expect(screen.getByTestId("edit-button")).toBeVisible();
-    expect(screen.getByTestId("delete-button")).toBeVisible();
+describe("ProductActionButtons", () => {
+  it("renders view and edit buttons", () => {
+    setup();
+    expect(screen.getByTestId("view-button")).toBeInTheDocument();
+    expect(screen.getByTestId("edit-button")).toBeInTheDocument();
   });
 
-  it("opens and closes the delete confirmation modal", () => {
-    renderComponent();
+  it("shows archive button if product is not archived", () => {
+    setup(false);
+    expect(screen.getByTestId("archive-button")).toBeInTheDocument();
+    expect(screen.queryByTestId("recover-button")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("delete-button")).not.toBeInTheDocument();
+  });
 
-    fireEvent.click(screen.getByTestId("delete-button"));
+  it("shows recover and delete buttons if product is archived", () => {
+    setup(true);
+    expect(screen.getByTestId("recover-button")).toBeInTheDocument();
+    expect(screen.getByTestId("delete-button")).toBeInTheDocument();
+    expect(screen.queryByTestId("archive-button")).not.toBeInTheDocument();
+  });
 
-    expect(screen.getByText(/confirm deletion/i)).toBeVisible();
+  it("opens modal when archive is clicked", async () => {
+    setup(false);
+    fireEvent.click(screen.getByTestId("archive-button"));
+    expect(await screen.findByText("Confirm Archiving")).toBeInTheDocument();
     expect(
-      screen.getByText(/Are you sure you want to delete "Premium Dog Food"\?/i)
-    ).toBeVisible();
-
-    fireEvent.click(screen.getByText(/close/i));
-
-    expect(screen.queryByText(/confirm deletion/i)).not.toBeInTheDocument();
+      screen.getByText(/Are you sure you want to archive "Premium Dog Food"/)
+    ).toBeInTheDocument();
   });
 
-  it("calls API and onDelete when delete is confirmed", async () => {
-    (serverAPI.delete as jest.Mock).mockResolvedValueOnce({});
+  it("opens modal when recover is clicked", async () => {
+    setup(true);
+    fireEvent.click(screen.getByTestId("recover-button"));
+    expect(await screen.findByText("Confirm Recovery")).toBeInTheDocument();
+    expect(
+      screen.getByText(/Are you sure you want to recover "Premium Dog Food"/)
+    ).toBeInTheDocument();
+  });
 
-    renderComponent();
+  it("opens modal when delete is clicked", async () => {
+    setup(true);
     fireEvent.click(screen.getByTestId("delete-button"));
-    fireEvent.click(screen.getByRole("button", { name: "Delete" }));
+    expect(await screen.findByText("Confirm Deletion")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        /Are you sure you want to Permanently Delete "Premium Dog Food"/
+      )
+    ).toBeInTheDocument();
+  });
 
-    await waitFor(() => {
-      expect(serverAPI.delete).toHaveBeenCalledWith("/product/1", {
-        withCredentials: true,
-      });
-      expect(mockOnDelete).toHaveBeenCalledWith("1");
-      expect(toast.success).toHaveBeenCalledWith(
-        "Product Successfully Deleted"
-      );
+  it("calls onArchive after confirming archive", async () => {
+    const { onArchive } = setup(false);
+    fireEvent.click(screen.getByTestId("archive-button"));
+    const confirmButton = await screen.findByText("Archive");
+    fireEvent.click(confirmButton);
+    await waitFor(() => expect(onArchive).toHaveBeenCalledWith("1"));
+  });
+
+  it("calls onRecover after confirming recovery", async () => {
+    const { onRecover } = setup(true);
+    fireEvent.click(screen.getByTestId("recover-button"));
+    const confirmButton = await screen.findByText("Recover");
+    fireEvent.click(confirmButton);
+    await waitFor(() => expect(onRecover).toHaveBeenCalledWith("1"));
+  });
+
+  it("calls onDelete after confirming delete", async () => {
+    const { onDelete } = setup(true);
+    fireEvent.click(screen.getByTestId("delete-button"));
+    const confirmButton = await screen.findByText("Delete");
+    fireEvent.click(confirmButton);
+    await waitFor(() => expect(onDelete).toHaveBeenCalledWith("1"));
+  });
+
+  describe("ProductActionButtons error handling", () => {
+    let consoleErrorSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      consoleErrorSpy = jest
+        .spyOn(console, "error")
+        .mockImplementation(() => {});
     });
-  });
 
-  it("handles API errors correctly", async () => {
-    (serverAPI.delete as jest.Mock).mockRejectedValueOnce(
-      new Error("API Error")
-    );
+    afterEach(() => {
+      consoleErrorSpy.mockRestore();
+    });
 
-    renderComponent();
-    fireEvent.click(screen.getByTestId("delete-button"));
-    fireEvent.click(screen.getByRole("button", { name: "Delete" }));
-
-    await waitFor(() => {
-      expect(serverAPI.delete).toHaveBeenCalledWith("/product/1", {
-        withCredentials: true,
+    it("logs an error when onArchive throws", async () => {
+      const errorMessage = "Archive failed";
+      const onArchive = jest.fn(() => {
+        throw new Error(errorMessage);
       });
-      expect(mockOnDelete).not.toHaveBeenCalled();
-      expect(toast.error).toHaveBeenCalledWith(
-        "Error deleting product. Please try again."
-      );
+
+      setup(false, { onArchive });
+
+      fireEvent.click(screen.getByTestId("archive-button"));
+      const confirmButton = await screen.findByText("Archive");
+      fireEvent.click(confirmButton);
+
+      await waitFor(() => {
+        expect(consoleErrorSpy).toHaveBeenCalledWith(
+          "Failed to archive product:",
+          expect.any(Error)
+        );
+      });
+    });
+
+    it("logs an error when onRecover throws", async () => {
+      const errorMessage = "Recover failed";
+      const onRecover = jest.fn(() => {
+        throw new Error(errorMessage);
+      });
+
+      setup(true, { onRecover });
+
+      fireEvent.click(screen.getByTestId("recover-button"));
+      const confirmButton = await screen.findByText("Recover");
+      fireEvent.click(confirmButton);
+
+      await waitFor(() => {
+        expect(consoleErrorSpy).toHaveBeenCalledWith(
+          "Failed to recover product: ",
+          expect.any(Error)
+        );
+      });
+    });
+
+    it("logs an error when onDelete throws", async () => {
+      const errorMessage = "Delete failed";
+      const onDelete = jest.fn(() => {
+        throw new Error(errorMessage);
+      });
+
+      setup(true, { onDelete });
+
+      fireEvent.click(screen.getByTestId("delete-button"));
+      const confirmButton = await screen.findByText("Delete");
+      fireEvent.click(confirmButton);
+
+      await waitFor(() => {
+        expect(consoleErrorSpy).toHaveBeenCalledWith(
+          "Failed to delete product:",
+          expect.any(Error)
+        );
+      });
     });
   });
 });

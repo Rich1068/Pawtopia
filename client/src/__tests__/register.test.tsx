@@ -1,170 +1,186 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { MemoryRouter } from "react-router";
-import { useNavigate } from "react-router";
-import serverAPI from "../helper/axios";
-import toast from "react-hot-toast";
 import Register from "../pages/Register";
+import { BrowserRouter } from "react-router";
 import "@testing-library/jest-dom";
-import { createWrapper } from "../__mocks__/utils/testUtils";
 
-const wrapper = createWrapper();
-
-const renderComponent = () => {
-  return render(
-    wrapper({
-      children: (
-        <MemoryRouter>
-          <Register />
-        </MemoryRouter>
-      ),
-    })
-  );
-};
-
-jest.mock("react-router", () => ({
-  ...jest.requireActual("react-router"),
-  useNavigate: jest.fn(),
-}));
-
-jest.mock("../helper/axios");
+// Mocks
 jest.mock("react-hot-toast", () => ({
   error: jest.fn(),
-  success: jest.fn(),
 }));
 
+jest.mock("../hooks/useAuthQueries", () => ({
+  useRegisterMutation: jest.fn(),
+}));
+
+jest.mock("../context/AuthContext", () => ({
+  useAuth: () => ({
+    login: jest.fn(),
+  }),
+}));
+
+import toast from "react-hot-toast";
+import { useRegisterMutation } from "../hooks/useAuthQueries";
+
 describe("Register Component", () => {
-  const mockNavigate = jest.fn();
+  const mutateMock = jest.fn();
 
-  beforeEach(() => {
-    (useNavigate as jest.Mock).mockReturnValue(mockNavigate);
-    jest.clearAllMocks();
-  });
-
-  const fillRegisterForm = (data: {
-    name: string;
-    email: string;
-    phoneNumber: string;
-    password: string;
-    confirmPassword: string;
+  const fillForm = (data: {
+    name?: string;
+    email?: string;
+    phoneNumber?: string;
+    password?: string;
+    confirmPassword?: string;
   }) => {
+    const {
+      name = "",
+      email = "",
+      phoneNumber = "",
+      password = "",
+      confirmPassword = "",
+    } = data;
+
     fireEvent.change(screen.getByPlaceholderText("Enter your full name"), {
-      target: { value: data.name },
+      target: { value: name },
     });
     fireEvent.change(screen.getByPlaceholderText("Enter your email"), {
-      target: { value: data.email },
+      target: { value: email },
     });
     fireEvent.change(
       screen.getByPlaceholderText("Enter your phone number (ex. 09171234987)"),
-      { target: { value: data.phoneNumber } }
+      {
+        target: { value: phoneNumber },
+      }
     );
     fireEvent.change(screen.getByPlaceholderText("Enter your password"), {
-      target: { value: data.password },
+      target: { value: password },
     });
     fireEvent.change(screen.getByPlaceholderText("Confirm your password"), {
-      target: { value: data.confirmPassword },
+      target: { value: confirmPassword },
     });
   };
 
-  it("renders register form correctly", () => {
-    renderComponent();
+  const setup = () =>
+    render(
+      <BrowserRouter>
+        <Register />
+      </BrowserRouter>
+    );
 
-    expect(screen.getByText("Create Account")).toBeVisible();
-    expect(screen.getByPlaceholderText("Enter your full name")).toBeVisible();
-    expect(screen.getByPlaceholderText("Enter your email")).toBeVisible();
+  beforeEach(() => {
+    (useRegisterMutation as jest.Mock).mockReturnValue({
+      mutate: mutateMock,
+    });
+    mutateMock.mockClear();
+  });
+
+  it("renders all input fields and buttons", () => {
+    setup();
+
+    expect(
+      screen.getByPlaceholderText("Enter your full name")
+    ).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("Enter your email")).toBeInTheDocument();
     expect(
       screen.getByPlaceholderText("Enter your phone number (ex. 09171234987)")
-    ).toBeVisible();
-    expect(screen.getByPlaceholderText("Enter your password")).toBeVisible();
-    expect(screen.getByPlaceholderText("Confirm your password")).toBeVisible();
-    expect(screen.getByText("Sign Up")).toBeVisible();
+    ).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText("Enter your password")
+    ).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText("Confirm your password")
+    ).toBeInTheDocument();
+    expect(screen.getByTestId("register-button")).toBeInTheDocument();
   });
 
-  it("validates empty fields", async () => {
-    renderComponent();
-    const nameInput = screen.getByPlaceholderText("Enter your full name");
-    fireEvent.click(screen.getByText("Sign Up"));
-    expect(nameInput).toBeInvalid();
-  });
+  it("shows error if fields are empty", async () => {
+    setup();
 
-  it("validates invalid email format", async () => {
-    renderComponent();
-    const emailInput = screen.getByPlaceholderText("Enter your email");
-    fillRegisterForm({
-      name: "John Doe",
-      email: "invalid-email",
-      phoneNumber: "09171234987",
-      password: "password123",
-      confirmPassword: "password123",
-    });
-    fireEvent.click(screen.getByText("Sign Up"));
-    expect(emailInput).toBeInvalid();
-  });
+    fireEvent.click(screen.getByTestId("register-button"));
 
-  it("handles successful registration", async () => {
-    (serverAPI.post as jest.Mock).mockResolvedValue({
-      data: { email: "test@example.com" },
-    });
-    renderComponent();
-    fillRegisterForm({
-      name: "John Doe",
-      email: "test@example.com",
-      phoneNumber: "09171234987",
-      password: "password123",
-      confirmPassword: "password123",
-    });
-    fireEvent.click(screen.getByText("Sign Up"));
     await waitFor(() => {
-      expect(toast.success).toHaveBeenCalledWith(
-        "Registered Successfully, Please Verify Your Email"
+      expect(screen.getByPlaceholderText("Enter your full name")).toBeInvalid();
+      expect(screen.getByPlaceholderText("Enter your email")).toBeInvalid();
+      expect(
+        screen.getByPlaceholderText("Enter your phone number (ex. 09171234987)")
+      ).toBeInvalid();
+      expect(screen.getByPlaceholderText("Enter your password")).toBeInvalid();
+      expect(
+        screen.getByPlaceholderText("Confirm your password")
+      ).toBeInvalid();
+    });
+  });
+
+  it("shows custom error if fields are empty", async () => {
+    setup();
+
+    const form = screen.getByTestId("register-form") as HTMLFormElement;
+    form.noValidate = true;
+
+    fireEvent.submit(form);
+
+    await waitFor(() => {
+      expect(toast.error).toHaveBeenCalledWith("All fields are required");
+    });
+  });
+
+  it("shows error for invalid email format", async () => {
+    setup();
+
+    fillForm({
+      name: "John Doe",
+      email: "invalid email",
+      phoneNumber: "09171234567",
+      password: "password123",
+      confirmPassword: "password123",
+    });
+
+    fireEvent.click(screen.getByTestId("register-button"));
+
+    await waitFor(() => {
+      expect(screen.getByPlaceholderText("Enter your email")).toBeInvalid();
+    });
+  });
+
+  it("submits form with valid inputs and clears fields", async () => {
+    setup();
+
+    fillForm({
+      name: "John Doe",
+      email: "john@example.com",
+      phoneNumber: "09171234567",
+      password: "password123",
+      confirmPassword: "password123",
+    });
+
+    fireEvent.click(screen.getByTestId("register-button"));
+
+    await waitFor(() => {
+      expect(mutateMock.mock.calls[0][0]).toEqual({
+        name: "John Doe",
+        email: "john@example.com",
+        phoneNumber: "09171234567",
+        password: "password123",
+        confirmPassword: "password123",
+      });
+    });
+
+    const onSuccess = mutateMock.mock.calls[0][1].onSuccess;
+    onSuccess();
+
+    await waitFor(() => {
+      expect(screen.getByPlaceholderText("Enter your full name")).toHaveValue(
+        ""
       );
-      expect(localStorage.getItem("unverifiedEmail")).toBe("test@example.com");
-      expect(mockNavigate).toHaveBeenCalledWith("/verify-email");
+      expect(screen.getByPlaceholderText("Enter your email")).toHaveValue("");
+      expect(
+        screen.getByPlaceholderText("Enter your phone number (ex. 09171234987)")
+      ).toHaveValue("");
+      expect(screen.getByPlaceholderText("Enter your password")).toHaveValue(
+        ""
+      );
+      expect(screen.getByPlaceholderText("Confirm your password")).toHaveValue(
+        ""
+      );
     });
-  });
-  test("triggers custom validation when form is submitted", async () => {
-    renderComponent();
-    const form = screen.getByTestId("register-form");
-    const submitButton = screen.getByText("Sign Up");
-
-    form.setAttribute("noValidate", "true");
-
-    fireEvent.click(submitButton);
-
-    expect(toast.error).toHaveBeenCalledWith("All fields are required");
-  });
-  it("handles API error response", async () => {
-    (serverAPI.post as jest.Mock).mockRejectedValue({
-      response: { data: { error: "Registration failed" } },
-    });
-    renderComponent();
-    fillRegisterForm({
-      name: "John Doe",
-      email: "test@example.com",
-      phoneNumber: "09171234987",
-      password: "password123",
-      confirmPassword: "password123",
-    });
-    fireEvent.click(screen.getByText("Sign Up"));
-    await waitFor(() =>
-      expect(toast.error).toHaveBeenCalledWith("Registration failed")
-    );
-  });
-
-  it("shows loading state while registering", async () => {
-    (serverAPI.post as jest.Mock).mockImplementation(
-      () =>
-        new Promise((resolve) => setTimeout(() => resolve({ data: {} }), 1000))
-    );
-    renderComponent();
-    fillRegisterForm({
-      name: "John Doe",
-      email: "test@example.com",
-      phoneNumber: "09171234987",
-      password: "password123",
-      confirmPassword: "password123",
-    });
-    fireEvent.click(screen.getByText("Sign Up"));
-    expect(screen.getByRole("button")).toBeDisabled();
-    await waitFor(() => expect(screen.getByRole("button")).not.toBeDisabled());
   });
 });

@@ -1,214 +1,133 @@
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import Checkout from "../../pages/Checkout";
-import { useCart } from "../../context/CartContext";
-import { MemoryRouter } from "react-router";
-import serverAPI from "../../helper/axios";
-import { getFullImageUrl } from "../../helper/imageHelper";
+import * as checkoutHook from "../../hooks/useCheckout";
+import { BrowserRouter } from "react-router";
+import { mockProduct } from "../../__mocks__/mockProducts";
 import "@testing-library/jest-dom";
-import toast from "react-hot-toast";
-import { createWrapper } from "../../__mocks__/utils/testUtils";
 
-const wrapper = createWrapper();
+// Mock PageHeader
+jest.mock("../../components/PageHeader", () => ({
+  __esModule: true,
+  default: () => <div data-testid="mock-page-header">Checkout Header</div>,
+}));
 
-const renderComponent = () => {
-  return render(
-    wrapper({
-      children: (
-        <MemoryRouter>
-          <Checkout />
-        </MemoryRouter>
-      ),
-    })
-  );
-};
-// Mock dependencies
-jest.mock("../../context/CartContext");
-jest.mock("../../helper/axios");
-jest.mock("../../helper/imageHelper");
 jest.mock("lucide-react");
-jest.mock("react-hot-toast", () => ({ error: jest.fn(), success: jest.fn() }));
 
-const mockCart = {
-  products: [
-    {
-      _id: "1",
-      productId: {
-        _id: "prod1",
-        name: "Test Product 1",
-        price: "29.99",
-        images: ["image1.jpg"],
-      },
-      quantity: 2,
-    },
-    {
-      _id: "2",
-      productId: {
-        _id: "prod2",
-        name: "Test Product 2",
-        price: "39.99",
-        images: ["image2.jpg"],
-      },
-      quantity: 1,
-    },
-  ],
+// Wrapper for rendering with router
+const renderWithRouter = (ui: React.ReactNode) => {
+  return render(<BrowserRouter>{ui}</BrowserRouter>);
 };
 
-describe("Checkout Component", () => {
-  const mockAddToCart = jest.fn();
-  const mockDecreaseFromCart = jest.fn();
-  const mockRemoveFromCart = jest.fn();
-
+describe("Checkout Page", () => {
   beforeEach(() => {
-    (useCart as jest.Mock).mockReturnValue({
-      cart: mockCart,
-      addToCart: mockAddToCart,
-      decreaseFromCart: mockDecreaseFromCart,
-      removeFromCart: mockRemoveFromCart,
-    });
-    (getFullImageUrl as jest.Mock).mockImplementation(
-      (img) => `http://example.com/${img}`
-    );
-    (serverAPI.post as jest.Mock).mockResolvedValue({
-      data: { url: "https://payment.example.com" },
-    });
-  });
-
-  afterEach(() => {
     jest.clearAllMocks();
   });
 
-  it("renders checkout page with correct title", () => {
-    renderComponent();
-    expect(screen.getByTestId("cart-title")).toHaveTextContent("Shopping Cart");
-  });
-
-  it("displays all cart items with correct information", () => {
-    renderComponent();
-
-    const cartItems = screen.getAllByTestId("cart-item");
-    expect(cartItems).toHaveLength(mockCart.products.length);
-
-    // Loop through each product and verify its details
-    mockCart.products.forEach((product) => {
-      const productId = product.productId._id;
-      const expectedSubtotal = (
-        parseFloat(product.productId.price) * product.quantity
-      ).toFixed(2);
-
-      expect(screen.getByTestId(`product-name-${productId}`)).toHaveTextContent(
-        product.productId.name
-      );
-      expect(
-        screen.getByTestId(`product-price-${productId}`)
-      ).toHaveTextContent(`$${parseFloat(product.productId.price).toFixed(2)}`);
-      expect(screen.getByTestId(`quantity-input-${productId}`)).toHaveValue(
-        product.quantity.toString()
-      );
-      expect(
-        screen.getByTestId(`item-subtotal-${productId}`)
-      ).toHaveTextContent(`$${expectedSubtotal}`);
-    });
-  });
-
-  it("calculates and displays correct total", () => {
-    renderComponent();
-    const expectedTotal = 29.99 * 2 + 39.99;
-    expect(screen.getByTestId("cart-total")).toHaveTextContent(
-      `$${expectedTotal.toFixed(2)}`
-    );
-  });
-
-  it("handles quantity adjustments", () => {
-    renderComponent();
-
-    fireEvent.click(screen.getByTestId("decrease-quantity-prod1"));
-    expect(mockDecreaseFromCart).toHaveBeenCalledWith("prod1", 1);
-
-    fireEvent.click(screen.getByTestId("increase-quantity-prod1"));
-    expect(mockAddToCart).toHaveBeenCalledWith("prod1", 1);
-  });
-
-  it("handles item removal", () => {
-    renderComponent();
-    fireEvent.click(screen.getByTestId("remove-item-prod1"));
-    expect(mockRemoveFromCart).toHaveBeenCalledWith("prod1");
-  });
-
-  it("displays empty cart message when no products", () => {
-    (useCart as jest.Mock).mockReturnValue({
-      cart: { products: [] },
-      addToCart: mockAddToCart,
-      decreaseFromCart: mockDecreaseFromCart,
-      removeFromCart: mockRemoveFromCart,
+  it("shows empty cart message", () => {
+    jest.spyOn(checkoutHook, "default").mockReturnValue({
+      cart: null,
+      cartLength: 0,
+      total: 0,
+      loading: false,
+      hasInvalidItems: false,
+      handleAdd: jest.fn(),
+      handleDecrease: jest.fn(),
+      removeFromCart: jest.fn(),
+      handleCheckout: jest.fn(),
+      updatingProductId: null,
     });
 
-    renderComponent();
+    renderWithRouter(<Checkout />);
+
+    expect(screen.getByTestId("mock-page-header")).toBeVisible();
     expect(screen.getByTestId("empty-cart-message")).toHaveTextContent(
       "Your cart is empty."
     );
+    expect(screen.getByTestId("cart-total")).toHaveTextContent("$0.00");
   });
 
-  it("handles checkout process", async () => {
-    renderComponent();
+  it("renders cart items and handles interaction", () => {
+    const mockAdd = jest.fn();
+    const mockDecrease = jest.fn();
+    const mockRemove = jest.fn();
+    const mockCheckout = jest.fn();
 
-    fireEvent.click(screen.getByTestId("checkout-button"));
-
-    await waitFor(() => {
-      expect(serverAPI.post).toHaveBeenCalledWith(
-        "/cart/checkout",
-        { products: mockCart.products },
-        { withCredentials: true }
-      );
+    jest.spyOn(checkoutHook, "default").mockReturnValue({
+      cart: {
+        _id: "1",
+        userId: "user1",
+        products: [
+          {
+            _id: "cartItem1",
+            quantity: 2,
+            productId: mockProduct,
+          },
+        ],
+        createdAt: "2025-03-05T09:45:00Z",
+        updatedAt: "2025-03-05T09:45:00Z",
+      },
+      cartLength: 1,
+      total: 50,
+      loading: false,
+      hasInvalidItems: false,
+      handleAdd: mockAdd,
+      handleDecrease: mockDecrease,
+      removeFromCart: mockRemove,
+      handleCheckout: mockCheckout,
+      updatingProductId: null,
     });
+
+    renderWithRouter(<Checkout />);
+
+    expect(screen.getByText("Premium Dog Food")).toBeVisible();
+    expect(screen.getByText("$25.00")).toBeVisible();
+    expect(screen.getByTestId("cart-total")).toHaveTextContent("$50.00");
+
+    // Simulate user clicking + and -
+    fireEvent.click(screen.getByTestId("icon-Plus").parentElement!);
+    expect(mockAdd).toHaveBeenCalledWith("1");
+
+    fireEvent.click(screen.getByTestId("icon-Minus").parentElement!);
+    expect(mockDecrease).toHaveBeenCalledWith("1");
+
+    fireEvent.click(screen.getByText("Remove"));
+    expect(mockRemove).toHaveBeenCalledWith("cartItem1");
+
+    fireEvent.click(screen.getByText("Proceed to Payment"));
+    expect(mockCheckout).toHaveBeenCalled();
   });
 
-  it("shows loading state during checkout", async () => {
-    renderComponent();
-
-    fireEvent.click(screen.getByTestId("checkout-button"));
-    expect(screen.getByTestId("loading-spinner")).toBeVisible();
-
-    await waitFor(() => {
-      expect(screen.queryByTestId("loading-spinner")).not.toBeInTheDocument();
+  it("disables checkout when invalid items exist", () => {
+    jest.spyOn(checkoutHook, "default").mockReturnValue({
+      cart: {
+        _id: "1",
+        userId: "user1",
+        products: [
+          {
+            _id: "cartItem1",
+            quantity: 1,
+            productId: null, // deleted product
+          },
+        ],
+        createdAt: "2025-03-05T09:45:00Z",
+        updatedAt: "2025-03-05T09:45:00Z",
+      },
+      cartLength: 1,
+      total: 0,
+      loading: false,
+      hasInvalidItems: true,
+      handleAdd: jest.fn(),
+      handleDecrease: jest.fn(),
+      removeFromCart: jest.fn(),
+      handleCheckout: jest.fn(),
+      updatingProductId: null,
     });
-  });
 
-  it("displays continue shopping link", () => {
-    renderComponent();
-    const link = screen.getByTestId("continue-shopping-link");
-    expect(link).toHaveTextContent("Continue Shopping");
-    expect(link).toHaveAttribute("href", "/shop");
-  });
+    renderWithRouter(<Checkout />);
 
-  it("renders product images correctly", () => {
-    renderComponent();
-    expect(getFullImageUrl).toHaveBeenCalledWith("image1.jpg");
-    expect(getFullImageUrl).toHaveBeenCalledWith("image2.jpg");
-    expect(screen.getByTestId("product-image-prod1")).toHaveAttribute(
-      "src",
-      "http://example.com/image1.jpg"
-    );
-  });
-  it("handles checkout error and shows error toast", async () => {
-    (serverAPI.post as jest.Mock).mockRejectedValueOnce(new Error("API Error"));
-
-    renderComponent();
-
-    fireEvent.click(screen.getByTestId("checkout-button"));
-    await waitFor(() => {
-      expect(screen.getByTestId("loading-spinner")).toBeVisible();
-    });
-    await waitFor(() => {
-      expect(serverAPI.post).toHaveBeenCalledWith(
-        "/cart/checkout",
-        { products: mockCart.products },
-        { withCredentials: true }
-      );
-      expect(toast.error).toHaveBeenCalledWith(
-        "Failed to process checkout. Please try again later."
-      );
-
-      expect(screen.queryByTestId("loading-spinner")).not.toBeInTheDocument();
-    });
+    expect(
+      screen.getByText("Please remove unavailable products before checkout.")
+    ).toBeVisible();
+    expect(screen.getByText("Proceed to Payment")).toBeDisabled();
   });
 });

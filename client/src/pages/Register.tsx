@@ -88,6 +88,7 @@ export const Register = () => {
           ))}
 
           <button
+            data-testid="register-button"
             type="submit"
             disabled={isPending}
             className={`w-full flex items-center justify-center py-3 px-4 text-md font-semibold font-secondary tracking-wider rounded-lg text-white bg-orange-600 hover:bg-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-400 transition-all ${

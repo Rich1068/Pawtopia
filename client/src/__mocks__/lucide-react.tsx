@@ -34,6 +34,10 @@ export const LayoutGrid = createMockIcon("LayoutGrid");
 export const LogOut = createMockIcon("LogOut");
 export const Mail = createMockIcon("Mail");
 export const ShoppingBag = createMockIcon("ShoppingBag");
+export const ArrowUp = createMockIcon("ArrowUp");
+export const ArrowDown = createMockIcon("ArrowDown");
+export const ArrowUpDown = createMockIcon("ArrowUpDown");
+export const Archive = createMockIcon("Archive");
 // Default export fallback if needed
 export default {
   __esModule: true,
@@ -65,4 +69,8 @@ export default {
   LogOut,
   Mail,
   ShoppingBag,
+  ArrowUp,
+  ArrowDown,
+  ArrowUpDown,
+  Archive,
 };

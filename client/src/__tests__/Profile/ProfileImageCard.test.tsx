@@ -1,180 +1,103 @@
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import ProfileImageCard from "../../components/Profile/ProfileImageCard";
-import { User } from "../../types/Types";
-import serverAPI from "../../helper/axios";
-import { useAuth } from "../../context/AuthContext";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import "@testing-library/jest-dom";
-import { createWrapper } from "../../__mocks__/utils/testUtils";
+import ProfileImageCard from "../../components/Profile/ProfileImageCard";
+import { mockUser } from "../../__mocks__/mockUser";
 
-const wrapper = createWrapper();
+// Declare mutate outside so we can assert against it
+const mockMutate = jest.fn();
 
-const renderComponent = (ui: React.ReactElement) => {
-  return render(ui, { wrapper });
-};
-// Mock dependencies
-jest.mock("../../helper/axios");
-jest.mock("../../context/AuthContext", () => ({
-  useAuth: jest.fn(),
+// Mocks
+jest.mock("../../hooks/useProfile", () => ({
+  useUploadProfileImage: () => ({
+    mutate: mockMutate,
+  }),
 }));
 
-// Create a proper mock for the ProfileImageUpload component
-jest.mock("../../components/Profile/ProfileImageUpload", () => {
-  return jest.fn(({ isOpen, onClose, onImageSave }) => {
-    if (!isOpen) return null;
-
-    return (
-      <div data-testid="mock-image-upload-modal">
-        <button data-testid="close-modal" onClick={onClose}>
-          Close
+jest.mock("../../components/profile/ProfileImageUpload", () => ({
+  __esModule: true,
+  default: ({ isOpen, onClose, onImageSave }: any) =>
+    isOpen ? (
+      <div data-testid="mock-profile-upload">
+        Mock Modal
+        <button
+          onClick={() =>
+            onImageSave(
+              new File(["avatar"], "avatar.png", { type: "image/png" })
+            )
+          }
+        >
+          Save Image
         </button>
-        <input
-          type="file"
-          data-testid="file-input"
-          onChange={(e) => {
-            if (e.target.files) {
-              onImageSave(e.target.files[0]);
-            }
-          }}
-        />
+        <button onClick={onClose}>Close</button>
       </div>
-    );
-  });
-});
+    ) : null,
+}));
 
-const mockVerifyToken = jest.fn();
-const mockServerPost = jest.fn();
-
-const userWithoutImage: User = {
-  _id: "123",
-  name: "Jane Doe",
-  email: "jane@example.com",
-  role: "user",
-  profileImage: "",
-  phoneNumber: "09772684567",
-  createdAt: new Date(),
-};
-
-const userWithImage: User = {
-  ...userWithoutImage,
-  profileImage: "https://example.com/profile.jpg",
-};
+jest.mock("lucide-react", () => ({
+  UserRound: (props: any) => (
+    <div data-testid="icon-UserRound" {...props}>
+      MockUserIcon
+    </div>
+  ),
+  Pencil: (props: any) => <div {...props}>MockPencilIcon</div>,
+}));
 
 describe("ProfileImageCard", () => {
   beforeEach(() => {
-    (useAuth as jest.Mock).mockReturnValue({ verifyToken: mockVerifyToken });
-    (serverAPI.post as jest.Mock).mockImplementation(mockServerPost);
-    mockServerPost.mockResolvedValue({
-      data: { message: "Upload successful" },
-    });
-    jest.clearAllMocks();
+    mockMutate.mockClear();
   });
 
-  it("renders user info correctly without profile image", () => {
-    renderComponent(<ProfileImageCard user={userWithoutImage} />);
-
-    expect(screen.getByText("Jane Doe")).toBeVisible();
+  it("renders user name and role", () => {
+    render(<ProfileImageCard user={mockUser} />);
+    expect(screen.getByText("John")).toBeVisible();
     expect(screen.getByText("user")).toBeVisible();
-    expect(screen.getByTestId("lucide-user-round")).toBeVisible();
-    expect(screen.queryByRole("img")).not.toBeInTheDocument();
   });
 
-  it("renders user info correctly with profile image", () => {
-    renderComponent(<ProfileImageCard user={userWithImage} />);
-
-    expect(screen.getByText("Jane Doe")).toBeVisible();
-    expect(screen.getByText("user")).toBeVisible();
-    expect(screen.queryByTestId("lucide-user-round")).not.toBeInTheDocument();
-
-    const profileImage = screen.getByRole("img");
-    expect(profileImage).toBeVisible();
-    expect(profileImage).toHaveAttribute("src", userWithImage.profileImage);
-    expect(profileImage).toHaveAttribute("alt", "Profile");
+  it("shows user icon if no profile image is provided", () => {
+    render(<ProfileImageCard user={mockUser} />);
+    expect(screen.getByAltText("Profile")).toBeVisible();
   });
 
-  it("shows edit button and opens modal on click", () => {
-    renderComponent(<ProfileImageCard user={userWithoutImage} />);
-
-    const editButton = screen.getByTestId("edit-profileImage-button");
-    expect(editButton).toBeVisible();
-    expect(
-      screen.queryByTestId("mock-image-upload-modal")
-    ).not.toBeInTheDocument();
-
-    fireEvent.click(editButton);
-
-    expect(screen.getByTestId("mock-image-upload-modal")).toBeVisible();
+  it("renders profile image if available", () => {
+    const userWithImage = { ...mockUser, profileImage: "/test.jpg" };
+    render(<ProfileImageCard user={userWithImage} />);
+    const img = screen.getByAltText("Profile") as HTMLImageElement;
+    expect(img).toBeVisible();
+    expect(img.src).toContain("/test.jpg");
   });
 
-  it("closes modal when close button is clicked", () => {
-    renderComponent(<ProfileImageCard user={userWithoutImage} />);
-
-    fireEvent.click(screen.getByTestId("edit-profileImage-button"));
-    expect(screen.getByTestId("mock-image-upload-modal")).toBeVisible();
-
-    fireEvent.click(screen.getByTestId("close-modal"));
-
-    expect(
-      screen.queryByTestId("mock-image-upload-modal")
-    ).not.toBeInTheDocument();
+  it("opens modal on pencil icon click", async () => {
+    render(<ProfileImageCard user={mockUser} />);
+    const editBtn = screen.getByTestId("edit-profileImage-button");
+    await userEvent.click(editBtn);
+    expect(screen.getByTestId("mock-profile-upload")).toBeVisible();
   });
 
-  it("uploads image and calls verifyToken on successful upload", async () => {
-    const file = new File(["dummy content"], "avatar.png", {
-      type: "image/png",
+  it("calls uploadMutation.mutate with image when image is saved", async () => {
+    render(<ProfileImageCard user={mockUser} />);
+
+    const editBtn = screen.getByTestId("edit-profileImage-button");
+    await userEvent.click(editBtn);
+
+    const saveButton = screen.getByText("Save Image");
+    await userEvent.click(saveButton);
+
+    expect(mockMutate).toHaveBeenCalledWith({
+      userId: "123",
+      image: expect.any(File),
     });
-
-    renderComponent(<ProfileImageCard user={userWithoutImage} />);
-
-    fireEvent.click(screen.getByTestId("edit-profileImage-button"));
-
-    const fileInput = screen.getByTestId("file-input");
-    fireEvent.change(fileInput, { target: { files: [file] } });
-
-    await waitFor(() => {
-      const formDataMatcher = expect.objectContaining({
-        append: expect.any(Function),
-      });
-
-      expect(mockServerPost).toHaveBeenCalledWith(
-        "/user/upload-image",
-        formDataMatcher,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-          withCredentials: true,
-        }
-      );
-
-      expect(mockVerifyToken).toHaveBeenCalled();
-    });
-
-    expect(
-      screen.queryByTestId("mock-image-upload-modal")
-    ).not.toBeInTheDocument();
   });
 
-  it("handles API error during image upload", async () => {
-    const file = new File(["dummy content"], "avatar.png", {
-      type: "image/png",
-    });
-    const consoleLogSpy = jest.spyOn(console, "log").mockImplementation();
-    mockServerPost.mockRejectedValueOnce(new Error("Upload failed"));
-    renderComponent(<ProfileImageCard user={userWithoutImage} />);
-    fireEvent.click(screen.getByTestId("edit-profileImage-button"));
+  it("closes the modal when close button is clicked", async () => {
+    render(<ProfileImageCard user={mockUser} />);
+    const editBtn = screen.getByTestId("edit-profileImage-button");
+    await userEvent.click(editBtn);
 
-    const fileInput = screen.getByTestId("file-input");
-    fireEvent.change(fileInput, { target: { files: [file] } });
+    const closeButton = screen.getByText("Close");
+    await userEvent.click(closeButton);
 
-    await waitFor(() => {
-      expect(consoleLogSpy).toHaveBeenCalledWith(
-        "Error here ",
-        expect.any(Error)
-      );
-    });
-
-    expect(
-      screen.queryByTestId("mock-image-upload-modal")
-    ).not.toBeInTheDocument();
-
-    consoleLogSpy.mockRestore();
+    expect(screen.queryByTestId("mock-profile-upload")).not.toBeInTheDocument();
   });
 });

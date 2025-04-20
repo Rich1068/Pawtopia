@@ -2,27 +2,32 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import RequestHistory from "../../pages/RequestHistory";
 import "@testing-library/jest-dom";
-import serverAPI from "../../helper/axios";
 import { mockAdoptRequests } from "../../__mocks__/mockAdoptRequests";
 import { createWrapper } from "../../__mocks__/utils/testUtils";
 
+// ✅ only mock the hook you use in the component
+jest.mock("../../hooks/useAdoptRequests", () => ({
+  useAdoptRequestHistory: () => ({
+    data: mockAdoptRequests,
+    isLoading: false,
+  }),
+}));
+
 const wrapper = createWrapper();
 
-const renderComponent = () => {
-  return render(
-    wrapper({
-      children: <RequestHistory />,
-    })
-  );
-};
-// Mock components
+const renderRequestHistory = () =>
+  render(wrapper({ children: <RequestHistory /> }));
+
 jest.mock("../../components/LoadingPage/LoadingPage", () => () => (
   <div data-testid="mock-loading-page">Loading...</div>
 ));
+
 jest.mock("../../components/PageHeader", () => () => (
   <div data-testid="mock-page-header">Request History</div>
 ));
+
 jest.mock("lucide-react");
+
 jest.mock(
   "../../components/HistoryTable/TableFilters",
   () =>
@@ -36,6 +41,7 @@ jest.mock(
         </div>
       )
 );
+
 jest.mock(
   "../../components/AdoptRequest/AdoptRequestModal",
   () =>
@@ -49,24 +55,9 @@ jest.mock(
       )
 );
 
-// Mock serverAPI
-jest.mock("../../helper/axios");
-
 describe("RequestHistory Page", () => {
-  beforeEach(() => {
-    (serverAPI.get as jest.Mock).mockResolvedValue({ data: mockAdoptRequests });
-  });
-
-  it("renders loading page initially", () => {
-    renderComponent();
-    expect(screen.getByTestId("mock-loading-page")).toBeVisible();
-  });
-
-  it("renders the main components after loading", async () => {
-    renderComponent();
-    await waitFor(() =>
-      expect(screen.queryByTestId("mock-loading-page")).not.toBeInTheDocument()
-    );
+  it("renders all main components", async () => {
+    renderRequestHistory();
 
     expect(screen.getByTestId("mock-page-header")).toBeVisible();
     expect(screen.getByTestId("mock-table-filters")).toBeVisible();
@@ -74,33 +65,44 @@ describe("RequestHistory Page", () => {
     expect(screen.getByTestId("mock-adopt-request-modal")).toBeVisible();
   });
 
-  it("fetches and displays requests", async () => {
-    renderComponent();
-    await waitFor(() =>
-      expect(screen.queryByTestId("mock-loading-page")).not.toBeInTheDocument()
-    );
-
+  it("displays request data after fetching", async () => {
+    renderRequestHistory();
+    await waitFor(() => screen.getByText("Bella")); // assuming Bella is in mock data
     expect(screen.getByText("Bella")).toBeVisible();
   });
 
-  it("filters requests by date", async () => {
-    renderComponent();
-    await waitFor(() =>
-      expect(screen.queryByTestId("mock-loading-page")).not.toBeInTheDocument()
-    );
+  it("filters requests by selected date", async () => {
+    renderRequestHistory();
 
     fireEvent.click(screen.getByText("Set Date"));
+
     expect(screen.getByText("Bella")).toBeVisible();
   });
 
   it("filters requests by global filter", async () => {
-    renderComponent();
-
-    await waitFor(() =>
-      expect(screen.queryByTestId("mock-loading-page")).not.toBeInTheDocument()
-    );
+    renderRequestHistory();
 
     fireEvent.click(screen.getByText("Set Filter"));
+
     expect(screen.getByText("Bella")).toBeVisible();
+  });
+
+  it("opens and closes the modal with selected request", async () => {
+    renderRequestHistory();
+
+    await waitFor(() => screen.getByText("Bella"));
+
+    fireEvent.click(screen.getAllByText(/view details/i)[0]);
+    expect(screen.getByTestId("mock-adopt-request-modal")).toHaveTextContent(
+      "Modal Open"
+    );
+    expect(screen.getByTestId("mock-adopt-request-modal")).toHaveTextContent(
+      "Bella"
+    );
+    fireEvent.click(screen.getByText("Close Modal"));
+
+    expect(screen.getByTestId("mock-adopt-request-modal")).toHaveTextContent(
+      "Modal Closed"
+    );
   });
 });

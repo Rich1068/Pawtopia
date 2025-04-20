@@ -66,6 +66,7 @@ const OrderHistory = () => {
         <button
           className="text-orange-500 hover:underline"
           onClick={() => setSelectedOrder(row.original)}
+          data-testid={`view-${row.original.orderId}`}
         >
           View Details
         </button>

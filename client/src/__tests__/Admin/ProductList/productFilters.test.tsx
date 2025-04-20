@@ -1,75 +1,95 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { render, screen, fireEvent } from "@testing-library/react";
-import { MemoryRouter } from "react-router";
 import ProductFilters from "../../../components/shop/Admin/ProductList/ProductFilters";
-import { Table } from "@tanstack/react-table";
-import type { IProduct } from "../../../types/Types";
+import { MemoryRouter } from "react-router";
 import "@testing-library/jest-dom";
 
-const setGlobalFilter = jest.fn();
-const setSelectedCategories = jest.fn();
+jest.mock("../../../components/shop/Admin/ProductList/CategoryFilter", () => ({
+  __esModule: true,
+  default: ({ selectedCategories }: any) => (
+    <div data-testid="category-filter">
+      Mocked CategoryFilter — {selectedCategories.join(",")}
+    </div>
+  ),
+}));
 
-const mockTable = {
-  getState: () => ({
-    pagination: { pageSize: 10 },
-  }),
-  setPageSize: jest.fn(),
-} as unknown as Table<IProduct>;
+const mockSetGlobalFilter = jest.fn();
+const mockSetSelectedCategories = jest.fn();
+const mockSetStatusFilter = jest.fn();
 
-const setup = (props = {}) => {
+const createMockTable = (): any => {
+  return {
+    getState: () => ({
+      pagination: { pageSize: 20 },
+    }),
+    setPageSize: jest.fn(),
+  };
+};
+
+const renderComponent = () => {
+  const mockTable = createMockTable();
+
   render(
     <MemoryRouter>
       <ProductFilters
-        globalFilter=""
-        setGlobalFilter={setGlobalFilter}
-        selectedCategories={[]}
-        setSelectedCategories={setSelectedCategories}
+        globalFilter="cat"
+        setGlobalFilter={mockSetGlobalFilter}
+        selectedCategories={["Food"]}
+        setSelectedCategories={mockSetSelectedCategories}
+        statusFilter="Available"
+        setStatusFilter={mockSetStatusFilter}
         table={mockTable}
-        {...props}
       />
     </MemoryRouter>
   );
+
+  return { mockTable };
 };
 
-beforeEach(() => {
-  jest.clearAllMocks();
-});
-
-describe("ProductFilters Component", () => {
-  it("renders pagination dropdown and updates on change", () => {
-    setup();
-
-    const select = screen.getByRole("combobox");
-    expect(select).toBeVisible();
-
-    fireEvent.change(select, { target: { value: "20" } });
-    expect(mockTable.setPageSize).toHaveBeenCalledWith(20);
+describe("ProductFilters", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
   });
 
-  it("renders search input and updates global filter", () => {
-    setup();
+  it("renders dropdowns, search input, and add button", () => {
+    renderComponent();
 
-    const searchInput = screen.getByPlaceholderText("Search...");
-    expect(searchInput).toBeVisible();
-
-    fireEvent.change(searchInput, { target: { value: "test" } });
-    expect(setGlobalFilter).toHaveBeenCalledWith("test");
+    expect(screen.getByDisplayValue("20")).toBeVisible();
+    expect(screen.getByDisplayValue("Available")).toBeVisible();
+    expect(screen.getByPlaceholderText("Search...")).toHaveValue("cat");
+    expect(
+      screen.getByRole("link", { name: "+ Add New Product" })
+    ).toBeVisible();
+    expect(screen.getByTestId("category-filter")).toBeVisible();
   });
 
-  it("renders CategoryFilter component", () => {
-    setup({ selectedCategories: ["category1"] });
+  it("calls setGlobalFilter on search input change", () => {
+    renderComponent();
+    const input = screen.getByPlaceholderText("Search...");
 
-    expect(screen.getByRole("combobox")).toBeVisible();
+    fireEvent.change(input, { target: { value: "dog" } });
+    expect(mockSetGlobalFilter).toHaveBeenCalledWith("dog");
   });
 
-  it("renders 'Add New Product' button with correct link", () => {
-    setup();
+  it("calls setStatusFilter on status dropdown change", () => {
+    renderComponent();
+    const statusSelect = screen.getByDisplayValue("Available");
 
-    const addButton = screen.getByRole("button", {
-      name: /\+ Add New Product/i,
-    });
-    expect(addButton).toBeVisible();
+    fireEvent.change(statusSelect, { target: { value: "Archived" } });
+    expect(mockSetStatusFilter).toHaveBeenCalledWith("Archived");
+  });
 
-    const link = screen.getByRole("link", { name: /\+ Add New Product/i });
-    expect(link).toHaveAttribute("href", "/admin/add-product");
+  it("calls table.setPageSize on page size dropdown change", () => {
+    const { mockTable } = renderComponent();
+    const sizeSelect = screen.getByDisplayValue("20");
+
+    fireEvent.change(sizeSelect, { target: { value: "50" } });
+    expect(mockTable.setPageSize).toHaveBeenCalledWith(50);
+  });
+
+  it("has correct link to add new product", () => {
+    renderComponent();
+    const addLink = screen.getByRole("link", { name: "+ Add New Product" });
+    expect(addLink).toHaveAttribute("href", "/admin/add-product");
   });
 });

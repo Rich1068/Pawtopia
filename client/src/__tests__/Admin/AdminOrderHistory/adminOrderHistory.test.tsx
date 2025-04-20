@@ -1,170 +1,178 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import AdminOrderHistory from "../../../pages/Admin/AdminOrderHistory";
-import serverAPI from "../../../helper/axios";
-import "@testing-library/jest-dom";
-import {
-  render,
-  screen,
-  waitFor,
-  fireEvent,
-  act,
-} from "@testing-library/react";
-import "@testing-library/jest-dom";
+import { useAdminOrderHistory } from "../../../hooks/useOrderHistory";
 import { mockOrders } from "../../../__mocks__/mockOrders";
-import { createWrapper } from "../../../__mocks__/utils/testUtils";
+import "@testing-library/jest-dom";
+import { MemoryRouter } from "react-router";
 
-const wrapper = createWrapper();
+jest.mock("lucide-react");
+// Mocking child components
+jest.mock("../../../components/OrderHistory/OrderDetailModal", () => ({
+  __esModule: true,
+  default: ({ isOpen, onClose, order }: any) =>
+    isOpen ? (
+      <div data-testid="modal">
+        <p>{order?.orderId}</p>
+        <button onClick={onClose}>Close</button>
+      </div>
+    ) : null,
+}));
+
+jest.mock("../../../components/HistoryTable/TableFilters", () => ({
+  __esModule: true,
+  default: ({
+    globalFilter,
+    setGlobalFilter,
+    selectedDate,
+    setSelectedDate,
+  }: any) => (
+    <div>
+      <input
+        placeholder="Search"
+        value={globalFilter}
+        onChange={(e) => setGlobalFilter(e.target.value)}
+        data-testid="global-filter"
+      />
+      <input
+        type="date"
+        value={selectedDate}
+        onChange={(e) => setSelectedDate(e.target.value)}
+        data-testid="date-filter"
+      />
+    </div>
+  ),
+}));
+
+jest.mock("../../../hooks/useOrderHistory");
 
 const renderComponent = () => {
   return render(
-    wrapper({
-      children: <AdminOrderHistory />,
-    })
+    <MemoryRouter>
+      <AdminOrderHistory />
+    </MemoryRouter>
   );
 };
 
-jest.mock("../../../helper/axios");
-jest.mock("../../../components/LoadingPage/LoadingPage", () => () => (
-  <div data-testid="loading-spinner">Loading...</div>
-));
-jest.mock(
-  "../../../components/OrderHistory/OrderDetailModal",
-  () =>
-    ({
-      isOpen,
-      onClose,
-    }: {
-      isOpen: boolean;
-      onClose: () => void;
-      order: { orderId: string; userId: { name: string }; createdAt: string };
-    }) =>
-      isOpen ? (
-        <div>
-          <div>OrderDetailsModal</div>
-          <button onClick={onClose} data-testid="close-modal">
-            Close
-          </button>
-        </div>
-      ) : null
-);
-jest.mock(
-  "../../../components/shop/Admin/TitleComponent",
-  () =>
-    ({ text }: { text: string }) =>
-      <h1>{text}</h1>
-);
-jest.mock(
-  "../../../components/HistoryTable/TableFilters",
-  () =>
-    ({
-      globalFilter,
-      selectedDate,
-      setSelectedDate,
-      setGlobalFilter,
-    }: {
-      globalFilter: string;
-      selectedDate: string;
-      setSelectedDate: (date: string) => void;
-      setGlobalFilter: (filter: string) => void;
-    }) =>
-      (
-        <div>
-          <input
-            data-testid="date-filter"
-            value={selectedDate}
-            onChange={(e) => setSelectedDate(e.target.value)}
-          />
-          <input
-            data-testid="global-filter"
-            value={globalFilter}
-            onChange={(e) => setGlobalFilter(e.target.value)}
-          />
-        </div>
-      )
-);
-
 describe("AdminOrderHistory", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    (useAdminOrderHistory as jest.Mock).mockReturnValue({
+      data: mockOrders,
+      isLoading: false,
+    });
   });
 
-  it("renders loading spinner initially", () => {
+  it("renders the component and displays orders", () => {
     renderComponent();
-    expect(screen.getByTestId("loading-spinner")).toBeVisible();
+    expect(screen.getByText("Order History")).toBeVisible();
+    expect(screen.getByText("ORD123")).toBeVisible();
+    expect(screen.getByText("ORD456")).toBeVisible();
   });
 
-  it("fetches orders on mount and displays them", async () => {
-    (serverAPI.get as jest.Mock).mockResolvedValue({ data: mockOrders });
-
-    await act(async () => {
-      renderComponent();
-    });
+  it("filters orders by global search", async () => {
+    renderComponent();
+    const input = screen.getByTestId("global-filter");
+    fireEvent.change(input, { target: { value: "ORD123" } });
 
     await waitFor(() => {
-      expect(serverAPI.get).toHaveBeenCalledWith("/order/all", {
-        withCredentials: true,
-      });
-      expect(screen.getByRole("table")).toBeVisible();
+      expect(screen.getByText("ORD123")).toBeVisible();
     });
   });
 
-  it("filters orders by date", async () => {
-    const mockOrders = [
-      { orderId: "123", userId: { name: "John Doe" }, createdAt: "2023-01-01" },
-      { orderId: "456", userId: { name: "Jane Doe" }, createdAt: "2023-02-01" },
-    ];
-    (serverAPI.get as jest.Mock).mockResolvedValue({ data: mockOrders });
+  it("filters orders by selected date", async () => {
+    renderComponent();
+    const dateInput = screen.getByTestId("date-filter");
 
-    await act(async () => {
-      renderComponent();
-    });
-
-    fireEvent.change(screen.getByTestId("date-filter"), {
-      target: { value: "2023-01-01" },
-    });
+    fireEvent.change(dateInput, { target: { value: "2023-01-01" } });
 
     await waitFor(() => {
-      expect(screen.getByRole("table")).toBeVisible();
+      expect(screen.getByText("ORD123")).toBeVisible();
+      expect(screen.queryByText("ORD456")).not.toBeInTheDocument();
     });
   });
-
-  it("opens and closes the modal", async () => {
-    const mockOrders = [
-      { orderId: "123", userId: { name: "John Doe" }, createdAt: "2023-01-01" },
-    ];
-    (serverAPI.get as jest.Mock).mockResolvedValue({ data: mockOrders });
-
-    await act(async () => {
-      renderComponent();
+  it("opens and close modal", async () => {
+    (useAdminOrderHistory as jest.Mock).mockReturnValue({
+      data: mockOrders,
+      isLoading: false,
+      meta: {
+        openModal: jest.fn(), // or a real function to test
+      },
     });
+    renderComponent();
 
-    fireEvent.click(screen.getByText("View Details"));
-
-    expect(screen.getByText("OrderDetailsModal")).toBeVisible();
-
-    fireEvent.click(screen.getByTestId("close-modal"));
-
-    expect(screen.queryByText("OrderDetailsModal")).not.toBeInTheDocument();
-  });
-
-  it("handles API errors gracefully", async () => {
-    const error = { response: { data: { error: "Test error" } } };
-    (serverAPI.get as jest.Mock).mockRejectedValue(error);
-
-    const consoleErrorMock = jest
-      .spyOn(console, "error")
-      .mockImplementation(() => {});
-
-    await act(async () => {
-      renderComponent();
-    });
+    const viewDetailsButton = screen.getAllByText("View Details")[0];
+    fireEvent.click(viewDetailsButton);
 
     await waitFor(() => {
-      expect(consoleErrorMock).toHaveBeenCalledWith(
-        "Error fetching orders:",
-        error
-      );
+      expect(screen.getByTestId("modal")).toBeVisible();
+      expect(screen.getAllByText("ORD123")).toHaveLength(2);
     });
 
-    consoleErrorMock.mockRestore();
+    const closeButton = screen.getByText("Close");
+    fireEvent.click(closeButton);
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("modal")).not.toBeInTheDocument();
+      expect(screen.getAllByText("ORD123")).toHaveLength(1);
+    });
+  });
+  it("renders truncated orderId if longer than 10 characters", () => {
+    (useAdminOrderHistory as jest.Mock).mockReturnValue({
+      data: [
+        {
+          orderId: "123456789012345",
+          createdAt: "2024-04-01",
+          userId: { name: "John" },
+        },
+      ],
+      isLoading: false,
+    });
+
+    renderComponent();
+
+    const truncated = screen.getByTitle("123456789012345");
+    expect(truncated.textContent).toBe("1234567890...");
+  });
+
+  it("renders full orderId if 10 characters or less", () => {
+    (useAdminOrderHistory as jest.Mock).mockReturnValue({
+      data: [
+        {
+          orderId: "ABCDE12345",
+          createdAt: "2024-04-01",
+          userId: { name: "Jane" },
+        },
+      ],
+      isLoading: false,
+    });
+
+    renderComponent();
+
+    const full = screen.getByTitle("ABCDE12345");
+    expect(full.textContent).toBe("ABCDE12345");
+  });
+
+  test("shows 'Unknown User' when userId is missing", async () => {
+    (useAdminOrderHistory as jest.Mock).mockReturnValue({
+      data: [
+        {
+          orderId: "ABCDE12345",
+          createdAt: "2024-04-01",
+          userId: null,
+        },
+      ],
+      isLoading: false,
+    });
+    renderComponent();
+    expect(await screen.findByText("Unknown User")).toBeVisible();
+  });
+
+  test("renders no orders message if data is undefined", () => {
+    (useAdminOrderHistory as jest.Mock).mockReturnValue({
+      data: [],
+      isLoading: false,
+    });
+    renderComponent();
+    expect(screen.getByText(/no data available/i)).toBeVisible();
   });
 });

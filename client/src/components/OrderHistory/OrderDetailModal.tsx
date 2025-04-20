@@ -17,6 +17,7 @@ const OrderDetailsModal = ({ isOpen, onClose, order }: IOrderDetailsModal) => {
       ariaHideApp={false}
       className="bg-white p-6 rounded-lg shadow-lg w-auto sm:max-w-2xl sm:w-full overflow-auto mx-4 md:mx-auto"
       overlayClassName="fixed inset-0 bg-black/50 flex items-center z-999 break-words"
+      data-testid="orderdetailmodal"
     >
       {/* Modal Header */}
       <h2 className="text-2xl font-semibold text-orange-600 font-primary">

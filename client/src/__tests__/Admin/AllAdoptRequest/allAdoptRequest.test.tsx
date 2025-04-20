@@ -1,199 +1,86 @@
-import {
-  render,
-  screen,
-  fireEvent,
-  waitFor,
-  act,
-} from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import AllAdoptRequests from "../../../pages/Admin/AllAdoptRequest";
-import serverAPI from "../../../helper/axios";
-import "@testing-library/jest-dom";
+import {
+  useAllAdoptRequests,
+  useAdoptRequestAction,
+} from "../../../hooks/useAdoptRequests";
 import { mockAdoptRequests } from "../../../__mocks__/mockAdoptRequests";
 import { MemoryRouter } from "react-router";
-import { createWrapper } from "../../../__mocks__/utils/testUtils";
+import "@testing-library/jest-dom";
 
-const wrapper = createWrapper();
+jest.mock("../../../hooks/useAdoptRequests");
 
 const renderComponent = () => {
   return render(
-    wrapper({
-      children: (
-        <MemoryRouter>
-          <AllAdoptRequests />
-        </MemoryRouter>
-      ),
-    })
+    <MemoryRouter>
+      <AllAdoptRequests />
+    </MemoryRouter>
   );
 };
-// Mock dependencies
-jest.mock("../../../helper/axios");
-jest.mock("react-hot-toast", () => ({
-  success: jest.fn(),
-  error: jest.fn(),
-}));
-jest.mock("../../../components/AdoptRequest/AdoptRequestModal", () => () => (
-  <div>AdoptRequestModal</div>
-));
-
-jest.mock(
-  "../../../components/WarningModal",
-  () =>
-    ({
-      isModalOpen,
-      onConfirm,
-    }: {
-      isModalOpen: boolean;
-      onConfirm: () => void;
-    }) =>
-      isModalOpen ? (
-        <div>
-          <div>WarningModal</div>
-          <button onClick={onConfirm} data-testid="confirm-button">
-            Confirm
-          </button>
-        </div>
-      ) : null
-);
-
-jest.mock("lucide-react");
-
 describe("AllAdoptRequests", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
-
-    (serverAPI.get as jest.Mock).mockResolvedValue({ data: mockAdoptRequests });
-  });
-
-  it("renders the component with title and child components", async () => {
-    await act(async () => {
-      renderComponent();
+    (useAllAdoptRequests as jest.Mock).mockReturnValue({
+      data: mockAdoptRequests,
+      isLoading: false,
     });
-    await waitFor(() => {
-      expect(screen.getByText("Adoption Requests")).toBeVisible();
-      expect(screen.getByLabelText("pagesize")).toBeVisible();
-      expect(screen.getByRole("table")).toBeVisible();
+
+    (useAdoptRequestAction as jest.Mock).mockReturnValue({
+      mutate: jest.fn(),
     });
   });
 
-  it("fetches adoption requests on mount", async () => {
-    (serverAPI.get as jest.Mock).mockResolvedValue({ data: [] });
+  it("renders adoption requests and displays the table", async () => {
+    renderComponent();
 
-    await act(async () => {
-      renderComponent();
-    });
-    await waitFor(() => {
-      expect(serverAPI.get).toHaveBeenCalledWith("/adopt/requests", {
-        params: { status: "pending" },
-        withCredentials: true,
-      });
-    });
+    // Table content
+    expect(screen.getByText("Adoption Requests")).toBeVisible();
+    expect(await screen.findByText("Bella")).toBeVisible();
+    expect(screen.getByText("John Doe")).toBeVisible();
+    expect(screen.getAllByText("pending")[0]).toBeVisible();
+    expect(screen.getAllByText("View Details")[0]).toBeVisible();
+    expect(screen.getByPlaceholderText("Search")).toBeVisible();
   });
 
-  it("displays loading spinner while fetching data", async () => {
-    (serverAPI.get as jest.Mock).mockImplementation(
-      () => new Promise(() => {})
-    );
+  it("opens and closes the View Details modal", async () => {
+    renderComponent();
+    const viewButton = screen.getAllByText("View Details")[0];
+    fireEvent.click(viewButton);
 
-    await act(async () => {
-      renderComponent();
-    });
-    expect(screen.getByTestId("icon-LoaderCircle")).toBeVisible();
-  });
-
-  it("opens and closes the AdoptRequestModal", async () => {
-    await act(async () => {
-      await act(async () => {
-        renderComponent();
-      });
-    });
-    fireEvent.click(screen.getAllByText("View Details")[0]);
-    expect(screen.getByText("AdoptRequestModal")).toBeVisible();
-  });
-
-  it("opens and closes the WarningModal for approve action", async () => {
-    await act(async () => {
-      renderComponent();
-    });
+    expect(screen.getAllByText("Approve")[0]).toBeVisible();
     fireEvent.click(screen.getAllByText("Approve")[0]);
-    expect(screen.getByText("WarningModal")).toBeVisible();
   });
 
-  it("calls API to approve a request", async () => {
-    (serverAPI.put as jest.Mock).mockResolvedValue({});
-    await act(async () => {
-      renderComponent();
-    });
+  it("opens confirmation modal for Approve and Reject", async () => {
+    renderComponent();
 
     fireEvent.click(screen.getAllByText("Approve")[0]);
-    fireEvent.click(screen.getByTestId("confirm-button"));
-
-    await waitFor(() => {
-      expect(serverAPI.put).toHaveBeenCalledWith(
-        "/adopt/1/approve",
-        {},
-        { withCredentials: true }
-      );
-    });
-  });
-
-  it("calls API to reject a request", async () => {
-    (serverAPI.put as jest.Mock).mockResolvedValue({});
-    await act(async () => {
-      renderComponent();
-    });
+    expect(screen.getByText("Approve Adoption Request")).toBeVisible();
 
     fireEvent.click(screen.getAllByText("Reject")[0]);
-    fireEvent.click(screen.getByTestId("confirm-button"));
-
-    await waitFor(() => {
-      expect(serverAPI.put).toHaveBeenCalledWith(
-        "/adopt/1/reject",
-        {},
-        { withCredentials: true }
-      );
-    });
+    expect(screen.getByText("Reject Adoption Request")).toBeVisible();
   });
 
-  it("handles API errors gracefully", async () => {
-    const error = { response: { data: { error: "Test error" } } };
-    (serverAPI.get as jest.Mock).mockRejectedValue(error);
+  it("closes the View Details modal", async () => {
+    renderComponent();
 
-    // Mock console.error
-    const consoleErrorMock = jest
-      .spyOn(console, "error")
-      .mockImplementation(() => {});
+    fireEvent.click(screen.getAllByText("View Details")[0]);
+    fireEvent.click(screen.getByRole("button", { name: /close/i }));
 
-    await act(async () => {
-      renderComponent();
-    });
-
-    // Wait for the API call and error handling
     await waitFor(() => {
-      expect(consoleErrorMock).toHaveBeenCalledWith(
-        "Error fetching adoption requests:",
-        error
-      );
+      expect(screen.queryAllByText("Approve")[0]).toBeVisible();
     });
-
-    // Restore the original console.error
-    consoleErrorMock.mockRestore();
   });
+  it("calls confirmAction when approving a request", async () => {
+    const mutate = jest.fn();
+    (useAdoptRequestAction as jest.Mock).mockReturnValue({ mutate });
 
-  it("fetches data when status filter changes", async () => {
-    (serverAPI.get as jest.Mock).mockResolvedValue({ data: [] });
+    renderComponent();
 
-    await act(async () => {
-      renderComponent();
-    });
-    fireEvent.change(screen.getByLabelText("status"), {
-      target: { value: "approved" },
-    });
-
-    await waitFor(() => {
-      expect(serverAPI.get).toHaveBeenCalledWith("/adopt/requests", {
-        params: { status: "approved" },
-        withCredentials: true,
-      });
+    fireEvent.click(screen.getAllByText("Approve")[0]);
+    fireEvent.click(screen.getAllByText("Approve")[5]);
+    expect(mutate).toHaveBeenCalledWith({
+      id: "1",
+      action: "approve",
     });
   });
 });

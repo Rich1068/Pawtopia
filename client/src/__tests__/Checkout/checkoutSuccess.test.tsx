@@ -1,116 +1,84 @@
-import { render, screen, waitFor } from "@testing-library/react";
-import { useSearchParams, useNavigate } from "react-router";
-import serverAPI from "../../helper/axios";
+import { render, screen } from "@testing-library/react";
+import { MemoryRouter } from "react-router";
 import CheckoutSuccess from "../../pages/CheckoutSuccess";
-import PageHeader from "../../components/PageHeader";
+import * as useOrderCheckoutHook from "../../hooks/useOrderCheckout";
+import { UseQueryResult } from "@tanstack/react-query";
+import { IOrder } from "../../types/Types";
 import "@testing-library/jest-dom";
-import { createWrapper } from "../../__mocks__/utils/testUtils";
+import { mockOrder } from "../../__mocks__/mockOrders";
 
-const wrapper = createWrapper();
-
-const renderComponent = () => {
-  return render(
-    wrapper({
-      children: <CheckoutSuccess />,
-    })
-  );
-};
-
+// Mock react-router hooks
 jest.mock("react-router", () => ({
-  useSearchParams: jest.fn(),
-  useNavigate: jest.fn(),
+  ...jest.requireActual("react-router"),
+  useSearchParams: () => [
+    {
+      get: () => "mock-session-id",
+    },
+  ],
+  useNavigate: () => jest.fn(),
 }));
-jest.mock("../../helper/axios");
-jest.mock("../../components/PageHeader");
 
 describe("CheckoutSuccess Component", () => {
-  const mockNavigate = jest.fn();
-  const mockOrder = {
-    orderId: "ORD123",
-    totalAmount: 99.97,
-    products: [
-      {
-        name: "Test Product 1",
-        price: 29.99,
-        quantity: 2,
-      },
-      {
-        name: "Test Product 2",
-        price: 39.99,
-        quantity: 1,
-      },
-    ],
-  };
-
-  beforeEach(() => {
-    (useNavigate as jest.Mock).mockReturnValue(mockNavigate);
-    (PageHeader as jest.Mock).mockImplementation(() => <div>Page Header</div>);
-  });
-
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  it("shows error when session_id is missing", async () => {
-    (useSearchParams as jest.Mock).mockReturnValue([new URLSearchParams("")]);
+  it("shows loading page", () => {
+    jest.spyOn(useOrderCheckoutHook, "useOrderCheckout").mockReturnValue({
+      data: undefined,
+      isLoading: true,
+      isError: false,
+    } as UseQueryResult<IOrder, Error>);
 
-    renderComponent();
+    render(
+      <MemoryRouter>
+        <CheckoutSuccess />
+      </MemoryRouter>
+    );
 
-    await waitFor(() => {
-      expect(screen.getByText("Invalid session.")).toBeVisible();
-    });
+    expect(screen.getByText(/loading/i)).toBeVisible();
   });
 
-  it("shows error when API fails", async () => {
-    (useSearchParams as jest.Mock).mockReturnValue([
-      new URLSearchParams("session_id=test_session"),
-    ]);
-    (serverAPI.get as jest.Mock).mockRejectedValue(new Error("API Error"));
+  it("shows error message when hook returns isError", () => {
+    jest.spyOn(useOrderCheckoutHook, "useOrderCheckout").mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: true,
+    } as UseQueryResult<IOrder, Error>);
 
-    renderComponent();
-    await waitFor(() => {
-      expect(screen.getByText("Failed to fetch order details.")).toBeVisible();
-    });
+    render(
+      <MemoryRouter>
+        <CheckoutSuccess />
+      </MemoryRouter>
+    );
+
+    expect(
+      screen.getByText(/something went wrong. please try again later/i)
+    ).toBeVisible();
   });
 
-  it("displays order details on successful fetch", async () => {
-    (useSearchParams as jest.Mock).mockReturnValue([
-      new URLSearchParams("session_id=test_session"),
-    ]);
-    (serverAPI.get as jest.Mock).mockResolvedValue({ data: mockOrder });
+  it("displays order success details when data is loaded", async () => {
+    jest.spyOn(useOrderCheckoutHook, "useOrderCheckout").mockReturnValue({
+      data: mockOrder,
+      isLoading: false,
+      isError: false,
+    } as UseQueryResult<IOrder, Error>);
 
-    renderComponent();
-    await waitFor(() => {
-      expect(screen.getByText("🎉 Success!")).toBeVisible();
-      expect(screen.getByText("Thank you for your purchase.")).toBeVisible();
-      expect(screen.getByText(`${mockOrder.orderId}`)).toBeVisible();
-      expect(
-        screen.getByText(`$${mockOrder.totalAmount.toFixed(2)}`)
-      ).toBeVisible();
+    render(
+      <MemoryRouter>
+        <CheckoutSuccess />
+      </MemoryRouter>
+    );
 
-      // Verify products are displayed
-      mockOrder.products.forEach((product) => {
-        expect(screen.getByText(product.name)).toBeVisible();
-        expect(
-          screen.getByText(`$${product.price.toFixed(2)} x ${product.quantity}`)
-        ).toBeVisible();
-      });
+    expect(await screen.findByText("🎉 Success!")).toBeVisible();
+    expect(screen.getByText("ORD123")).toBeVisible();
+    expect(screen.getByText("$99.99")).toBeVisible();
 
-      expect(screen.getByText("Continue Shopping")).toBeVisible();
-    });
-  });
+    expect(screen.getByText("Test Product 1")).toBeVisible();
+    expect(screen.getByText("$29.99 x 2")).toBeVisible();
+    expect(screen.getByText("Test Product 2")).toBeVisible();
+    expect(screen.getByText("$39.99 x 1")).toBeVisible();
 
-  it("navigates to shop when continue shopping is clicked", async () => {
-    (useSearchParams as jest.Mock).mockReturnValue([
-      new URLSearchParams("session_id=test_session"),
-    ]);
-    (serverAPI.get as jest.Mock).mockResolvedValue({ data: mockOrder });
-
-    renderComponent();
-    await waitFor(() => {
-      const button = screen.getByText("Continue Shopping");
-      button.click();
-      expect(mockNavigate).toHaveBeenCalledWith("/shop");
-    });
+    expect(screen.getByText(/continue shopping/i)).toBeVisible();
   });
 });

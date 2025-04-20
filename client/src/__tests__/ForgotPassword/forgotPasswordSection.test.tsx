@@ -1,92 +1,66 @@
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import ForgotPasswordSection from "../../components/ForgotPassword/ForgotPasswordSection";
-import serverAPI from "../../helper/axios";
-import toast from "react-hot-toast";
+import useForgotPassword from "../../hooks/useForgotPassword";
 import "@testing-library/jest-dom";
-import { createWrapper } from "../../__mocks__/utils/testUtils";
 
-const wrapper = createWrapper();
+// Mock the custom hook
+jest.mock("../../hooks/useForgotPassword");
 
-const renderComponent = () => {
-  return render(
-    wrapper({
-      children: <ForgotPasswordSection />,
-    })
-  );
-};
-// Mock dependencies
-jest.mock("../../helper/axios");
-jest.mock("react-hot-toast", () => ({
-  error: jest.fn(),
-  success: jest.fn(),
-}));
+describe("ForgotPasswordSection", () => {
+  const mockHandleSubmit = jest.fn();
+  const mockSetEmail = jest.fn();
 
-describe("ForgotPasswordSection Component", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
-    renderComponent();
+    (useForgotPassword as jest.Mock).mockReturnValue({
+      email: "test@example.com",
+      setEmail: mockSetEmail,
+      isLoading: false,
+      handleSubmit: mockHandleSubmit,
+    });
   });
 
-  // Helper function to fill email and submit form
-  const fillEmailAndSubmit = async (email: string) => {
-    fireEvent.change(await screen.findByTestId("email-input"), {
-      target: { value: email },
-    });
-    fireEvent.click(
-      await screen.findByRole("button", { name: /send reset link/i })
-    );
-  };
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
 
-  it("renders the component correctly", async () => {
-    expect(await screen.findByText(/forgot password/i)).toBeVisible();
-    expect(await screen.findByTestId("email-input")).toBeVisible();
+  it("renders the heading, input, and button", () => {
+    render(<ForgotPasswordSection />);
+    expect(screen.getByText(/forgot password/i)).toBeVisible();
+    expect(screen.getByPlaceholderText(/enter your email/i)).toBeVisible();
     expect(
-      await screen.findByRole("button", { name: /send reset link/i })
+      screen.getByRole("button", { name: /send reset link/i })
     ).toBeVisible();
   });
 
-  it("shows an error when email is empty", async () => {
-    fireEvent.click(
-      await screen.findByRole("button", { name: /send reset link/i })
-    );
+  it("updates email input value", () => {
+    render(<ForgotPasswordSection />);
+    const input = screen.getByTestId("email-input");
 
-    await waitFor(() => {
-      expect(toast.error).toHaveBeenCalledWith("Please enter your email");
-    });
+    fireEvent.change(input, { target: { value: "new@example.com" } });
+
+    expect(mockSetEmail).toHaveBeenCalledWith("new@example.com");
   });
 
-  it("validates incorrect email format", async () => {
-    await fillEmailAndSubmit("invalid-email");
+  it("calls handleSubmit on form submission", () => {
+    render(<ForgotPasswordSection />);
+    const form = screen.getByRole("button").closest("form");
 
-    await waitFor(() => {
-      expect(toast.error).toHaveBeenCalledWith("Invalid email format");
-    });
+    fireEvent.submit(form as HTMLFormElement);
+
+    expect(mockHandleSubmit).toHaveBeenCalled();
   });
 
-  it("submits the form with valid email and calls API", async () => {
-    (serverAPI.post as jest.Mock).mockResolvedValueOnce({});
-
-    await fillEmailAndSubmit("test@example.com");
-
-    await waitFor(() => {
-      expect(serverAPI.post).toHaveBeenCalledWith("/api/forgot-password", {
-        email: "test@example.com",
-      });
-      expect(toast.success).toHaveBeenCalledWith(
-        "Password reset link sent to your email"
-      );
-    });
-  });
-
-  it("handles API error response correctly", async () => {
-    (serverAPI.post as jest.Mock).mockRejectedValueOnce({
-      response: { data: { message: "Email not found" } },
+  it("displays loading state when isLoading is true", () => {
+    (useForgotPassword as jest.Mock).mockReturnValue({
+      email: "test@example.com",
+      setEmail: mockSetEmail,
+      isLoading: true,
+      handleSubmit: mockHandleSubmit,
     });
 
-    await fillEmailAndSubmit("test@example.com");
+    render(<ForgotPasswordSection />);
 
-    await waitFor(() => {
-      expect(toast.error).toHaveBeenCalledWith("Email not found");
-    });
+    expect(screen.getByText(/sending/i)).toBeVisible();
+    expect(screen.getByRole("button")).toBeDisabled();
   });
 });

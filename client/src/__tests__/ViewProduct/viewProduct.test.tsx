@@ -1,119 +1,147 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { render, screen, waitFor } from "@testing-library/react";
 import ViewProduct from "../../pages/Admin/ViewProduct";
-import { MemoryRouter, Route, Routes, useLocation } from "react-router";
-import serverAPI from "../../helper/axios";
+import { MemoryRouter, Route, Routes } from "react-router";
+import { useProduct } from "../../hooks/useProducts";
 import { useAuth } from "../../context/AuthContext";
-import { mockProduct } from "../../__mocks__/mockProducts";
 import "@testing-library/jest-dom";
+import userEvent from "@testing-library/user-event";
 
-jest.mock("../../helper/axios");
-jest.mock("../../context/AuthContext");
+// Mock subcomponents
 jest.mock("../../components/shop/ViewProduct/ProductCarousel", () => () => (
-  <div data-testid="product-carousel" />
+  <div data-testid="product-carousel">ProductCarousel</div>
 ));
 jest.mock("../../components/shop/ViewProduct/ProductText", () => () => (
-  <div data-testid="product-text" />
+  <div data-testid="product-text">ProductText</div>
 ));
 jest.mock("../../components/LoadingPage/LoadingPage", () => () => (
-  <div data-testid="loading-page" />
+  <div data-testid="loading">LoadingPage</div>
 ));
-jest.mock("../../components/WarningContainer", () => () => (
-  <div data-testid="warning-container" />
-));
-jest.mock("../../components/PageHeader", () => () => (
-  <div data-testid="page-header" />
-));
-jest.mock("../../components/shop/Admin/TitleComponent", () => () => (
-  <div data-testid="title-component" />
+jest.mock(
+  "../../components/WarningContainer",
+  () =>
+    ({ header, text, confirmText, onConfirm }: any) =>
+      (
+        <div data-testid="warning">
+          <p>{header}</p>
+          <p>{text}</p>
+          <button onClick={onConfirm}>{confirmText}</button>
+        </div>
+      )
+);
+jest.mock(
+  "../../components/shop/Admin/TitleComponent",
+  () =>
+    ({ text }: any) =>
+      <div data-testid="title">{text}</div>
+);
+jest.mock("../../components/PageHeader", () => ({ text }: any) => (
+  <div data-testid="header">{text}</div>
 ));
 
-// Mock useLocation to return different paths
+// Mock hooks
+jest.mock("../../hooks/useProducts");
+jest.mock("../../context/AuthContext");
+
+const mockNavigate = jest.fn();
 jest.mock("react-router", () => ({
   ...jest.requireActual("react-router"),
-  useLocation: jest.fn(),
+  useNavigate: () => mockNavigate,
 }));
 
-describe("ViewProduct", () => {
-  const renderComponent = (
-    productId = "123",
-    isAdmin = false,
-    isAdminView = false
-  ) => {
-    (useLocation as jest.Mock).mockReturnValue({
-      pathname: isAdminView
-        ? `/admin/products/${productId}`
-        : `/products/${productId}`,
-    });
+const renderWithRoute = (route: string) => {
+  render(
+    <MemoryRouter initialEntries={[route]}>
+      <Routes>
+        <Route path="/admin/view-product/:id" element={<ViewProduct />} />
+        <Route path="/shop/product/:id" element={<ViewProduct />} />
+      </Routes>
+    </MemoryRouter>
+  );
+};
 
-    (useAuth as jest.Mock).mockReturnValue({
-      user: { role: isAdmin ? "admin" : "user" },
-    });
+const mockProduct = {
+  _id: "1",
+  name: "Test Product",
+  category: ["Cat Supplies"],
+  images: [],
+  description: "A good item",
+  price: "10.00",
+  isArchived: false,
+};
 
-    return render(
-      <MemoryRouter initialEntries={[`/products/${productId}`]}>
-        <Routes>
-          <Route path="/products/:id" element={<ViewProduct />} />
-          <Route path="/admin/products/:id" element={<ViewProduct />} />
-        </Routes>
-      </MemoryRouter>
-    );
-  };
+// Use mocked hooks
+const mockedUseProduct = useProduct as jest.Mock;
+const mockedUseAuth = useAuth as jest.Mock;
 
+describe("ViewProduct Component", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  it("shows loading state initially", () => {
-    (serverAPI.get as jest.Mock).mockImplementation(
-      () => new Promise(() => {})
-    );
-    renderComponent();
-    expect(screen.getByTestId("loading-page")).toBeVisible();
+  it("displays loading state", () => {
+    mockedUseProduct.mockReturnValue({ isLoading: true, isError: false });
+    mockedUseAuth.mockReturnValue({ user: { role: "user" } });
+
+    renderWithRoute("/shop/product/1");
+    expect(screen.getByTestId("loading")).toBeVisible();
   });
 
-  it("fetches and displays product data successfully", async () => {
-    (serverAPI.get as jest.Mock).mockResolvedValue({
-      data: { data: mockProduct },
-    });
-    renderComponent();
+  it("displays warning if product not found", async () => {
+    mockedUseProduct.mockReturnValue({ isLoading: false, isError: true });
+    mockedUseAuth.mockReturnValue({ user: { role: "user" } });
 
-    await waitFor(() => {
-      expect(serverAPI.get).toHaveBeenCalledWith(`/product/123`);
-      expect(screen.getByTestId("product-carousel")).toBeVisible();
-      expect(screen.getByTestId("product-text")).toBeVisible();
-    });
+    renderWithRoute("/shop/product/1");
+
+    expect(await screen.findByTestId("warning")).toBeVisible();
+    expect(screen.getByText("Product Not Found")).toBeVisible();
   });
 
-  it("shows error state when product not found", async () => {
-    (serverAPI.get as jest.Mock).mockRejectedValue(new Error("Not found"));
-    renderComponent();
+  it("renders correctly for user view", async () => {
+    mockedUseProduct.mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: mockProduct,
+    });
+    mockedUseAuth.mockReturnValue({ user: { role: "user" } });
+
+    renderWithRoute("/shop/product/1");
 
     await waitFor(() => {
-      expect(screen.getByTestId("warning-container")).toBeVisible();
+      expect(screen.getByTestId("header")).toHaveTextContent("Product Details");
     });
+
+    expect(screen.getByTestId("product-carousel")).toBeVisible();
+    expect(screen.getByTestId("product-text")).toBeVisible();
   });
 
-  it("displays admin title component in admin view", async () => {
-    (serverAPI.get as jest.Mock).mockResolvedValue({
-      data: { data: mockProduct },
+  it("renders correctly for admin view", async () => {
+    mockedUseProduct.mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: mockProduct,
     });
-    renderComponent("123", true, true);
+    mockedUseAuth.mockReturnValue({ user: { role: "admin" } });
+
+    renderWithRoute("/admin/view-product/1");
 
     await waitFor(() => {
-      expect(screen.getByTestId("title-component")).toBeVisible();
-      expect(screen.queryByTestId("page-header")).not.toBeInTheDocument();
+      expect(screen.getByTestId("title")).toHaveTextContent("View Product");
     });
+
+    expect(screen.getByTestId("product-carousel")).toBeVisible();
+    expect(screen.getByTestId("product-text")).toBeVisible();
   });
 
-  it("displays page header in user view", async () => {
-    (serverAPI.get as jest.Mock).mockResolvedValue({
-      data: { data: mockProduct },
-    });
-    renderComponent();
+  it("navigates back when 'Back' button is clicked in WarningContainer", async () => {
+    mockedUseProduct.mockReturnValue({ isLoading: false, isError: true });
+    mockedUseAuth.mockReturnValue({ user: { role: "user" } });
 
-    await waitFor(() => {
-      expect(screen.getByTestId("page-header")).toBeVisible();
-      expect(screen.queryByTestId("title-component")).not.toBeInTheDocument();
-    });
+    renderWithRoute("/shop/product/1");
+
+    const backButton = await screen.findByRole("button", { name: "Back" });
+    await userEvent.click(backButton);
+
+    expect(mockNavigate).toHaveBeenCalledWith(-1);
   });
 });

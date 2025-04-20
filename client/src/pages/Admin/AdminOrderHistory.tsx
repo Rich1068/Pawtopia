@@ -64,7 +64,7 @@ const AdminOrderHistory = () => {
         const user = row.original.userId;
         console.log(row.original);
         if (!user) return "Unknown User";
-        return typeof user === "string" ? "Unknown" : user.name;
+        return typeof user === "string" ? "Unknown User" : user.name;
       },
       enableSorting: true,
     },
@@ -91,6 +91,7 @@ const AdminOrderHistory = () => {
   const table = useReactTable({
     data: filteredOrders,
     columns,
+    meta: { openModal, closeModal },
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getFilteredRowModel: getFilteredRowModel(),

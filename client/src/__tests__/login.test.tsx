@@ -1,196 +1,109 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { MemoryRouter } from "react-router";
-import { useNavigate } from "react-router";
-import { useAuth } from "../context/AuthContext";
-import serverAPI from "../helper/axios";
 import Login from "../pages/Login";
-import toast from "react-hot-toast";
+import { BrowserRouter } from "react-router";
 import "@testing-library/jest-dom";
-import { createWrapper } from "../__mocks__/utils/testUtils";
 
-const wrapper = createWrapper();
-
-const renderComponent = () => {
-  return render(
-    wrapper({
-      children: (
-        <MemoryRouter>
-          <Login />
-        </MemoryRouter>
-      ),
-    })
-  );
-};
-jest.mock("../context/AuthContext", () => ({
-  useAuth: jest.fn(),
-}));
-
-jest.mock("react-router", () => ({
-  ...jest.requireActual("react-router"),
-  useNavigate: jest.fn(),
-}));
-
-jest.mock("../helper/axios");
+// Mocks
 jest.mock("react-hot-toast", () => ({
   error: jest.fn(),
-  success: jest.fn(),
 }));
 
+jest.mock("../hooks/useAuthQueries", () => ({
+  useLoginMutation: jest.fn(),
+}));
+
+jest.mock("../context/AuthContext", () => ({
+  useAuth: () => ({
+    login: jest.fn(),
+  }),
+}));
+
+import toast from "react-hot-toast";
+import { useLoginMutation } from "../hooks/useAuthQueries";
+
 describe("Login Component", () => {
-  const mockNavigate = jest.fn();
-  const mockLogin = jest.fn();
+  const mutateMock = jest.fn();
 
   beforeEach(() => {
-    (useAuth as jest.Mock).mockReturnValue({ login: mockLogin });
-    (useNavigate as jest.Mock).mockReturnValue(mockNavigate);
-    jest.clearAllMocks();
+    (useLoginMutation as jest.Mock).mockReturnValue({
+      mutate: mutateMock,
+    });
   });
 
-  const fillLoginForm = (email: string, password: string) => {
-    fireEvent.change(screen.getByPlaceholderText("Enter email"), {
-      target: { value: email },
-    });
-    fireEvent.change(screen.getByPlaceholderText("Enter password"), {
-      target: { value: password },
-    });
-  };
+  const setup = () =>
+    render(
+      <BrowserRouter>
+        <Login />
+      </BrowserRouter>
+    );
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const mockAPIResponse = (response: any, isError = false) => {
-    if (isError) {
-      (serverAPI.post as jest.Mock).mockRejectedValue(response);
-    } else {
-      (serverAPI.post as jest.Mock).mockResolvedValue(response);
-    }
-  };
+  it("renders all input fields and buttons", () => {
+    setup();
 
-  it("renders login form correctly", () => {
-    renderComponent();
-
-    expect(screen.getByText("Login")).toBeVisible();
     expect(screen.getByPlaceholderText("Enter email")).toBeVisible();
     expect(screen.getByPlaceholderText("Enter password")).toBeVisible();
-    expect(screen.getByText("Sign in")).toBeVisible();
+    expect(screen.getByRole("button", { name: /sign in/i })).toBeVisible();
   });
 
-  it("validates empty fields", async () => {
-    renderComponent();
-    const emailInput = screen.getByPlaceholderText("Enter email");
-    fireEvent.click(screen.getByText("Sign in"));
+  it("shows error if fields are empty", async () => {
+    setup();
 
-    expect(emailInput).toBeInvalid();
+    fireEvent.click(screen.getByRole("button", { name: /sign in/i }));
+
+    await waitFor(() => {
+      expect(screen.getByPlaceholderText("Enter email")).toBeInvalid();
+      expect(screen.getByPlaceholderText("Enter password")).toBeInvalid();
+    });
   });
 
-  it("validates empty fields with custom validation", async () => {
-    renderComponent();
+  it("shows custom error if fields are empty", async () => {
+    setup();
 
     const form = screen.getByTestId("login-form");
-    form.setAttribute("noValidate", "true");
+    (form as HTMLFormElement).noValidate = true;
 
-    fireEvent.click(screen.getByText("Sign in"));
-    await waitFor(() =>
-      expect(toast.error).toHaveBeenCalledWith("All fields are required")
-    );
-  });
-
-  it("validates invalid email format", async () => {
-    renderComponent();
-
-    fillLoginForm("invalid-email", "password123");
-    fireEvent.click(screen.getByText("Sign in"));
-
-    await waitFor(() =>
-      expect(toast.error).toHaveBeenCalledWith("Invalid email format")
-    );
-  });
-
-  it("handles successful login", async () => {
-    mockAPIResponse({ data: { message: "Login successful" } });
-
-    renderComponent();
-
-    fillLoginForm("test@example.com", "password123");
-    fireEvent.click(screen.getByText("Sign in"));
+    fireEvent.submit(form);
 
     await waitFor(() => {
-      expect(mockLogin).toHaveBeenCalledWith(false);
-      expect(mockNavigate).toHaveBeenCalledWith("/");
+      expect(toast.error).toHaveBeenCalledWith("All fields are required");
     });
   });
 
-  it("redirects to email verification page if email not verified", async () => {
-    mockAPIResponse({
-      data: { message: "Please Verify Email", email: "test@example.com" },
+  it("shows error for invalid email format", async () => {
+    setup();
+
+    fireEvent.change(screen.getByPlaceholderText("Enter email"), {
+      target: { value: "invalidemail" },
+    });
+    fireEvent.change(screen.getByPlaceholderText("Enter password"), {
+      target: { value: "password123" },
     });
 
-    renderComponent();
-
-    fillLoginForm("test@example.com", "password123");
-    fireEvent.click(screen.getByText("Sign in"));
+    fireEvent.click(screen.getByRole("button", { name: /sign in/i }));
 
     await waitFor(() => {
-      expect(localStorage.getItem("unverifiedEmail")).toBe("test@example.com");
-      expect(mockNavigate).toHaveBeenCalledWith("/verify-email");
+      expect(toast.error).toHaveBeenCalledWith("Invalid email format");
     });
   });
 
-  it("handles API error response", async () => {
-    mockAPIResponse(
-      { response: { data: { error: "Invalid credentials" } } },
-      true
-    );
+  it("submits form with valid inputs", async () => {
+    setup();
 
-    renderComponent();
-
-    fillLoginForm("wrong@example.com", "wrongpassword");
-    fireEvent.click(screen.getByText("Sign in"));
-
-    await waitFor(() =>
-      expect(toast.error).toHaveBeenCalledWith("Invalid credentials")
-    );
-  });
-
-  it("handles unknown API error", async () => {
-    mockAPIResponse(new Error("Network Error"), true);
-
-    renderComponent();
-
-    fillLoginForm("test@example.com", "password123");
-    fireEvent.click(screen.getByText("Sign in"));
-
-    await waitFor(() =>
-      expect(toast.error).toHaveBeenCalledWith("Something went wrong")
-    );
-  });
-
-  it("shows loading state while logging in", async () => {
-    (serverAPI.post as jest.Mock).mockImplementation(
-      () =>
-        new Promise((resolve) => setTimeout(() => resolve({ data: {} }), 1000))
-    );
-
-    renderComponent();
-
-    fillLoginForm("test@example.com", "password123");
-    fireEvent.click(screen.getByText("Sign in"));
-
-    expect(screen.getByRole("button")).toBeDisabled();
-    await waitFor(() => expect(screen.getByRole("button")).not.toBeDisabled());
-  });
-
-  it("toggles rememberMe checkbox state", () => {
-    renderComponent();
-
-    const rememberMeCheckbox = screen.getByRole("checkbox", {
-      name: /remember me/i,
+    fireEvent.change(screen.getByPlaceholderText("Enter email"), {
+      target: { value: "test@example.com" },
+    });
+    fireEvent.change(screen.getByPlaceholderText("Enter password"), {
+      target: { value: "password123" },
     });
 
-    expect(rememberMeCheckbox).not.toBeChecked();
+    fireEvent.click(screen.getByRole("button", { name: /sign in/i }));
 
-    fireEvent.click(rememberMeCheckbox);
-    expect(rememberMeCheckbox).toBeChecked();
-
-    fireEvent.click(rememberMeCheckbox);
-    expect(rememberMeCheckbox).not.toBeChecked();
+    await waitFor(() => {
+      expect(mutateMock).toHaveBeenCalledWith({
+        email: "test@example.com",
+        password: "password123",
+        rememberMe: false,
+      });
+    });
   });
 });

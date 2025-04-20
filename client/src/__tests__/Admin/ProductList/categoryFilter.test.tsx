@@ -1,183 +1,95 @@
-import {
-  render,
-  screen,
-  fireEvent,
-  waitFor,
-  cleanup,
-} from "@testing-library/react";
+import { render, fireEvent, screen } from "@testing-library/react";
 import CategoryFilter from "../../../components/shop/Admin/ProductList/CategoryFilter";
-import serverAPI from "../../../helper/axios";
+import { useCategories } from "../../../hooks/useCategories";
 import "@testing-library/jest-dom";
-import userEvent from "@testing-library/user-event";
-import { createWrapper } from "../../../__mocks__/utils/testUtils";
 
-const wrapper = createWrapper();
-
-const renderComponent = (ui: React.ReactElement) => {
-  return render(ui, { wrapper });
-};
-
-jest.mock("lucide-react", () => ({
-  X: () => <div data-testid="icon-X" />,
-  ChevronDown: () => <div data-testid="icon-ChevronDown" />,
+jest.mock("../../../hooks/useCategories", () => ({
+  useCategories: jest.fn(),
 }));
 
-jest.mock("../../../helper/axios", () => ({
-  get: jest.fn(),
-}));
-
-describe("CategoryFilter on Product List Page", () => {
-  const mockSetSelectedCategories = jest.fn();
-  const mockCategories = [
-    "Dog Food",
-    "Cat Food",
-    "Pet Toys",
-    "Pet Accessories",
-    "Pet Beds",
-  ];
+describe("CategoryFilter", () => {
+  const mockCategories = ["Dog", "Cat", "Rabbit"];
 
   beforeEach(() => {
-    jest.clearAllMocks();
-    cleanup();
+    (useCategories as jest.Mock).mockReturnValue({
+      categories: mockCategories,
+    });
   });
 
-  afterEach(() => {
-    jest.clearAllMocks();
-    cleanup();
-  });
-
-  it("fetches and displays pet-related categories", async () => {
-    (serverAPI.get as jest.Mock).mockResolvedValue({ data: mockCategories });
-
-    renderComponent(
+  it("renders placeholder when no category is selected", () => {
+    render(
       <CategoryFilter
         selectedCategories={[]}
-        setSelectedCategories={mockSetSelectedCategories}
+        setSelectedCategories={jest.fn()}
       />
     );
-    const dropdownToggle = screen.getByText("Select categories...");
-    fireEvent.click(dropdownToggle);
-
-    await waitFor(() => {
-      expect(serverAPI.get).toHaveBeenCalledWith("/product/get-categories");
-      expect(screen.getByText("Dog Food")).toBeVisible();
-      expect(screen.getByText("Cat Food")).toBeVisible();
-      expect(screen.getByText("Pet Toys")).toBeVisible();
-      expect(screen.getByText("Pet Accessories")).toBeVisible();
-      expect(screen.getByText("Pet Beds")).toBeVisible();
-    });
+    expect(screen.getByText("Select categories...")).toBeVisible();
   });
 
-  it("opens and closes the dropdown on click", async () => {
-    (serverAPI.get as jest.Mock).mockResolvedValue({ data: mockCategories });
+  it("displays selected categories with remove buttons", () => {
+    render(
+      <CategoryFilter
+        selectedCategories={["Dog"]}
+        setSelectedCategories={jest.fn()}
+      />
+    );
+    expect(screen.getByText("Dog")).toBeVisible();
+    expect(screen.getByRole("button")).toBeVisible();
+  });
 
-    renderComponent(
+  it("opens dropdown and allows selecting a category", () => {
+    const setSelectedCategories = jest.fn();
+
+    render(
       <CategoryFilter
         selectedCategories={[]}
-        setSelectedCategories={mockSetSelectedCategories}
+        setSelectedCategories={setSelectedCategories}
       />
     );
 
-    const dropdownToggle = screen.getByText("Select categories...");
-    fireEvent.click(dropdownToggle);
-
-    await waitFor(() => {
-      expect(screen.getByText("Dog Food")).toBeVisible();
-    });
-
-    await waitFor(() => {
-      userEvent.click(document.body);
-      expect(screen.queryByText("Dog Food")).not.toBeInTheDocument();
-    });
-  });
-
-  it("selects and deselects categories", async () => {
-    (serverAPI.get as jest.Mock).mockResolvedValue({ data: mockCategories });
-
-    const selectedCategories: string[] = [];
-    const mockSetSelectedCategories = jest.fn((newCategories) => {
-      selectedCategories.length = 0;
-      selectedCategories.push(...newCategories);
-    });
-
-    renderComponent(
-      <CategoryFilter
-        selectedCategories={selectedCategories}
-        setSelectedCategories={mockSetSelectedCategories}
-      />
-    );
-    userEvent.click(screen.getByText("Select categories..."));
-    const dogFoodOption = await screen.findByText("Dog Food");
-    await waitFor(() => expect(dogFoodOption).toBeVisible());
-    const dogFoodCheckbox = screen.getByLabelText("Dog Food");
-
-    fireEvent.click(dogFoodCheckbox);
-    expect(mockSetSelectedCategories).toHaveBeenCalledWith(["Dog Food"]);
-
-    selectedCategories.push("Dog Food");
-
-    fireEvent.click(dogFoodCheckbox);
-    expect(mockSetSelectedCategories).toHaveBeenCalledWith([]);
-  });
-
-  it("displays selected categories with remove buttons", async () => {
-    renderComponent(
-      <CategoryFilter
-        selectedCategories={["Cat Food"]}
-        setSelectedCategories={mockSetSelectedCategories}
-      />
-    );
-
-    expect(screen.getByText("Cat Food")).toBeVisible();
-    const removeButton = screen.getByTestId("icon-X");
-    fireEvent.click(removeButton);
-
-    expect(mockSetSelectedCategories).toHaveBeenCalledWith([]);
-  });
-
-  it("closes the dropdown when clicking outside", async () => {
-    (serverAPI.get as jest.Mock).mockResolvedValue({ data: mockCategories });
-
-    renderComponent(
-      <CategoryFilter
-        selectedCategories={[]}
-        setSelectedCategories={mockSetSelectedCategories}
-      />
-    );
+    // Open dropdown
     fireEvent.click(screen.getByText("Select categories..."));
 
-    await waitFor(() =>
-      expect(screen.getByLabelText("Dog Food")).toBeVisible()
-    );
+    // Click on "Cat" checkbox
+    const catCheckbox = screen.getByLabelText("Cat");
+    fireEvent.click(catCheckbox);
 
-    fireEvent.mouseDown(document.body);
-    await waitFor(() => {
-      expect(screen.queryByText("Dog Food")).not.toBeInTheDocument();
-    });
+    expect(setSelectedCategories).toHaveBeenCalledWith(["Cat"]);
   });
 
-  it("handles API errors gracefully", async () => {
-    (serverAPI.get as jest.Mock).mockRejectedValue(new Error("Network Error"));
-    const consoleErrorSpy = jest
-      .spyOn(console, "error")
-      .mockImplementation(() => {});
+  it("removes category when X is clicked", () => {
+    const setSelectedCategories = jest.fn();
 
-    renderComponent(
+    render(
       <CategoryFilter
-        selectedCategories={[]}
-        setSelectedCategories={mockSetSelectedCategories}
+        selectedCategories={["Dog"]}
+        setSelectedCategories={setSelectedCategories}
       />
     );
 
-    await waitFor(() => {
-      expect(serverAPI.get).toHaveBeenCalledWith("/product/get-categories");
-    });
+    // Find and click the X button
+    const removeButton = screen.getByRole("button");
+    fireEvent.click(removeButton);
 
-    expect(consoleErrorSpy).toHaveBeenCalledWith(
-      "Failed to fetch categories:",
-      expect.any(Error)
+    expect(setSelectedCategories).toHaveBeenCalledWith([]);
+  });
+
+  it("closes dropdown when clicking outside", () => {
+    render(
+      <>
+        <CategoryFilter
+          selectedCategories={[]}
+          setSelectedCategories={jest.fn()}
+        />
+        <div data-testid="outside">Outside</div>
+      </>
     );
 
-    consoleErrorSpy.mockRestore();
+    fireEvent.click(screen.getByText("Select categories..."));
+    expect(screen.getByText("Cat")).toBeVisible();
+
+    fireEvent.mouseDown(screen.getByTestId("outside"));
+
+    expect(screen.queryByText("Cat")).not.toBeInTheDocument();
   });
 });

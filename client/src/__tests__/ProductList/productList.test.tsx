@@ -1,97 +1,120 @@
-import { render, screen, waitFor, fireEvent } from "@testing-library/react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import ProductList from "../../pages/Admin/ProductList";
-import serverAPI from "../../helper/axios";
-import LoadingPage from "../../components/LoadingPage/LoadingPage";
+import { useProducts } from "../../hooks/useProducts";
 import "@testing-library/jest-dom";
 import { mockProducts } from "../../__mocks__/mockProducts";
-import { MemoryRouter } from "react-router";
-import { createWrapper } from "../../__mocks__/utils/testUtils";
 
-const wrapper = createWrapper();
-
-const renderComponent = () => {
-  return render(
-    wrapper({
-      children: (
-        <MemoryRouter>
-          <ProductList />
-        </MemoryRouter>
-      ),
-    })
-  );
-};
-
-jest.mock("../../helper/axios");
-jest.mock("../../components/LoadingPage/LoadingPage");
+// Mock the custom hook and components
+jest.mock("../../hooks/useProducts");
+jest.mock("lucide-react");
+jest.mock("../../components/shop/Admin/ProductList/ProductFilters", () => ({
+  __esModule: true,
+  default: ({ globalFilter }: any) => <div>Mocked Filters: {globalFilter}</div>,
+}));
 jest.mock(
   "../../components/shop/Admin/ProductList/ProductActionButtons",
   () => ({
     __esModule: true,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    default: ({ product, onDelete }: any) => (
-      <button
-        data-testid={`delete-${product._id}`}
-        onClick={() => onDelete(product._id)}
-      >
-        Delete
-      </button>
+    default: ({ row }: any) => (
+      <div>
+        <button onClick={() => row.handleDelete(row.original._id)}>
+          Delete
+        </button>
+        <button onClick={() => row.handleArchive(row.original._id)}>
+          Archive
+        </button>
+        <button onClick={() => row.handleRecover(row.original._id)}>
+          Recover
+        </button>
+      </div>
     ),
   })
 );
 
-describe("ProductList Component", () => {
+jest.mock("../../components/shop/Admin/TitleComponent", () => ({
+  __esModule: true,
+  default: ({ text }: any) => <h1>{text}</h1>,
+}));
+
+describe("ProductList", () => {
   beforeEach(() => {
-    (serverAPI.get as jest.Mock).mockImplementation(() => {
-      return Promise.resolve({
-        data: { data: mockProducts },
+    jest.clearAllMocks();
+    (useProducts as jest.Mock).mockReturnValue({
+      products: mockProducts,
+      isLoading: false,
+      error: null,
+      deleteProduct: { mutateAsync: jest.fn() },
+      archiveProduct: { mutateAsync: jest.fn() },
+      recoverProduct: { mutateAsync: jest.fn() },
+    });
+  });
+
+  it("renders and displays products with images and names", async () => {
+    render(<ProductList />);
+
+    // Title
+    expect(screen.getByText("Product List")).toBeVisible();
+
+    // Wait for products to render
+    await waitFor(() => {
+      mockProducts.forEach((product) => {
+        expect(screen.getByText(product.name)).toBeVisible();
       });
     });
-    (LoadingPage as jest.Mock).mockImplementation(() => <div>Loading...</div>);
+
+    // Check that images are rendered (except for the product with no image)
+    const imageElements = screen.getAllByAltText(
+      "Product"
+    ) as HTMLImageElement[];
+    expect(imageElements.length).toBe(5);
+
+    // Check image source contains file names
+    expect(imageElements[0].src).toContain("dog_food.jpeg");
+    expect(imageElements[1].src).toContain("scratching_post.jpeg");
+    expect(imageElements[2].src).toContain("dog_toy.jpeg");
+    expect(imageElements[3].src).toContain("litter_box.jpeg");
   });
 
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
-
-  it("should show loading state initially", async () => {
-    (serverAPI.get as jest.Mock).mockReturnValueOnce(new Promise(() => {})); // Mocking ongoing request
-    renderComponent();
-
-    expect(screen.getByText("Loading...")).toBeVisible();
-  });
-
-  it("should display the product list after data is fetched", async () => {
-    renderComponent();
-
-    await waitFor(() => {
-      expect(screen.getByText("Premium Dog Food")).toBeVisible();
-      expect(screen.getByText("Cat Scratching Post")).toBeVisible();
-      expect(screen.getByText("$25")).toBeVisible();
-      expect(screen.getByText("$40")).toBeVisible();
-    });
-  });
-
-  it("should call delete handler when delete button is clicked", async () => {
-    renderComponent();
-
-    await waitFor(() => {
-      expect(screen.getByText("Premium Dog Food")).toBeVisible();
-      expect(screen.getByText("Cat Scratching Post")).toBeVisible();
+  it("shows loading state if data is loading", () => {
+    (useProducts as jest.Mock).mockReturnValue({
+      products: [],
+      isLoading: true,
+      error: null,
+      deleteProduct: { mutateAsync: jest.fn() },
+      archiveProduct: { mutateAsync: jest.fn() },
+      recoverProduct: { mutateAsync: jest.fn() },
     });
 
-    fireEvent.click(screen.getByTestId("delete-1"));
-
-    await waitFor(() => {
-      expect(screen.queryByText("Premium Dog Food")).not.toBeInTheDocument();
-    });
+    render(<ProductList />);
+    expect(screen.getByTestId("icon-LoaderCircle")).toBeVisible();
   });
 
-  it("should show filters and table components", async () => {
-    renderComponent();
-
-    await waitFor(() => {
-      expect(screen.getByText("Select categories...")).toBeVisible();
-      expect(screen.getByText("Premium Dog Food")).toBeVisible();
+  it("shows error state", () => {
+    (useProducts as jest.Mock).mockReturnValue({
+      products: [],
+      isLoading: false,
+      error: true,
+      deleteProduct: { mutateAsync: jest.fn() },
+      archiveProduct: { mutateAsync: jest.fn() },
+      recoverProduct: { mutateAsync: jest.fn() },
     });
+
+    render(<ProductList />);
+    expect(screen.getByText("Error loading products")).toBeVisible();
+  });
+
+  it("replaces broken image with fallback logo", async () => {
+    render(<ProductList />);
+
+    const brokenImage = (
+      await screen.findAllByAltText("Product", {}, { timeout: 1000 })
+    )[0];
+    fireEvent.error(brokenImage);
+
+    expect(brokenImage).toHaveAttribute(
+      "src",
+      expect.stringContaining("/assets/img/Logo1.png")
+    );
   });
 });

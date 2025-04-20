@@ -8,6 +8,7 @@ export const mockProducts: IProduct[] = [
     images: ["dog_food.jpeg", "dog_food2.jpeg"],
     description: "Healthy food for dogs",
     price: "25",
+    isArchived: false,
   },
   {
     _id: "2",
@@ -16,6 +17,7 @@ export const mockProducts: IProduct[] = [
     images: ["scratching_post.jpeg"],
     description: "Durable scratching post for cats",
     price: "40",
+    isArchived: false,
   },
   {
     _id: "3",
@@ -24,6 +26,7 @@ export const mockProducts: IProduct[] = [
     images: ["dog_toy.jpeg"],
     description: "Fun chew toy for dogs",
     price: "15",
+    isArchived: false,
   },
   {
     _id: "4",
@@ -32,6 +35,7 @@ export const mockProducts: IProduct[] = [
     images: ["litter_box.jpeg"],
     description: "Easy-to-clean litter box for cats",
     price: "30",
+    isArchived: false,
   },
   {
     _id: "5",
@@ -40,6 +44,7 @@ export const mockProducts: IProduct[] = [
     images: [],
     description: "Best Cat Toy in the shop",
     price: "45",
+    isArchived: false,
   },
 ];
 
@@ -50,4 +55,5 @@ export const mockProduct: IProduct = {
   images: ["dog_food.jpeg"],
   description: "Healthy food for dogs",
   price: "25",
+  isArchived: false,
 };

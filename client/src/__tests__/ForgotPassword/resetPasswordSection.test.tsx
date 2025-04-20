@@ -1,160 +1,135 @@
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router";
 import ResetPasswordSection from "../../components/ForgotPassword/ResetPasswordSection";
-import serverAPI from "../../helper/axios";
-import toast from "react-hot-toast";
+import { useResetPassword } from "../../hooks/useResetPassword";
 import "@testing-library/jest-dom";
-import { createWrapper } from "../../__mocks__/utils/testUtils";
+import toast from "react-hot-toast";
 
-const wrapper = createWrapper();
+// Mock toast
+jest.mock("react-hot-toast", () => ({
+  error: jest.fn(),
+}));
 
-const renderComponent = (initialRoute: string) => {
+// Mock hook
+jest.mock("../../hooks/useResetPassword");
+
+const mockNavigate = jest.fn();
+
+jest.mock("react-router", () => ({
+  ...jest.requireActual("react-router"),
+  useParams: () => ({ token: "mock-token" }),
+  useNavigate: () => mockNavigate,
+}));
+
+const renderComponent = () => {
   return render(
-    wrapper({
-      children: (
-        <MemoryRouter initialEntries={[initialRoute]}>
-          <Routes>
-            <Route
-              path="/reset-password/:token"
-              element={<ResetPasswordSection />}
-            />
-            <Route
-              path="/forgot-password"
-              element={<div>Forgot Password Page</div>}
-            />
-            <Route path="/login" element={<div>Login Page</div>} />
-          </Routes>
-        </MemoryRouter>
-      ),
-    })
+    <MemoryRouter>
+      <ResetPasswordSection />
+    </MemoryRouter>
   );
 };
 
-jest.mock("../../helper/axios");
-jest.mock("react-hot-toast", () => ({
-  error: jest.fn(),
-  success: jest.fn(),
-}));
-
-describe("ResetPasswordSection Component", () => {
-  const mockToken = "valid-reset-token";
+describe("ResetPasswordSection", () => {
+  const mockValidate = jest.fn();
+  const mockSetPassword = jest.fn();
+  const mockSetConfirmPassword = jest.fn();
 
   beforeEach(() => {
+    (useResetPassword as jest.Mock).mockReturnValue({
+      password: "test123",
+      setPassword: mockSetPassword,
+      confirmPassword: "test123",
+      setConfirmPassword: mockSetConfirmPassword,
+      isVerifying: false,
+      isValidToken: true,
+      isLoading: false,
+      validatePasswordAndReset: mockValidate,
+    });
+  });
+
+  afterEach(() => {
     jest.clearAllMocks();
   });
 
-  // Helper function to fill inputs
-  const fillInputs = async (inputs: { testId: string; value: string }[]) => {
-    for (const { testId, value } of inputs) {
-      fireEvent.change(await screen.findByTestId(testId), {
-        target: { value },
-      });
-    }
-  };
-
-  it("validates reset token on mount", async () => {
-    (serverAPI.get as jest.Mock).mockResolvedValueOnce({});
-    renderComponent(`/reset-password/${mockToken}`);
-
-    await waitFor(() =>
-      expect(serverAPI.get).toHaveBeenCalledWith(
-        `/api/reset-password/${mockToken}`
-      )
-    );
-  });
-
-  it("redirects to forgot password page if token is invalid", async () => {
-    (serverAPI.get as jest.Mock).mockRejectedValueOnce({
-      response: { data: { error: "Invalid or expired token" } },
-    });
-
-    renderComponent(`/reset-password/${mockToken}`);
-
-    await waitFor(() => {
-      expect(screen.getByText("Forgot Password Page")).toBeVisible();
-      expect(toast.error).toHaveBeenCalledWith("Invalid or expired token");
-    });
-  });
-
-  it("renders form fields correctly", async () => {
-    (serverAPI.get as jest.Mock).mockResolvedValueOnce({});
-    renderComponent(`/reset-password/${mockToken}`);
-
-    const elements = await Promise.all([
-      screen.findByTestId("password-input"),
-      screen.findByTestId("confirm-password"),
-      screen.findByRole("button", { name: /reset password/i }),
-    ]);
-
-    elements.forEach((el) => expect(el).toBeVisible());
-  });
-
-  it("validates mismatched passwords", async () => {
-    (serverAPI.get as jest.Mock).mockResolvedValueOnce({});
-    renderComponent(`/reset-password/${mockToken}`);
-
-    await fillInputs([
-      { testId: "password-input", value: "password123" },
-      { testId: "confirm-password", value: "password456" },
-    ]);
-
-    fireEvent.click(
-      await screen.findByRole("button", { name: /reset password/i })
+  it("renders password fields and submit button", () => {
+    render(
+      <MemoryRouter initialEntries={["/reset-password/mock-token"]}>
+        <Routes>
+          <Route
+            path="/reset-password/:token"
+            element={<ResetPasswordSection />}
+          />
+        </Routes>
+      </MemoryRouter>
     );
 
-    await waitFor(() => {
-      expect(toast.error).toHaveBeenCalledWith("Passwords do not match");
-    });
+    expect(screen.getAllByText(/reset password/i)[0]).toBeVisible();
+    expect(screen.getByTestId("password-input")).toBeVisible();
+    expect(screen.getByTestId("confirm-password")).toBeVisible();
+    expect(
+      screen.getByRole("button", { name: /reset password/i })
+    ).toBeVisible();
   });
 
-  it("submits form successfully and redirects to login", async () => {
-    (serverAPI.get as jest.Mock).mockResolvedValueOnce({});
-    (serverAPI.post as jest.Mock).mockResolvedValueOnce({});
+  it("calls setPassword and setConfirmPassword on input change", () => {
+    renderComponent();
 
-    renderComponent(`/reset-password/${mockToken}`);
-
-    await fillInputs([
-      { testId: "password-input", value: "securepassword" },
-      { testId: "confirm-password", value: "securepassword" },
-    ]);
-
-    fireEvent.click(
-      await screen.findByRole("button", { name: /reset password/i })
-    );
-
-    await waitFor(() => {
-      expect(serverAPI.post).toHaveBeenCalledWith(
-        `/api/reset-password/${mockToken}`,
-        {
-          password: "securepassword",
-        }
-      );
-      expect(toast.success).toHaveBeenCalledWith(
-        "Password reset successful! Please log in."
-      );
-      expect(screen.getByText("Login Page")).toBeVisible();
+    fireEvent.change(screen.getByTestId("password-input"), {
+      target: { value: "newPass" },
     });
+    fireEvent.change(screen.getByTestId("confirm-password"), {
+      target: { value: "newPass" },
+    });
+
+    expect(mockSetPassword).toHaveBeenCalledWith("newPass");
+    expect(mockSetConfirmPassword).toHaveBeenCalledWith("newPass");
   });
 
-  it("handles API failure during password reset", async () => {
-    (serverAPI.get as jest.Mock).mockResolvedValueOnce({});
-    (serverAPI.post as jest.Mock).mockRejectedValueOnce({
-      response: { data: { error: "Server error" } },
+  it("submits form and calls validatePasswordAndReset", () => {
+    renderComponent();
+
+    fireEvent.submit(screen.getByRole("button").closest("form")!);
+
+    expect(mockValidate).toHaveBeenCalled();
+  });
+
+  it("shows 'Resetting...' when isLoading is true", () => {
+    (useResetPassword as jest.Mock).mockReturnValue({
+      password: "test123",
+      setPassword: mockSetPassword,
+      confirmPassword: "test123",
+      setConfirmPassword: mockSetConfirmPassword,
+      isVerifying: false,
+      isValidToken: true,
+      isLoading: true,
+      validatePasswordAndReset: mockValidate,
     });
 
-    renderComponent(`/reset-password/${mockToken}`);
+    renderComponent();
 
-    await fillInputs([
-      { testId: "password-input", value: "securepassword" },
-      { testId: "confirm-password", value: "securepassword" },
-    ]);
+    expect(screen.getByText(/resetting/i)).toBeVisible();
+    expect(screen.getByRole("button")).toBeDisabled();
+  });
 
-    fireEvent.click(
-      await screen.findByRole("button", { name: /reset password/i })
-    );
-
-    await waitFor(() => {
-      expect(toast.error).toHaveBeenCalledWith("Server error");
+  it("displays verifying message when isVerifying is true", () => {
+    (useResetPassword as jest.Mock).mockReturnValue({
+      isVerifying: true,
     });
+
+    renderComponent();
+
+    expect(screen.getByText(/verifying token/i)).toBeVisible();
+  });
+
+  it("navigates to /forgot-password if token is invalid", () => {
+    (useResetPassword as jest.Mock).mockReturnValue({
+      isVerifying: false,
+      isValidToken: false,
+    });
+
+    renderComponent();
+
+    expect(toast.error).toHaveBeenCalledWith("Invalid or expired token");
+    expect(mockNavigate).toHaveBeenCalledWith("/forgot-password");
   });
 });

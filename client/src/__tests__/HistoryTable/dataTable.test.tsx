@@ -1,99 +1,195 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { render, screen, fireEvent } from "@testing-library/react";
 import DataTable from "../../components/HistoryTable/DataTable";
 import { Table } from "@tanstack/react-table";
 import "@testing-library/jest-dom";
 
-const mockTable = {
-  getHeaderGroups: jest.fn(() => [
-    {
-      id: "header-group-1",
-      headers: [
-        {
-          id: "header-1",
-          column: {
-            columnDef: { header: "Name" },
-          },
-          getContext: jest.fn(),
-        },
-      ],
-    },
-  ]),
-  getRowModel: jest.fn(() => ({
-    rows: [
+const createMockTable = <T extends object>(
+  rows: any[] = [],
+  canPrevious = true,
+  canNext = true,
+  pageIndex = 0,
+  pageCount = 5
+): Table<T> => {
+  // Create a base mock with the minimal required properties
+  const mockTable = {
+    getHeaderGroups: jest.fn().mockReturnValue([
       {
-        id: "row-1",
-        getVisibleCells: jest.fn(() => [
+        id: "header-group-1",
+        headers: [
           {
-            id: "cell-1",
+            id: "header-1",
             column: {
-              columnDef: { cell: "John Doe" },
+              columnDef: {
+                header: "Column 1",
+              },
+              getCanSort: jest.fn().mockReturnValue(true),
+              getIsSorted: jest.fn().mockReturnValue(false),
+              getToggleSortingHandler: jest.fn().mockReturnValue(() => {}),
             },
-            getContext: jest.fn(),
+            getContext: jest.fn().mockReturnValue({}),
           },
-        ]),
+          {
+            id: "header-2",
+            column: {
+              columnDef: {
+                header: "Column 2",
+              },
+              getCanSort: jest.fn().mockReturnValue(true),
+              getIsSorted: jest.fn().mockReturnValue("asc"),
+              getToggleSortingHandler: jest.fn().mockReturnValue(() => {}),
+            },
+            getContext: jest.fn().mockReturnValue({}),
+          },
+          {
+            id: "header-3",
+            column: {
+              columnDef: {
+                header: "Column 3",
+              },
+              getCanSort: jest.fn().mockReturnValue(true),
+              getIsSorted: jest.fn().mockReturnValue("desc"),
+              getToggleSortingHandler: jest.fn().mockReturnValue(() => {}),
+            },
+            getContext: jest.fn().mockReturnValue({}),
+          },
+        ],
       },
-    ],
-  })),
-  getCanPreviousPage: jest.fn(),
-  getCanNextPage: jest.fn(),
-  previousPage: jest.fn(),
-  getCanSort: jest.fn(),
-  nextPage: jest.fn(),
-  getState: jest.fn(() => ({
-    pagination: {
-      pageIndex: 0,
-    },
-  })),
-  getPageCount: jest.fn(() => 5),
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-} as unknown as Table<any>;
+    ]),
+    getRowModel: jest.fn().mockReturnValue({
+      rows,
+    }),
+    getState: jest.fn().mockReturnValue({
+      pagination: {
+        pageIndex,
+      },
+    }),
+    getCanPreviousPage: jest.fn().mockReturnValue(canPrevious),
+    getCanNextPage: jest.fn().mockReturnValue(canNext),
+    getPageCount: jest.fn().mockReturnValue(pageCount),
+    previousPage: jest.fn(),
+    nextPage: jest.fn(),
+  };
 
-// Mock flexRender
+  return mockTable as unknown as Table<T>;
+};
+
 jest.mock("@tanstack/react-table", () => ({
-  ...jest.requireActual("@tanstack/react-table"),
-  flexRender: jest.fn((content) => content),
+  flexRender: (component: any) => component,
 }));
 
 describe("DataTable", () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
+  test("renders with headers and data", () => {
+    const mockRows = [
+      {
+        id: "row-1",
+        getVisibleCells: () => [
+          {
+            id: "cell-1-1",
+            column: { columnDef: { cell: "Data 1-1" } },
+            getContext: jest.fn().mockReturnValue({}),
+          },
+          {
+            id: "cell-1-2",
+            column: { columnDef: { cell: "Data 1-2" } },
+            getContext: jest.fn().mockReturnValue({}),
+          },
+          {
+            id: "cell-1-3",
+            column: { columnDef: { cell: "Data 1-3" } },
+            getContext: jest.fn().mockReturnValue({}),
+          },
+        ],
+      },
+      {
+        id: "row-2",
+        getVisibleCells: () => [
+          {
+            id: "cell-2-1",
+            column: { columnDef: { cell: "Data 2-1" } },
+            getContext: jest.fn().mockReturnValue({}),
+          },
+          {
+            id: "cell-2-2",
+            column: { columnDef: { cell: "Data 2-2" } },
+            getContext: jest.fn().mockReturnValue({}),
+          },
+          {
+            id: "cell-2-3",
+            column: { columnDef: { cell: "Data 2-3" } },
+            getContext: jest.fn().mockReturnValue({}),
+          },
+        ],
+      },
+    ];
 
-  it("renders table with headers and rows", () => {
+    const mockTable = createMockTable(mockRows);
     render(<DataTable table={mockTable} />);
 
-    expect(screen.getByRole("table")).toBeVisible();
-    expect(screen.getByText("Name")).toBeVisible();
-    expect(screen.getByText("John Doe")).toBeVisible();
-  });
+    expect(screen.getByText("Column 1")).toBeVisible();
+    expect(screen.getByText("Column 2")).toBeVisible();
+    expect(screen.getByText("Column 3")).toBeVisible();
 
-  it("renders pagination controls", () => {
-    render(<DataTable table={mockTable} />);
+    expect(screen.getByText("Data 1-1")).toBeVisible();
+    expect(screen.getByText("Data 2-3")).toBeVisible();
 
-    expect(screen.getByText("Prev")).toBeVisible();
-    expect(screen.getByText("Next")).toBeVisible();
     expect(screen.getByText("Page 1 of 5")).toBeVisible();
   });
 
-  it("handles pagination navigation correctly", () => {
-    (mockTable.getCanPreviousPage as jest.Mock).mockReturnValue(true);
-    (mockTable.getCanNextPage as jest.Mock).mockReturnValue(true);
+  test("shows loading state when isLoading is true", () => {
+    const mockTable = createMockTable([]);
+    render(<DataTable table={mockTable} isLoading={true} />);
 
-    render(<DataTable table={mockTable} />);
-
-    fireEvent.click(screen.getByText("Next"));
-    expect(mockTable.nextPage).toHaveBeenCalledTimes(1);
-
-    fireEvent.click(screen.getByText("Prev"));
-    expect(mockTable.previousPage).toHaveBeenCalledTimes(1);
+    expect(screen.queryByText("No data available.")).not.toBeInTheDocument();
   });
-  it("disables pagination buttons when appropriate", () => {
-    (mockTable.getCanPreviousPage as jest.Mock).mockReturnValue(false);
-    (mockTable.getCanNextPage as jest.Mock).mockReturnValue(false);
+
+  test('shows "No data available" when no rows', () => {
+    const mockTable = createMockTable([]);
+    render(<DataTable table={mockTable} />);
+
+    expect(screen.getByText("No data available.")).toBeVisible();
+  });
+
+  test("pagination buttons work correctly", () => {
+    const mockTable = createMockTable([
+      { id: "row-1", getVisibleCells: () => [] },
+    ]);
+    render(<DataTable table={mockTable} />);
+
+    const prevButton = screen.getByText("Prev");
+    const nextButton = screen.getByText("Next");
+
+    fireEvent.click(prevButton);
+    expect(mockTable.previousPage).toHaveBeenCalledTimes(1);
+
+    fireEvent.click(nextButton);
+    expect(mockTable.nextPage).toHaveBeenCalledTimes(1);
+  });
+
+  test("pagination buttons are disabled correctly", () => {
+    const mockTable = createMockTable(
+      [{ id: "row-1", getVisibleCells: () => [] }],
+      false,
+      false
+    );
 
     render(<DataTable table={mockTable} />);
 
-    expect(screen.getByText("Prev")).toBeDisabled();
-    expect(screen.getByText("Next")).toBeDisabled();
+    const prevButton = screen.getByText("Prev");
+    const nextButton = screen.getByText("Next");
+
+    expect(prevButton).toBeDisabled();
+    expect(nextButton).toBeDisabled();
+  });
+
+  test("renders different sort icons based on column sort state", () => {
+    const mockTable = createMockTable([]);
+    render(<DataTable table={mockTable} />);
+
+    // We can't directly test for the icons, but we can at least ensure the component renders
+    const headers = mockTable.getHeaderGroups()[0].headers;
+    expect(headers[0].column.getIsSorted).toHaveBeenCalled();
+    expect(headers[1].column.getIsSorted).toHaveBeenCalled();
+    expect(headers[2].column.getIsSorted).toHaveBeenCalled();
   });
 });

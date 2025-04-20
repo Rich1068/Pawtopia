@@ -120,20 +120,26 @@ describe("CartDropdown Component", () => {
         expect(screen.getByText("Shopping Cart")).toBeVisible();
       });
 
-      it("closes the cart dropdown when clicking on a product link", () => {
-        renderComponent();
-        fireEvent.click(screen.getByRole("button"));
-        const productLink = screen.getByRole("link", { name: /product 1/i });
-        fireEvent.click(productLink);
-        expect(screen.queryByText("Shopping Cart")).not.toBeInTheDocument();
-      });
-
       it("closes the cart dropdown when clicking on the 'Proceed to Checkout' button", () => {
         renderComponent();
         fireEvent.click(screen.getByRole("button"));
         const checkoutButton = screen.getByText("Proceed to Checkout");
         fireEvent.click(checkoutButton);
         expect(screen.queryByText("Shopping Cart")).not.toBeInTheDocument();
+      });
+      it("closes the cart dropdown when clicking on product name", () => {
+        renderComponent();
+
+        const cartButton = screen.getByRole("button");
+        fireEvent.click(cartButton);
+
+        const productName = screen.getByText("Product 1");
+        expect(productName).toBeInTheDocument();
+
+        fireEvent.click(productName);
+
+        const cartContent = screen.queryByText("Shopping Cart");
+        expect(cartContent).not.toBeInTheDocument();
       });
     });
 

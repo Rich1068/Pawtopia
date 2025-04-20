@@ -1,100 +1,146 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import { useSearchParams, useNavigate } from "react-router";
-import serverAPI from "../../helper/axios";
 import VerifyEmail from "../../pages/VerifyEmail";
 import "@testing-library/jest-dom";
 import { createWrapper } from "../../__mocks__/utils/testUtils";
+import * as verifyHooks from "../../hooks/useVerifyEmail";
 
-const wrapper = createWrapper();
-
-const renderComponent = () => {
-  return render(
-    wrapper({
-      children: <VerifyEmail />,
-    })
-  );
-};
-// Mock dependencies
 jest.mock("react-router", () => ({
   ...jest.requireActual("react-router"),
   useSearchParams: jest.fn(),
   useNavigate: jest.fn(),
 }));
 
-jest.mock("../../helper/axios");
+jest.mock("../../hooks/useVerifyEmail");
+
+const wrapper = createWrapper();
+
+const renderComponent = () =>
+  render(
+    wrapper({
+      children: <VerifyEmail />,
+    })
+  );
 
 describe("VerifyEmail Component", () => {
   const mockNavigate = jest.fn();
-  let mockSearchParams: URLSearchParams;
+  const mockUseVerifyEmailQuery = verifyHooks.useVerifyEmailQuery as jest.Mock;
+  const mockUseResendVerificationMutation =
+    verifyHooks.useResendVerificationMutation as jest.Mock;
 
-  const setup = (params = {}) => {
-    mockSearchParams = new URLSearchParams(params);
-    (useSearchParams as jest.Mock).mockReturnValue([mockSearchParams]);
+  const setup = ({
+    token = null,
+    verifyProps = {},
+    resendProps = {},
+  }: {
+    token?: string | null;
+    verifyProps?: any;
+    resendProps?: any;
+  } = {}) => {
+    const searchParams = new URLSearchParams();
+    if (token) searchParams.set("token", token);
+    (useSearchParams as jest.Mock).mockReturnValue([searchParams]);
     (useNavigate as jest.Mock).mockReturnValue(mockNavigate);
+
+    mockUseVerifyEmailQuery.mockReturnValue({
+      data: null,
+      isLoading: false,
+      isError: false,
+      error: null,
+      isSuccess: false,
+      ...verifyProps,
+    });
+
+    mockUseResendVerificationMutation.mockReturnValue({
+      mutate: jest.fn(),
+      isPending: false,
+      error: null,
+      ...resendProps,
+    });
+
     return renderComponent();
   };
 
   beforeEach(() => {
     jest.clearAllMocks();
     localStorage.clear();
-
-    (serverAPI.get as jest.Mock).mockResolvedValue({
-      data: { message: "Email verified!" },
-    });
-    (serverAPI.post as jest.Mock).mockResolvedValue({
-      data: { message: "Email resent!" },
-    });
   });
 
-  test("shows verification message by default", () => {
+  test("shows default verification message and resend button when no token", () => {
     setup();
     expect(screen.getByText("Please verify your email.")).toBeVisible();
     expect(screen.getByText("Resend Email")).toBeVisible();
   });
 
-  test("verifies email when token exists", async () => {
-    setup({ token: "test123" });
-
-    await waitFor(() => {
-      expect(serverAPI.get).toHaveBeenCalledWith(
-        "/api/verify-email?token=test123"
-      );
-      expect(screen.getByText("Email verified!")).toBeVisible();
+  test("displays success message when verification is successful", () => {
+    setup({
+      token: "test123",
+      verifyProps: {
+        data: { message: "Email verified!" },
+        isSuccess: true,
+      },
     });
+
+    expect(screen.getByText("Email verified!")).toBeVisible();
+    expect(screen.getByText("Go to Login")).toBeVisible();
   });
 
-  test("shows error when verification fails", async () => {
-    (serverAPI.get as jest.Mock).mockRejectedValue({
-      response: { data: { error: "Invalid token" } },
+  test("displays verification loading state", () => {
+    setup({
+      token: "test123",
+      verifyProps: { isLoading: true },
     });
 
-    setup({ token: "bad-token" });
-
-    await waitFor(() => {
-      expect(screen.getByText("Invalid token")).toBeVisible();
-    });
+    expect(screen.getByText("Verifying your email...")).toBeVisible();
   });
 
-  test("resends verification email", async () => {
+  test("displays verification error", () => {
+    setup({
+      token: "bad-token",
+      verifyProps: {
+        isError: true,
+        error: { response: { data: { error: "Invalid token" } } },
+      },
+    });
+
+    expect(screen.getByText("Invalid token")).toBeVisible();
+  });
+
+  test("resends verification email when button is clicked", async () => {
+    const mutateMock = jest.fn((_, options) =>
+      options.onSuccess?.({ message: "Email resent!" })
+    );
     localStorage.setItem("unverifiedEmail", "user@test.com");
-    setup(); // No token
+
+    setup({
+      resendProps: {
+        mutate: mutateMock,
+      },
+    });
 
     fireEvent.click(screen.getByText("Resend Email"));
 
     await waitFor(() => {
-      expect(serverAPI.post).toHaveBeenCalledWith("/api/resend-verification", {
-        email: "user@test.com",
-      });
+      expect(mutateMock).toHaveBeenCalledWith(
+        "user@test.com",
+        expect.any(Object)
+      );
+      expect(screen.getByText("Email resent!")).toBeVisible();
     });
   });
 
-  test("shows error when resend fails", async () => {
+  test("shows resend error if resend fails", async () => {
+    const mutateMock = jest.fn();
     localStorage.setItem("unverifiedEmail", "user@test.com");
-    (serverAPI.post as jest.Mock).mockRejectedValue({
-      response: { data: { error: "Resend failed" } },
+
+    setup({
+      resendProps: {
+        mutate: mutateMock,
+        error: { response: { data: { error: "Resend failed" } } },
+      },
     });
 
-    setup();
     fireEvent.click(screen.getByText("Resend Email"));
 
     await waitFor(() => {
@@ -102,12 +148,18 @@ describe("VerifyEmail Component", () => {
     });
   });
 
-  test("goes to login after verification", async () => {
-    setup({ token: "test123" });
-
-    await waitFor(() => {
-      fireEvent.click(screen.getByText("Go to Login"));
-      expect(mockNavigate).toHaveBeenCalledWith("/login");
+  test("navigates to login after successful verification", async () => {
+    setup({
+      token: "valid-token",
+      verifyProps: {
+        data: { message: "Email verified!" },
+        isSuccess: true,
+      },
     });
+
+    const loginButton = screen.getByText("Go to Login");
+    fireEvent.click(loginButton);
+
+    expect(mockNavigate).toHaveBeenCalledWith("/login");
   });
 });

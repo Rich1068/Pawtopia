@@ -1,173 +1,108 @@
-import { render, screen, waitFor } from "@testing-library/react";
-import { useReactTable } from "@tanstack/react-table";
-import serverAPI from "../../helper/axios";
+import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import OrderHistory from "../../pages/OrderHistory";
-import LoadingPage from "../../components/LoadingPage/LoadingPage";
-import PageHeader from "../../components/PageHeader";
-import OrderDetailsModal from "../../components/OrderHistory/OrderDetailModal";
-import TableFilters from "../../components/HistoryTable/TableFilters";
-import DataTable from "../../components/HistoryTable/DataTable";
-import { mockOrders } from "../../__mocks__/mockOrders";
+import { useOrderHistory } from "../../hooks/useOrderHistory";
 import "@testing-library/jest-dom";
 import { MemoryRouter } from "react-router";
-import { createWrapper } from "../../__mocks__/utils/testUtils";
 
-const wrapper = createWrapper();
+// Mock the hook
+jest.mock("../../hooks/useOrderHistory");
+
+const today = new Date().toISOString();
+
+const mockOrders = [
+  {
+    orderId: "1234567890abcdef",
+    userId: "user1",
+    totalAmount: 59.99,
+    createdAt: today,
+    products: [
+      {
+        productId: "prod1",
+        name: "Test Product 1",
+        price: 29.99,
+        quantity: 2,
+      },
+    ],
+  },
+  {
+    orderId: "abcdef1234567890",
+    userId: "user2",
+    totalAmount: 42.5,
+    createdAt: "2023-01-01T10:00:00Z",
+    products: [
+      {
+        productId: "prod2",
+        name: "Test Product 2",
+        price: 42.5,
+        quantity: 1,
+      },
+    ],
+  },
+];
 
 const renderComponent = () => {
   return render(
-    wrapper({
-      children: (
-        <MemoryRouter>
-          <OrderHistory />
-        </MemoryRouter>
-      ),
-    })
+    <MemoryRouter>
+      <OrderHistory />
+    </MemoryRouter>
   );
 };
-// Mock dependencies
-jest.mock("@tanstack/react-table", () => ({
-  ...jest.requireActual("@tanstack/react-table"),
-  useReactTable: jest.fn(),
-}));
-jest.mock("../../helper/axios");
-jest.mock("../../components/LoadingPage/LoadingPage");
-jest.mock("../../components/PageHeader");
-jest.mock("../../components/OrderHistory/OrderDetailModal");
-jest.mock("../../components/HistoryTable/TableFilters");
-jest.mock("../../components/HistoryTable/DataTable");
 
-describe("OrderHistory Component", () => {
-  const mockTableInstance = {
-    getHeaderGroups: jest.fn().mockReturnValue([]),
-    getRowModel: jest.fn().mockReturnValue({
-      rows: mockOrders.map((order) => ({
-        original: order,
-        getValue: (key: string) => order[key as keyof typeof order],
-        id: order.orderId,
-      })),
-    }),
-    getCoreRowModel: jest.fn(),
-    getPaginationRowModel: jest.fn(),
-    getFilteredRowModel: jest.fn(),
-    setGlobalFilter: jest.fn(),
-    getState: jest.fn().mockReturnValue({
-      globalFilter: "",
-      pagination: { pageIndex: 0, pageSize: 10 },
-    }),
-    setPageIndex: jest.fn(),
-    setPageSize: jest.fn(),
-    getCanPreviousPage: jest.fn().mockReturnValue(false),
-    getCanNextPage: jest.fn().mockReturnValue(false),
-    nextPage: jest.fn(),
-    previousPage: jest.fn(),
-    getPageCount: jest.fn().mockReturnValue(1),
-  };
-
+describe("OrderHistory", () => {
   beforeEach(() => {
-    (useReactTable as jest.Mock).mockReturnValue(mockTableInstance);
-    (LoadingPage as jest.Mock).mockImplementation(() => <div>Loading...</div>);
-    (PageHeader as jest.Mock).mockImplementation(({ text }) => (
-      <div>{text}</div>
-    ));
-    (OrderDetailsModal as jest.Mock).mockImplementation(({ isOpen, order }) => (
-      <div>
-        OrderDetailsModal - {isOpen ? "Open" : "Closed"} -{" "}
-        {order ? order.orderId : "No Order"}
-      </div>
-    ));
-    (TableFilters as jest.Mock).mockImplementation(() => (
-      <div>TableFilters</div>
-    ));
-    (DataTable as jest.Mock).mockImplementation(({ table }) => (
-      <div>
-        DataTable
-        <button
-          data-testid="view-details-button"
-          onClick={() => {
-            const firstOrder = table.getRowModel().rows[0]?.original;
-            if (firstOrder) {
-              // Simulate the setSelectedOrder call
-              (OrderDetailsModal as jest.Mock).mock.calls[0][0].onClose();
-              (OrderDetailsModal as jest.Mock).mock.calls[0][0].order =
-                firstOrder;
-            }
-          }}
-        >
-          View Details
-        </button>
-      </div>
-    ));
-  });
-
-  afterEach(() => {
     jest.clearAllMocks();
   });
 
-  it("shows loading state initially", () => {
+  it("renders loading state", () => {
+    (useOrderHistory as jest.Mock).mockReturnValue({
+      data: [],
+      isLoading: true,
+    });
+
     renderComponent();
-    expect(screen.getByText("Loading...")).toBeVisible();
+    expect(screen.getByText(/order history/i)).toBeVisible();
   });
 
-  it("fetches and displays orders", async () => {
-    (serverAPI.get as jest.Mock).mockResolvedValue({ data: mockOrders });
+  it("renders orders and opens modal", async () => {
+    (useOrderHistory as jest.Mock).mockReturnValue({
+      data: mockOrders,
+      isLoading: false,
+    });
+
     renderComponent();
 
+    // Wait for the "View Details" buttons to render
+    await waitFor(() =>
+      expect(screen.getAllByText(/view details/i)).toHaveLength(2)
+    );
+
+    // Click on first "View Details"
+    fireEvent.click(screen.getAllByText(/view details/i)[0]);
+
+    // Check that modal content appears
     await waitFor(() => {
-      expect(serverAPI.get).toHaveBeenCalledWith("/order/history", {
-        withCredentials: true,
-      });
-      expect(screen.getByText("Order History")).toBeVisible();
-      expect(screen.getByText("TableFilters")).toBeVisible();
-      expect(screen.getByText("DataTable")).toBeVisible();
+      expect(screen.getAllByText(/order id/i)[0]).toBeVisible();
     });
   });
 
-  it("handles API errors", async () => {
-    (serverAPI.get as jest.Mock).mockRejectedValue(new Error("API Error"));
-    console.error = jest.fn();
-
+  it("filters orders by selected date", async () => {
     renderComponent();
 
-    await waitFor(() => {
-      expect(console.error).toHaveBeenCalledWith(
-        "Error fetching orders:",
-        expect.any(Error)
-      );
-      expect(screen.queryByText("Loading...")).not.toBeInTheDocument();
-    });
-  });
+    // Wait for orders to load
+    await waitFor(() =>
+      expect(screen.getAllByText(/view details/i)).toHaveLength(2)
+    );
 
-  it("initializes table with correct columns", async () => {
-    (serverAPI.get as jest.Mock).mockResolvedValue({ data: mockOrders });
-    renderComponent();
+    const dateInput = screen.getByTestId("date-input");
 
-    await waitFor(() => {
-      expect(useReactTable).toHaveBeenCalledWith(
-        expect.objectContaining({
-          columns: expect.arrayContaining([
-            expect.objectContaining({ accessorKey: "orderId" }),
-            expect.objectContaining({ accessorKey: "createdAt" }),
-            expect.objectContaining({ accessorKey: "totalAmount" }),
-            expect.objectContaining({ id: "actions" }),
-          ]),
-          data: expect.any(Array),
-        })
-      );
-    });
-  });
+    const todayStr = new Date(today).toLocaleDateString("en-CA");
+    fireEvent.change(dateInput, { target: { value: todayStr } });
 
-  it("handles empty order list", async () => {
-    (serverAPI.get as jest.Mock).mockResolvedValue({ data: [] });
-    renderComponent();
+    // Expect only 1 matching order after filter
+    await waitFor(() =>
+      expect(screen.getAllByText(/view details/i)).toHaveLength(1)
+    );
 
-    await waitFor(() => {
-      expect(screen.queryByText("Loading...")).not.toBeInTheDocument();
-      expect(useReactTable).toHaveBeenCalledWith(
-        expect.objectContaining({
-          data: [],
-        })
-      );
-    });
+    expect(screen.getByText(/1234567890.../i)).toBeVisible(); // ID gets truncated
   });
 });

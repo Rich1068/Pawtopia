@@ -1,163 +1,152 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import CategorySelector from "../../../components/shop/Admin/AddProduct/CategorySelector";
 import { useCategories } from "../../../hooks/useCategories";
+import CategorySelector from "../../../components/shop/Admin/AddProduct/CategorySelector";
 import "@testing-library/jest-dom";
 
 jest.mock("../../../hooks/useCategories");
 
-const mockUseCategories = useCategories as jest.MockedFunction<
-  typeof useCategories
->;
+const mockedUseCategories = useCategories as jest.Mock;
 
-describe("CategorySelector Component", () => {
-  let setSelectedCategories: jest.Mock;
+const mockSetSelectedCategories = jest.fn();
 
+const renderComponent = (selectedCategories: string[] = []) => {
+  render(
+    <CategorySelector
+      selectedCategories={selectedCategories}
+      setSelectedCategories={mockSetSelectedCategories}
+    />
+  );
+};
+
+describe("CategorySelector", () => {
   beforeEach(() => {
-    setSelectedCategories = jest.fn();
-    mockUseCategories.mockReturnValue({
-      categories: ["Category1", "Category2"],
-      setCategories: jest.fn(),
-      loading: false,
-      error: null,
-    });
+    jest.clearAllMocks();
   });
 
-  test("renders correctly with default state", () => {
-    render(
-      <CategorySelector
-        selectedCategories={[]}
-        setSelectedCategories={setSelectedCategories}
-      />
-    );
-
-    expect(screen.getByText("Select or add categories")).toBeVisible();
-  });
-
-  test("displays existing categories when dropdown is open", () => {
-    render(
-      <CategorySelector
-        selectedCategories={[]}
-        setSelectedCategories={setSelectedCategories}
-      />
-    );
-
-    // Open the dropdown
-    fireEvent.click(screen.getByText("Select or add categories"));
-
-    expect(screen.getByText("Category1")).toBeVisible();
-    expect(screen.getByText("Category2")).toBeVisible();
-  });
-
-  test("selects a category when clicked", () => {
-    render(
-      <CategorySelector
-        selectedCategories={[]}
-        setSelectedCategories={setSelectedCategories}
-      />
-    );
-
-    fireEvent.click(screen.getByText("Select or add categories")); // Open dropdown
-    fireEvent.click(screen.getByText("Category1")); // Select category
-
-    expect(setSelectedCategories).toHaveBeenCalledWith(["Category1"]);
-  });
-
-  test("removes a selected category when remove button is clicked", () => {
-    render(
-      <CategorySelector
-        selectedCategories={["Category1"]}
-        setSelectedCategories={setSelectedCategories}
-      />
-    );
-
-    fireEvent.click(screen.getByText("✕")); // Click remove button
-
-    expect(setSelectedCategories).toHaveBeenCalledWith([]);
-  });
-
-  test("adds a new category", async () => {
-    const setCategories = jest.fn();
-    mockUseCategories.mockReturnValue({
-      categories: ["Category1"],
-      setCategories,
-      loading: false,
-      error: null,
-    });
-
-    render(
-      <CategorySelector
-        selectedCategories={[]}
-        setSelectedCategories={setSelectedCategories}
-      />
-    );
-
-    fireEvent.click(screen.getByText("Select or add categories")); // Open dropdown
-    fireEvent.change(screen.getByPlaceholderText("Enter new category"), {
-      target: { value: "NewCategory" },
-    });
-
-    fireEvent.click(screen.getByText("Add Category")); // Click Add Category button
-
-    await waitFor(() => {
-      expect(setCategories).toHaveBeenCalledWith(["Category1", "NewCategory"]); // Ensure new category is added
-      expect(setSelectedCategories).toHaveBeenCalledWith(["NewCategory"]); // Ensure category is selected
-    });
-  });
-
-  test("handles loading state", () => {
-    mockUseCategories.mockReturnValue({
+  it("renders loading state", () => {
+    mockedUseCategories.mockReturnValue({
       categories: [],
-      setCategories: jest.fn(),
       loading: true,
       error: null,
     });
 
-    render(
-      <CategorySelector
-        selectedCategories={[]}
-        setSelectedCategories={setSelectedCategories}
-      />
-    );
+    renderComponent();
 
-    fireEvent.click(screen.getByText("Select or add categories"));
+    fireEvent.click(screen.getByText(/select or add categories/i));
     expect(screen.getByText("Loading...")).toBeVisible();
   });
 
-  test("handles error state", () => {
-    mockUseCategories.mockReturnValue({
+  it("renders error state", () => {
+    mockedUseCategories.mockReturnValue({
       categories: [],
-      setCategories: jest.fn(),
       loading: false,
-      error: "Failed to load categories",
+      error: "Failed to fetch",
     });
 
-    render(
-      <CategorySelector
-        selectedCategories={[]}
-        setSelectedCategories={setSelectedCategories}
-      />
-    );
+    renderComponent();
 
-    fireEvent.click(screen.getByText("Select or add categories"));
-    expect(screen.getByText("Failed to load categories")).toBeVisible();
+    fireEvent.click(screen.getByText(/select or add categories/i));
+    expect(screen.getByText("Failed to fetch")).toBeVisible();
   });
 
-  test("toggles dropdown when clicked", () => {
-    render(
-      <CategorySelector
-        selectedCategories={[]}
-        setSelectedCategories={setSelectedCategories}
-      />
-    );
+  it("shows available categories in dropdown", async () => {
+    mockedUseCategories.mockReturnValue({
+      categories: ["Dogs", "Cats"],
+      loading: false,
+      error: null,
+    });
 
-    const dropdownButton = screen.getByText("Select or add categories");
+    renderComponent();
 
-    // Open dropdown
-    fireEvent.click(dropdownButton);
-    expect(screen.getByText("Category1")).toBeVisible();
+    fireEvent.click(screen.getByText(/select or add categories/i));
+    expect(screen.getByText("Dogs")).toBeVisible();
+    expect(screen.getByText("Cats")).toBeVisible();
+  });
 
-    // Close dropdown
-    fireEvent.click(dropdownButton);
-    expect(screen.queryByText("Category1")).not.toBeInTheDocument();
+  it("selects a category", async () => {
+    mockedUseCategories.mockReturnValue({
+      categories: ["Dogs"],
+      loading: false,
+      error: null,
+    });
+
+    renderComponent();
+
+    fireEvent.click(screen.getByText(/select or add categories/i));
+    fireEvent.click(screen.getByText("Dogs"));
+
+    expect(mockSetSelectedCategories).toHaveBeenCalledWith(["Dogs"]);
+  });
+
+  it("removes a selected category", () => {
+    mockedUseCategories.mockReturnValue({
+      categories: ["Dogs"],
+      loading: false,
+      error: null,
+    });
+
+    renderComponent(["Dogs"]);
+
+    const removeButton = screen.getByText("✕");
+    fireEvent.click(removeButton);
+
+    expect(mockSetSelectedCategories).toHaveBeenCalledWith([]);
+  });
+
+  it("adds a new category and selects it", async () => {
+    mockedUseCategories.mockReturnValue({
+      categories: [],
+      loading: false,
+      error: null,
+    });
+
+    renderComponent();
+
+    fireEvent.click(screen.getByText(/select or add categories/i));
+
+    const input = screen.getByPlaceholderText("Enter new category");
+    fireEvent.change(input, { target: { value: "birds" } });
+
+    const addButton = screen.getByText("Add Category");
+    fireEvent.click(addButton);
+
+    await waitFor(() => {
+      expect(mockSetSelectedCategories).toHaveBeenCalledWith(["Birds"]);
+    });
+  });
+
+  it("does not add duplicate categories", async () => {
+    mockedUseCategories.mockReturnValue({
+      categories: ["Birds"],
+      loading: false,
+      error: null,
+    });
+
+    renderComponent(["Birds"]);
+
+    fireEvent.click(screen.getByText(/birds/i)); // open dropdown
+    const input = screen.getByPlaceholderText("Enter new category");
+
+    fireEvent.change(input, { target: { value: "birds" } });
+    fireEvent.click(screen.getByText("Add Category"));
+
+    expect(mockSetSelectedCategories).toHaveBeenCalledTimes(0);
+  });
+
+  it("toggles dropdown open/close", () => {
+    mockedUseCategories.mockReturnValue({
+      categories: ["Birds"],
+      loading: false,
+      error: null,
+    });
+
+    renderComponent();
+
+    const toggleButton = screen.getByText("▼");
+    fireEvent.click(toggleButton);
+    expect(screen.getByText("Birds")).toBeVisible();
+
+    fireEvent.click(screen.getByText("▲"));
+    expect(screen.queryByText("Birds")).not.toBeInTheDocument();
   });
 });
