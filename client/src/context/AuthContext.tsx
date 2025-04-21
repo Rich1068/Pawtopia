@@ -8,7 +8,6 @@ import {
 import type { User, AuthContextType } from "../types/Types";
 import LoadingPage from "../components/LoadingPage/LoadingPage";
 import serverAPI from "../helper/axios";
-import SERVER_URL from "../helper/envVariables";
 
 export let globalLogout: (() => void) | null = null;
 
@@ -29,8 +28,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         console.warn(
           "User data is null. The user is either not logged in or session expired."
         );
-      } else if (data?.user?.profileImage) {
-        data.user.profileImage = SERVER_URL + data.user.profileImage;
       }
 
       setUser(data?.user || null);

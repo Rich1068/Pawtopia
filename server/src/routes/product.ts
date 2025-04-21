@@ -21,7 +21,7 @@ product.get("/get-categories", getCategory);
 product.post(
   "/:id/upload-images",
   adminAuth,
-  uploadFile("product_pic").array("images", 5),
+  uploadFile.array("images", 5),
   uploadImage
 );
 product.post("/add-product", adminAuth, addProduct);

@@ -4,7 +4,7 @@ import Product from "../models/Product";
 import { AuthRequest, ICartProduct, IProduct } from "../Types/Types";
 import mongoose from "mongoose";
 import Stripe from "stripe";
-import { checkIfImageExists } from "../helpers/image";
+import cloudinary from "../../cloudinary";
 import Order from "../models/Order";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
@@ -171,7 +171,8 @@ export const cartCheckout = async (req: AuthRequest, res: Response) => {
       res.status(400).json({ error: "Some products are no longer available" });
       return;
     }
-
+    const fallbackImageUrl =
+      process.env.CLIENT_URL + "/public/assets/img/Logo1.png";
     // Format line items for Stripe
     const lineItems = await Promise.all(
       products.map(async (item: ICartProduct) => {
@@ -181,10 +182,19 @@ export const cartCheckout = async (req: AuthRequest, res: Response) => {
           "images" in item.productId &&
           "price" in item.productId
         ) {
-          const imagePath = process.env.SERVER_URL + item.productId.images?.[0];
-          const imageUrl = (await checkIfImageExists(imagePath))
-            ? imagePath
-            : process.env.CLIENT_URL + "/public/assets/img/Logo1.png";
+          const imagePublicId = item.productId.images?.[0]; // Cloudinary's public_id
+
+          // Generate Cloudinary URL
+          let imageUrl = fallbackImageUrl; // Default to fallback image
+          if (imagePublicId) {
+            try {
+              // Check if Cloudinary URL exists (You could add your own validation logic here)
+              imageUrl = cloudinary.url(imagePublicId);
+            } catch (error) {
+              console.warn("Cloudinary image URL generation failed:", error);
+              imageUrl = fallbackImageUrl; // Use fallback image on error
+            }
+          }
           return {
             price_data: {
               currency: "usd",

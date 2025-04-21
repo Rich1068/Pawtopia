@@ -1,7 +1,5 @@
 import { Response, Request } from "express";
 import Product from "../models/Product";
-import path from "path";
-import fs from "fs";
 import {
   checkDuplicateProduct,
   deleteRemovedImages,
@@ -10,6 +8,9 @@ import {
 } from "../helpers/productValidation";
 import Cart from "../models/Cart";
 import Order from "../models/Order";
+import cloudinary from "../../cloudinary";
+import streamifier from "streamifier";
+import { extractPublicIdFromUrl } from "../helpers/productValidation";
 
 export const getCategory = async (req: Request, res: Response) => {
   const categories = await Product.distinct("category"); // Fetch unique categories
@@ -21,23 +22,47 @@ export const uploadImage = async (
   res: Response
 ): Promise<void> => {
   const productId = req.params.id;
-  const imagePaths = (req.files as Express.Multer.File[]).map((file) =>
-    file.path.replace(/^src/, "")
-  );
+
+  if (!req.files || (req.files as Express.Multer.File[]).length === 0) {
+    res.status(400).json({ error: "No images uploaded" });
+    return;
+  }
 
   try {
+    const uploadPromises = (req.files as Express.Multer.File[]).map(
+      (file) =>
+        new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+            {
+              folder: "product_images",
+            },
+            (error, result) => {
+              if (error) return reject(error);
+              resolve(result);
+            }
+          );
+          streamifier.createReadStream(file.buffer).pipe(stream);
+        })
+    );
+
+    const results = await Promise.all(uploadPromises);
+
+    const imageUrls = results.map((result: any) => result.secure_url);
+
     const product = await Product.findById(productId);
     if (!product) {
       res.status(404).json({ error: "Product not found" });
       return;
     }
 
-    product.images.push(...imagePaths);
+    product.images.push(...imageUrls);
+
     await product.save();
 
-    res
-      .status(200)
-      .json({ message: "Images uploaded", images: product.images });
+    res.status(200).json({
+      message: "Images uploaded successfully",
+      images: product.images,
+    });
   } catch (error) {
     console.error("Upload failed:", error);
     res.status(500).json({ error: "Failed to upload images" });
@@ -226,14 +251,25 @@ export const deleteProduct = async (req: Request, res: Response) => {
     }
 
     if (product.images && product.images.length > 0) {
-      product.images.forEach((imagePath: string) => {
-        const fullPath = path.join(__dirname, "../../src", imagePath);
-        fs.unlink(fullPath, (err) => {
-          if (err) {
-            console.warn("Failed to delete image:", fullPath, err.message);
+      for (const image of product.images) {
+        const publicId = extractPublicIdFromUrl(image);
+
+        try {
+          const result = await cloudinary.uploader.destroy(publicId);
+          console.log(`Successfully deleted image: ${publicId}`, result);
+        } catch (err: unknown) {
+          if (err instanceof Error) {
+            console.warn(
+              "Failed to delete image from Cloudinary:",
+              publicId,
+              err.message
+            );
+          } else {
+            // Handle the case when the error is not of type `Error`
+            console.warn("An unknown error occurred:", publicId, err);
           }
-        });
-      });
+        }
+      }
     }
 
     await Cart.updateMany(

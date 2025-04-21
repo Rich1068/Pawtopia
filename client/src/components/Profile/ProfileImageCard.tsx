@@ -7,7 +7,6 @@ import { useUploadProfileImage } from "../../hooks/useProfile";
 const ProfileImageCard: FC<{ user: User }> = ({ user }) => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const uploadMutation = useUploadProfileImage();
-
   const handleImageSave = (image: File | null) => {
     if (image) {
       uploadMutation.mutate({ userId: user._id, image });

@@ -1,6 +1,5 @@
-import path from "path";
-import fs from "fs";
 import Product from "../models/Product";
+import cloudinary from "../../cloudinary";
 
 export const sanitizeProductData = (data: any) => {
   const { name, category, description, price, images } = data;
@@ -34,19 +33,26 @@ export const checkDuplicateProduct = async (
   return productExists ? "Product with this name already exists" : null;
 };
 
-export const deleteRemovedImages = (
+export const deleteRemovedImages = async (
   oldImages: string[],
   newImages: string[]
 ) => {
   const removedImages = oldImages.filter((img) => !newImages.includes(img));
-  removedImages.forEach((image) => {
-    const imagePath = path.join(
-      __dirname,
-      "../../src/assets/img/product_pic",
-      path.basename(image)
-    );
-    fs.unlink(imagePath, (err) => {
-      if (err) console.error("Error deleting image:", err);
-    });
-  });
+
+  for (const image of removedImages) {
+    const publicId = extractPublicIdFromUrl(image);
+
+    try {
+      const result = await cloudinary.uploader.destroy(publicId);
+      console.log(`Successfully deleted image: ${publicId}`, result);
+    } catch (err) {
+      console.error("Error deleting image from Cloudinary:", err);
+    }
+  }
+};
+
+export const extractPublicIdFromUrl = (url: string): string => {
+  const regex = /\/upload\/(?:v\d+\/)?(.+?)\.[^/.]+$/;
+  const match = url.match(regex);
+  return match ? match[1] : "";
 };

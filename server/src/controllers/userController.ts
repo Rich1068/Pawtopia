@@ -3,9 +3,10 @@ import User from "../models/User";
 import { AuthRequest } from "../Types/Types";
 import { hashPassword, comparePassword } from "../helpers/auth";
 import { validateEdit, validateEditPassword } from "../helpers/validation";
-import fs from "fs";
-import path from "path";
+import cloudinary from "../../cloudinary";
 import Favorite from "../models/Favorite";
+import streamifier from "streamifier";
+import { UploadApiResponse } from "cloudinary";
 
 export const getUser = async (req: AuthRequest, res: Response) => {
   try {
@@ -88,21 +89,68 @@ export const uploadProfileImage = async (
       res.status(400).json({ error: "No file uploaded" });
       return;
     }
+
     const userId = req.body.userId;
     const user = await User.findById(userId);
-    const imagePath = `/assets/img/profile_pic/${req.file.filename}`;
-    if (user?.profileImage) {
-      const oldImagePath = path.join(__dirname, "..", user.profileImage);
-      if (fs.existsSync(oldImagePath)) {
-        fs.unlinkSync(oldImagePath); // Delete the old image
+
+    if (!user) {
+      res.status(404).json({ error: "User not found" });
+      return;
+    }
+
+    // Check if there's an existing profile image
+    if (user.profileImage) {
+      const oldImageUrl = user.profileImage;
+      const oldPublicId = oldImageUrl
+        .split("/")
+        .slice(-2)
+        .join("/")
+        .replace(/\.[^/.]+$/, "");
+
+      if (oldPublicId) {
+        try {
+          const deleteResult = await cloudinary.uploader.destroy(oldPublicId);
+          console.log("Old image deleted:", deleteResult);
+        } catch (deleteError) {
+          console.error(
+            "Failed to delete old image from Cloudinary:",
+            deleteError
+          );
+        }
       }
     }
-    await User.findByIdAndUpdate(userId, { profileImage: imagePath }).exec();
-    res.json({ message: "Image Uploaded Successfully", imageUrl: imagePath });
+
+    // Upload new image to Cloudinary
+    const result: UploadApiResponse = await new Promise((resolve, reject) => {
+      const stream = cloudinary.uploader.upload_stream(
+        {
+          folder: "profile_images",
+        },
+        (error, result) => {
+          if (error || !result) {
+            return reject(error || new Error("Upload failed"));
+          }
+          resolve(result);
+        }
+      );
+      streamifier.createReadStream(req.file!.buffer).pipe(stream);
+    });
+
+    const imageUrl = result.secure_url;
+
+    user.profileImage = imageUrl;
+    await user.save();
+
+    res.json({
+      message: "Image uploaded successfully",
+      imageUrl,
+    });
   } catch (error) {
+    console.error("Upload error:", error);
     res.status(500).json({ error: "Server error" });
   }
 };
+
 export const getUserFavorites = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.userId;
