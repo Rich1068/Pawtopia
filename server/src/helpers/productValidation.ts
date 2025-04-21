@@ -1,5 +1,5 @@
 import Product from "../models/Product";
-import cloudinary from "../../cloudinary";
+import cloudinary from "../utils/cloudinary";
 
 export const sanitizeProductData = (data: any) => {
   const { name, category, description, price, images } = data;

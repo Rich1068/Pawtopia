@@ -4,7 +4,7 @@ import Product from "../models/Product";
 import { AuthRequest, ICartProduct, IProduct } from "../Types/Types";
 import mongoose from "mongoose";
 import Stripe from "stripe";
-import cloudinary from "../../cloudinary";
+import cloudinary from "../utils/cloudinary";
 import Order from "../models/Order";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);

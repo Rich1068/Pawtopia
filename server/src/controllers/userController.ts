@@ -3,7 +3,7 @@ import User from "../models/User";
 import { AuthRequest } from "../Types/Types";
 import { hashPassword, comparePassword } from "../helpers/auth";
 import { validateEdit, validateEditPassword } from "../helpers/validation";
-import cloudinary from "../../cloudinary";
+import cloudinary from "../utils/cloudinary";
 import Favorite from "../models/Favorite";
 import streamifier from "streamifier";
 import { UploadApiResponse } from "cloudinary";

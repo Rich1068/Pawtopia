@@ -8,7 +8,7 @@ import {
 } from "../helpers/productValidation";
 import Cart from "../models/Cart";
 import Order from "../models/Order";
-import cloudinary from "../../cloudinary";
+import cloudinary from "../utils/cloudinary";
 import streamifier from "streamifier";
 import { extractPublicIdFromUrl } from "../helpers/productValidation";
 
