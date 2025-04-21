@@ -1,34 +1,59 @@
-# Pawtopia 🐾
+# 🐾 Pawtopia
 
-<hr>
-Pawtopia is a comprehensive pet platform that combines an ePet Shop and an Adoption Center to connect pet lovers with their perfect companions. Whether you're looking to buy pet supplies or adopt a furry friend, Pawtopia makes the process simple and enjoyable.
+**Pawtopia** is a full-featured pet care platform that combines an **ePet Shop** and an **Adoption Center**, making it easier than ever for pet lovers to find everything they need—from pet supplies to their future furry companions.
 
-### Features:
+## ✨ Features
 
-- User authentication and authorization with JWT
-- Profile Managment
-- Display pets for adoption
-- Display pet products for sale (Admin)
-- Users can view products and pets and their respective information with the option to adopt/buy
-- Users can search, filter, sort products/pets
-- And More.
+- 🔐 **Secure Authentication & Authorization**  
+  JWT-based user login and registration for protected access
+
+- 👤 **User Profile Management**  
+  Update personal details and profile images with ease
+
+- 🐶 **Pet Adoption Center**  
+  Browse adoptable pets with detailed descriptions and images
+
+- 🛒 **Pet Products Store**  
+  Admins can add/edit pet products; users can browse and purchase
+
+- 🔎 **Smart Search, Filters & Sorting**  
+  Easily find pets or products using category, keywords, and other filters
+
+- ❤️ **Favorites & Order/Adoption History**  
+  Save favorite pets and view past activity
+
+- 💳 **Stripe Checkout Integration**  
+  Secure and smooth payment experience with real-time order creation
+
+- ☁️ **Image Upload with Cloudinary**  
+  Product and profile image uploads with cloud storage support
+
+- 📱 **Responsive Design**  
+  Optimized UI for both desktop and mobile devices
+
+## 💡 Why Pawtopia?
+
+Whether you’re looking to adopt a pet or shop for your current companion, **Pawtopia** provides a seamless, heartwarming, and user-friendly experience — all in one place.
 
 ## Built With
 
 ### Front-End:
 
-- [![React][React.js]][React-url]
-- [![TailwindCSS][tailwind]][tailwind-url]
+[![React][React.js]][React-url]
+
+[![TailwindCSS][tailwind]][tailwind-url]
 
 ### Back-End:
 
-- [![Express.js][expressJS]][express-url]
-- [![NodeJS][nodejs]][nodejs-url]
-- [![MongoDB][mongodb]][mongodb-url]
+[![Express.js][expressJS]][express-url]
+
+[![NodeJS][nodejs]][nodejs-url]
+
+[![MongoDB][mongodb]][mongodb-url]
 
 ### Testing:
 
-- [![Playwright][playwright]][playwright-url]
+[![Jest][jest]][jest-url]
 
 ## Getting Started
 
@@ -36,46 +61,59 @@ Steps on how to run Locally
 
 ### Installation
 
-1. Get a DB connection key from MongoDB Atlas
-2. Clone or Download the repository
-3. Install client npm packages
+How to get the Keys:
 
-   ```console
-   cd client/
-   npm install
-   ```
+- ##### DB connection key: from MongoDB Atlas by registering an account on https://www.mongodb.com/products/platform/atlas-database and creating a database
+- ##### SMTP Gmail ACC and PASS: ACC is the email that you will use to send emails to users and PASS is the app passoword from gmail
+- ##### STRIPE SECRET, WEBHOOK KEY: Create an account in STRIPE and get the secret key from there. As for the Webhook key follow this document https://docs.stripe.com/webhooks
+- ##### API-KEY: This is the API key for the rescuegroup api. Fill up this form to receive the key https://rescuegroups.org/services/request-an-api-key/
+- ##### Cloudinary NAME, KEY, and SECRET: Create a Cloudinary account and get your keys on the API keys page
 
-4. Rename the .env.example on client folder to .env and add the keys
+  1. Clone or Download the repository
 
-   ```console
-   BASE_URL = http://localhost:5173
-   ```
+  2. Install client npm packages
 
-5. Install server npm packages
+  ```console
+  cd client/
+  npm install
+  ```
 
-   ```console
-   cd server/
-   npm install
-   ```
+  3. Rename the .env.example on client folder to .env and add the keys
 
-6. Rename the .env.example on server folder to .env and add the keys
-   ```console
-   ...
-   DB_CONNECTION = MongoDB connection key
-   ...
-   ```
-7. Run the client
+  ```console
+  BASE_URL = http://localhost:5173
+  ```
 
-   ```console
-   cd client/
-   npm run dev
-   ```
+  4. Install server npm packages
 
-8. Run the server on another terminal
-   ```console
-   cd server/
-   npm run dev
-   ```
+  ```console
+  cd server/
+  npm install
+  ```
+
+  5. Rename the .env.example on server folder to .env and add the keys
+
+  ```console
+  ...
+  DB_CONNECTION = MongoDB connection key
+  ...
+  ```
+
+  6. Run the client
+
+  ```console
+  cd client/
+  npm run dev
+  ```
+
+  7. Run the server on another terminal
+
+  ```console
+  cd server/
+  npm run dev
+  ```
+
+  8.  you can now visit localhost:5173 to see if all are running without errors
 
 [React.js]: https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB
 [React-url]: https://reactjs.org/
@@ -87,5 +125,5 @@ Steps on how to run Locally
 [mongodb-url]: https://www.mongodb.com/
 [nodejs]: https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white
 [nodejs-url]: https://nodejs.org/en
-[playwright]: https://img.shields.io/badge/-playwright-%232EAD33?style=for-the-badge&logo=playwright&logoColor=white
-[playwright-url]: https://playwright.dev/
+[jest]: https://img.shields.io/badge/Jest-323330?style=for-the-badge&logo=Jest&logoColor=white
+[jest-url]: https://jestjs.io/
