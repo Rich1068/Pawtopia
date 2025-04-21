@@ -1,5 +1,11 @@
 import { FC, JSX } from "react";
-import { ShoppingCart, PawPrint, Clock, DollarSign } from "lucide-react";
+import {
+  ShoppingCart,
+  PawPrint,
+  Clock,
+  DollarSign,
+  LoaderCircle,
+} from "lucide-react";
 import { useAdminStats } from "../../hooks/useDashboardStats";
 
 interface DashboardCardProps {
@@ -37,11 +43,8 @@ const DashboardCards: FC = () => {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-40">
-        <p
-          role="status"
-          className="animate-spin rounded-full h-8 w-8 border-t-4 border-orange-500"
-        ></p>
+      <div className="flex justify-center items-center text-orange-500 animate-spin">
+        <LoaderCircle />
       </div>
     );
   }
